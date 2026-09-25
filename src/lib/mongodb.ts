@@ -18,6 +18,7 @@ if (!globalWithMongo._mongoClientPromise) {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 8000,
     socketTimeoutMS: 45000,
+    autoSelectFamily: false,
   });
   globalWithMongo._mongoClientPromise = client.connect();
 }
