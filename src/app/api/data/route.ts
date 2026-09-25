@@ -33,6 +33,7 @@ export async function GET(request: Request) {
       donorHotels,
       donorFeedback,
       complaints,
+      managerOverride,
     ] = await Promise.all([
       db.collection("institutions").find({}).toArray(),
       db.collection("demand_history").find({}).toArray(),
@@ -51,6 +52,7 @@ export async function GET(request: Request) {
       db.collection("donor_hotels").find({}).toArray(),
       db.collection("donor_feedback").find({}).sort({ createdAt: -1 }).toArray(),
       db.collection("complaints").find({}).sort({ createdAt: -1 }).toArray(),
+      db.collection("manager_overrides").findOne({ active: true }, { sort: { createdAt: -1 } }),
     ]);
 
     return NextResponse.json({
@@ -73,6 +75,13 @@ export async function GET(request: Request) {
         donorHotels,
         donorFeedback,
         complaints,
+        managerOverride: managerOverride
+          ? {
+              meals: managerOverride.meals,
+              reason: managerOverride.reason,
+              active: managerOverride.active ?? true,
+            }
+          : null,
       },
     });
   } catch (error) {

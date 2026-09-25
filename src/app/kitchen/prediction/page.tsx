@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useApp } from "@/context/AppContext";
 import {
   BrainCircuit,
@@ -33,6 +33,16 @@ export default function KitchenPredictionPage() {
     managerOverride ? managerOverride.reason : "Known attendance change"
   );
   const [feedbackSaved, setFeedbackSaved] = useState(false);
+
+  // Sync inputs when managerOverride is loaded from DB or localStorage
+  useEffect(() => {
+    if (managerOverride) {
+      setOverrideMeals(managerOverride.meals);
+      if (managerOverride.reason) {
+        setOverrideReason(managerOverride.reason);
+      }
+    }
+  }, [managerOverride]);
 
   // Compute date details dynamically
   const { dayOfWeek, formattedDate, isToday, isTomorrow, dateTitle } = useMemo(() => {
@@ -153,7 +163,8 @@ export default function KitchenPredictionPage() {
       confidence = 90;
     }
 
-    const totalTarget = breakfast + lunch + snacks + dinner;
+    const effectiveLunch = isOverrideActive && managerOverride ? managerOverride.meals : lunch;
+    const totalTarget = breakfast + effectiveLunch + snacks + dinner;
     const breakdown = [
       {
         meal: "Breakfast (07:30 - 09:30)",
@@ -163,9 +174,13 @@ export default function KitchenPredictionPage() {
       },
       {
         meal: "Lunch (12:30 - 14:30)",
-        predicted: lunch,
+        predicted: effectiveLunch,
         lastWeek: lunch + 20,
-        suggestion: dow === "friday" ? "Prep 10% lower rice volume" : "Full buffet deployment",
+        suggestion: isOverrideActive && managerOverride
+          ? `Manager Override: ${managerOverride.reason}`
+          : dow === "friday"
+          ? "Prep 10% lower rice volume"
+          : "Full buffet deployment",
       },
       {
         meal: "Evening Snacks (17:00 - 18:00)",
@@ -188,7 +203,7 @@ export default function KitchenPredictionPage() {
       confidence,
       breakdown,
     };
-  }, [dayOfWeek]);
+  }, [dayOfWeek, isOverrideActive, managerOverride]);
 
   // Friday pattern mini data
   const fridayPatternData = [

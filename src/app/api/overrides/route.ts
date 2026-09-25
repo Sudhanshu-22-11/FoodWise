@@ -13,9 +13,13 @@ export async function POST(request: Request) {
 
     const db = await getDb();
 
+    // Deactivate previous overrides so only the latest is active
+    await db.collection("manager_overrides").updateMany({ active: true }, { $set: { active: false } });
+
     const override = {
-      meals,
-      reason,
+      meals: Number(meals),
+      reason: String(reason),
+      active: true,
       createdAt: new Date(),
     };
 
@@ -25,7 +29,7 @@ export async function POST(request: Request) {
     await db.collection("notifications").insertOne({
       notifId: `notif-${Date.now()}`,
       title: "Prediction Human Override Applied",
-      message: `Manager adjusted tomorrow's target to ${meals} meals (Reason: ${reason}). Model feedback recorded for continuous learning.`,
+      message: `Manager adjusted target to ${meals} meals (Reason: ${reason}). Model feedback recorded for continuous learning.`,
       time: "Just now",
       severity: "info",
       category: "Kitchen",
@@ -40,12 +44,12 @@ export async function POST(request: Request) {
   }
 }
 
-// GET — retrieve latest override
+// GET — retrieve latest active override
 export async function GET() {
   try {
     const db = await getDb();
-    const override = await db.collection("manager_overrides").findOne({ active: { $ne: false } }, { sort: { createdAt: -1 } });
-    return NextResponse.json({ success: true, data: override });
+    const override = await db.collection("manager_overrides").findOne({ active: true }, { sort: { createdAt: -1 } });
+    return NextResponse.json({ success: true, data: override || null });
   } catch (error) {
     console.error("Override GET error:", error);
     return NextResponse.json({ error: "Failed to fetch override" }, { status: 500 });
@@ -56,7 +60,7 @@ export async function GET() {
 export async function DELETE() {
   try {
     const db = await getDb();
-    await db.collection("manager_overrides").updateMany({}, { $set: { active: false, deactivatedAt: new Date() } });
+    await db.collection("manager_overrides").updateMany({ active: true }, { $set: { active: false, deactivatedAt: new Date() } });
     return NextResponse.json({ success: true, message: "Overrides deactivated" });
   } catch (error) {
     console.error("Override DELETE error:", error);

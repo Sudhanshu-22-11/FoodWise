@@ -77,7 +77,7 @@ const NGO_COORDS: Record<string, { lat: number; lng: number; traffic: "low" | "m
 };
 
 export default function KitchenDashboardPage() {
-  const { setIsNotificationOpen, managerOverride, saveManagerOverride, unreadCount, rankedHotels, donorFeedback, getHotelRank } = useApp();
+  const { setIsNotificationOpen, managerOverride, isOverrideActive, saveManagerOverride, unreadCount, rankedHotels, donorFeedback, getHotelRank } = useApp();
   const [selectedShift, setSelectedShift] = useState<"Morning" | "Afternoon" | "Evening">("Afternoon");
   const [appliedSuggestion, setAppliedSuggestion] = useState<string | null>(null);
   const [selectedNgoDirection, setSelectedNgoDirection] = useState<NgoDirectionData | null>(null);
@@ -177,7 +177,7 @@ export default function KitchenDashboardPage() {
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
             {timePeriod === "Today"
-              ? (managerOverride ? managerOverride.meals.toLocaleString() : "847")
+              ? (isOverrideActive && managerOverride ? managerOverride.meals.toLocaleString() : "847")
               : timePeriod === "This Week"
               ? "5,820"
               : "24,650"}

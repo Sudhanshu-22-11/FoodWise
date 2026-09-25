@@ -312,11 +312,48 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             );
           }
 
+          // Hydrate manager override from DB
+          if (d.managerOverride && d.managerOverride.active !== false) {
+            const ov = {
+              meals: Number(d.managerOverride.meals),
+              reason: (d.managerOverride.reason as string) || "Known attendance change",
+            };
+            setManagerOverride(ov);
+            setIsOverrideActive(true);
+            try {
+              localStorage.setItem("foodwise_manager_override", JSON.stringify({ ...ov, active: true }));
+            } catch {
+              // ignore
+            }
+          } else if (d.managerOverride === null) {
+            setManagerOverride(null);
+            setIsOverrideActive(false);
+            try {
+              localStorage.removeItem("foodwise_manager_override");
+            } catch {
+              // ignore
+            }
+          }
+
           console.log("✅ FoodWise: Data loaded from MongoDB");
         }
       } catch (err) {
         console.warn("⚠️ FoodWise: Could not load from MongoDB, using local mock data.", err);
       }
+    }
+
+    // Immediately restore manager override from localStorage on initial render
+    try {
+      const stored = localStorage.getItem("foodwise_manager_override");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed.meals === "number" && parsed.active) {
+          setManagerOverride({ meals: parsed.meals, reason: parsed.reason || "Known attendance change" });
+          setIsOverrideActive(true);
+        }
+      }
+    } catch {
+      // ignore
     }
 
     loadFromDb();
@@ -447,20 +484,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [addNotification]);
 
   const saveManagerOverride = useCallback((meals: number, reason: string) => {
-    setManagerOverride({ meals, reason });
+    const numMeals = Number(meals);
+    setManagerOverride({ meals: numMeals, reason });
     setIsOverrideActive(true);
+
+    try {
+      localStorage.setItem("foodwise_manager_override", JSON.stringify({ meals: numMeals, reason, active: true }));
+    } catch {
+      // ignore
+    }
 
     // Persist to MongoDB
     apiCall("/api/overrides", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ meals, reason }),
+      body: JSON.stringify({ meals: numMeals, reason }),
     });
 
     const newNotif: NotificationAlert = {
       id: `notif-${Date.now()}`,
       title: "Prediction Human Override Applied",
-      message: `Manager adjusted target to ${meals} meals (Reason: ${reason}). Model feedback recorded for continuous learning.`,
+      message: `Manager adjusted target to ${numMeals} meals (Reason: ${reason}). Model feedback recorded for continuous learning.`,
       time: "Just now",
       severity: "info",
       category: "Kitchen",
@@ -472,6 +516,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const clearManagerOverride = useCallback(() => {
     setManagerOverride(null);
     setIsOverrideActive(false);
+
+    try {
+      localStorage.removeItem("foodwise_manager_override");
+    } catch {
+      // ignore
+    }
 
     // Deactivate in MongoDB
     apiCall("/api/overrides", {
@@ -489,6 +539,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
     addNotification(newNotif);
   }, [addNotification]);
+
+  const handleSetIsOverrideActive = useCallback((active: boolean) => {
+    if (!active) {
+      clearManagerOverride();
+    } else {
+      setIsOverrideActive(true);
+      if (managerOverride) {
+        saveManagerOverride(managerOverride.meals, managerOverride.reason);
+      }
+    }
+  }, [clearManagerOverride, managerOverride, saveManagerOverride]);
 
   const acceptNgoPickup = useCallback((itemId: string) => {
     setAcceptedPickups((prev) => [...prev, itemId]);
@@ -621,7 +682,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         assignTechnician,
         managerOverride,
         isOverrideActive,
-        setIsOverrideActive,
+        setIsOverrideActive: handleSetIsOverrideActive,
         saveManagerOverride,
         clearManagerOverride,
         acceptedPickups,
