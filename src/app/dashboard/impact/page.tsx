@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useApp } from "@/context/AppContext";
 import { ESG_DATA } from "@/lib/mockData";
 import CountUp from "@/components/common/CountUp";
 import {
@@ -34,6 +36,24 @@ import {
 } from "recharts";
 
 export default function SustainabilityImpactPage() {
+  const { currentRole } = useApp();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("view") !== "all") {
+        if (currentRole === "FACTORY_MANAGER") {
+          router.replace("/factory/reports");
+        } else if (currentRole === "NGO_PARTNER") {
+          router.replace("/ngo/reports");
+        } else if (currentRole === "KITCHEN_MANAGER") {
+          router.replace("/kitchen/reports");
+        }
+      }
+    }
+  }, [currentRole, router]);
+
   return (
     <div className="space-y-8">
         {/* HEADER */}

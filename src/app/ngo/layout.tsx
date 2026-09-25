@@ -1,13 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Sidebar from "@/components/layout/Sidebar";
+import { useApp } from "@/context/AppContext";
 
 export default function NgoLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { setCurrentRole } = useApp();
+
+  useEffect(() => {
+    setCurrentRole("NGO_PARTNER");
+  }, [setCurrentRole]);
+
   return (
     <div className="min-h-screen flex" style={{ background: "#F4F6FA" }}>
       <Sidebar type="ngo" />

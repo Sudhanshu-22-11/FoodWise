@@ -94,11 +94,11 @@ export default function ByproductRecoveryPage() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/dashboard/impact"
+            href="/factory/reports"
             className="px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center gap-1.5"
           >
             <BarChart3 className="w-3.5 h-3.5 text-emerald-600" />
-            View ESG Carbon Report →
+            View Factory Reports →
           </Link>
         </div>
       </div>
