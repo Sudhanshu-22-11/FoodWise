@@ -39,18 +39,9 @@ export default function Navbar() {
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div
-            className="w-10 h-10 rounded-xl p-0.5 group-hover:scale-105 transition-transform"
-            style={{
-              background: "linear-gradient(135deg, #10B981, #10B981)",
-              boxShadow: "0 4px 12px rgba(99,102,241,0.2)",
-            }}
+            className="w-10 h-10 rounded-xl overflow-hidden group-hover:scale-105 transition-transform bg-white border border-[#E8ECF3] shadow-sm flex items-center justify-center p-1"
           >
-            <div
-              className="w-full h-full rounded-[10px] flex items-center justify-center"
-              style={{ background: "#FFFFFF" }}
-            >
-              <Sparkles className="w-5 h-5" style={{ color: "#10B981" }} />
-            </div>
+            <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-2">

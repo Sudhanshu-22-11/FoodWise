@@ -136,12 +136,9 @@ function SidebarContent({ type }: SidebarProps) {
       >
         <Link href="/" className="flex items-center gap-3 group">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-950/50 group-hover:scale-105 transition-transform"
-            style={{
-              background: `linear-gradient(135deg, #10B981 0%, #059669 100%)`,
-            }}
+            className="w-9 h-9 rounded-xl overflow-hidden shrink-0 shadow-md border border-emerald-500/20 bg-white p-0.5 group-hover:scale-105 transition-transform flex items-center justify-center"
           >
-            <Sparkles className="w-5 h-5 text-white" />
+            <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
