@@ -43,6 +43,21 @@ export default function NotificationDrawer() {
     }
   };
 
+  const formatNotificationTime = (time: string, createdAt?: number) => {
+    if (createdAt) {
+      const diffMs = Date.now() - createdAt;
+      const diffSec = Math.floor(diffMs / 1000);
+      if (diffSec < 45) return "Just now";
+      const diffMins = Math.floor(diffSec / 60);
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      return `${Math.floor(diffHours / 24)}d ago`;
+    }
+    if (time === "Just now") return "2m ago";
+    return time;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-opacity duration-300">
       <div 
@@ -110,7 +125,7 @@ export default function NotificationDrawer() {
                     >
                       {notif.category}
                     </span>
-                    <span className="text-[11px] text-[#94A3B8]">{notif.time}</span>
+                    <span className="text-[11px] text-[#94A3B8]">{formatNotificationTime(notif.time, notif.createdAt)}</span>
                   </div>
                   <h3 className="text-sm font-semibold text-white mb-1">
                     {notif.title}

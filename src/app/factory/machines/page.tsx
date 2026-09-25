@@ -227,48 +227,129 @@ export default function FactoryMachinesPage() {
       {/* DIAGNOSTIC LOG MODAL */}
       {selectedMachineLog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="w-full max-w-xl bg-[#FFFFFF] border border-[#D0D6E2] rounded-2xl p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8ECF3]">
-              <div className="flex items-center gap-2">
-                <Cpu className="w-5 h-5 text-[#10B981]" />
-                <h3 className="font-bold text-[#111827] text-base">
-                  Diagnostic Telemetry Log — Unit {selectedMachineLog}
-                </h3>
+          <div className="w-full max-w-2xl bg-white border border-gray-300 rounded-3xl p-6 shadow-2xl space-y-4">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700">
+                  <Cpu className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-gray-900 text-base flex items-center gap-2">
+                    Diagnostic Telemetry Log — Unit {selectedMachineLog}
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live 50Hz Link
+                    </span>
+                  </h3>
+                  <p className="text-xs text-gray-500">Real-time IoT vibrational accelerometer & optical caliper stream</p>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedMachineLog(null)}
-                className="text-xs px-2 py-1 rounded bg-[#F9FAFB] text-[#6B7280] hover:text-[#111827]"
+                className="text-xs px-2.5 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition-colors cursor-pointer"
               >
                 Close ✕
               </button>
             </div>
 
-            <div className="space-y-2 text-xs font-mono-data text-[#6B7280] bg-black/50 p-4 rounded-xl border border-[#F3F4F6] max-h-60 overflow-y-auto">
-              <div>[14:22:04] SENSOR_PING: Optical gauge caliper connected. Freq: 50Hz</div>
-              <div>[14:24:12] TELEMETRY_STREAM: Current rotor RPM: 1,420 (Spec: 1,400-1,450)</div>
-              {selectedMachineLog === "PM-03" && (
-                <>
-                  <div className="text-amber-400">
-                    [14:25:31] ANOMALY_WARN: Peel depth delta +1.2mm detected on quadrant 2.
-                  </div>
-                  <div className="text-amber-400">
-                    [14:26:02] LOSS_RATE: Calculated waste delta: 180 kg/hr over baseline.
-                  </div>
-                  <div className="text-[#059669]">
-                    [14:27:00] PREVENTATIVE_FLAG: Flagged for preventative blade realignment.
-                  </div>
-                </>
-              )}
-              <div>[14:28:15] FSSAI_AUDIT_STAMP: Ingested to secure local operational ledger.</div>
+            {/* Visual HUD Telemetry Indicators */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+                <span className="text-[10px] font-bold text-gray-400 block uppercase">Rotor Speed</span>
+                <span className="text-sm font-black font-mono-data text-gray-900">1,420 RPM</span>
+                <span className="text-[10px] text-emerald-600 block font-semibold">Nominal (1.4k-1.45k)</span>
+              </div>
+              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+                <span className="text-[10px] font-bold text-gray-400 block uppercase">Temperature</span>
+                <span className="text-sm font-black font-mono-data text-gray-900">41.2°C</span>
+                <span className="text-[10px] text-emerald-600 block font-semibold">Safe (&lt;65°C)</span>
+              </div>
+              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+                <span className="text-[10px] font-bold text-gray-400 block uppercase">Vibration</span>
+                <span className="text-sm font-black font-mono-data text-amber-600">2.4 mm/s</span>
+                <span className="text-[10px] text-amber-700 block font-semibold">Mild Drift</span>
+              </div>
+              <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 text-center">
+                <span className="text-[10px] font-bold text-gray-400 block uppercase">Peel Caliper</span>
+                <span className="text-sm font-black font-mono-data text-rose-600">+1.2mm</span>
+                <span className="text-[10px] text-rose-700 block font-semibold">Threshold Alert</span>
+              </div>
             </div>
 
-            <div className="pt-3 border-t border-[#E8ECF3] flex justify-end">
-              <button
-                onClick={() => setSelectedMachineLog(null)}
-                className="px-4 py-2 rounded-xl bg-[#F3F4F6] hover:bg-white/15 text-[#111827] font-semibold text-xs"
-              >
-                Close Log
-              </button>
+            {/* High-Contrast Live Terminal Console */}
+            <div className="rounded-2xl overflow-hidden border-2 border-slate-700 shadow-xl bg-[#090D16]">
+              {/* Terminal Titlebar */}
+              <div className="px-4 py-2 bg-[#121A2B] border-b border-slate-700/60 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <span className="ml-2 font-mono text-[11px] text-slate-300 font-bold">
+                    iot_edge_stream_unit_{selectedMachineLog.toLowerCase()}.log
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold animate-pulse">
+                  ● ACTIVE CAPTURE
+                </span>
+              </div>
+
+              {/* Terminal Logs with High Contrast */}
+              <div className="p-4 space-y-2.5 text-xs font-mono max-h-64 overflow-y-auto leading-relaxed">
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-400 shrink-0 font-semibold">[14:22:04]</span>
+                  <span className="text-emerald-400 font-bold">SENSOR_PING:</span>
+                  <span className="text-slate-100">Optical gauge caliper connected. Sampling frequency: 50Hz.</span>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-400 shrink-0 font-semibold">[14:24:12]</span>
+                  <span className="text-emerald-400 font-bold">TELEMETRY_STREAM:</span>
+                  <span className="text-slate-100">Current rotor RPM: 1,420 (Factory Baseline: 1,400-1,450).</span>
+                </div>
+
+                {selectedMachineLog === "PM-03" && (
+                  <>
+                    <div className="p-2 rounded-xl bg-amber-950/80 border border-amber-400/50 space-y-1">
+                      <div className="flex items-center gap-2 text-amber-300 font-bold">
+                        <span className="text-amber-400 shrink-0">[14:25:31]</span>
+                        <span>⚠️ ANOMALY_WARN:</span>
+                        <span>Peel depth delta +1.2mm detected on Quadrant 2</span>
+                      </div>
+                      <div className="text-amber-200/90 pl-6 text-[11px]">
+                        Loss calculation delta: +180 kg/hr raw potato pulp over baseline threshold.
+                      </div>
+                    </div>
+
+                    <div className="p-2 rounded-xl bg-emerald-950/80 border border-emerald-400/50 flex items-start gap-2 text-emerald-300 font-bold">
+                      <span className="text-emerald-400 shrink-0">[14:27:00]</span>
+                      <span>🔧 PREVENTATIVE_FLAG:</span>
+                      <span>Flagged for immediate technician blade realignment & calibration.</span>
+                    </div>
+                  </>
+                )}
+
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-400 shrink-0 font-semibold">[14:28:15]</span>
+                  <span className="text-indigo-400 font-bold">FSSAI_AUDIT_STAMP:</span>
+                  <span className="text-slate-300">Telemetry packet SHA-256 hashed and ingested into tamper-proof factory ledger.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
+              <span className="text-[11px] text-gray-500">
+                Connected Sensor Protocol: Modbus TCP/IP (Node PB-PM03)
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedMachineLog(null)}
+                  className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition-colors cursor-pointer"
+                >
+                  Close Terminal
+                </button>
+              </div>
             </div>
           </div>
         </div>

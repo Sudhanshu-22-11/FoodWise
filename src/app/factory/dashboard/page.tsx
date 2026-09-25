@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { downloadFactoryAuditPdf } from "@/lib/pdfGenerator";
 import { useApp } from "@/context/AppContext";
 import {
   INSTITUTIONS,
@@ -75,9 +76,12 @@ export default function FactoryDashboardPage() {
             Spoilage Engine
           </Link>
 
-          <button className="btn-primary">
+          <button
+            onClick={() => downloadFactoryAuditPdf({ title: "Plant Mass Balance & Spoilage Audit" })}
+            className="btn-primary cursor-pointer active:scale-95 transition-all"
+          >
             <FileText className="w-4 h-4" />
-            Export Report
+            Export Report (PDF)
           </button>
         </div>
       </div>

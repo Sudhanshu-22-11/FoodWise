@@ -384,19 +384,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addNotification = useCallback((notif: NotificationAlert) => {
-    setNotifications((prev) => [notif, ...prev]);
+    const enrichedNotif: NotificationAlert = {
+      ...notif,
+      createdAt: notif.createdAt || Date.now(),
+      time: notif.time || "Just now",
+    };
+    setNotifications((prev) => [enrichedNotif, ...prev]);
     // Persist to MongoDB
     apiCall("/api/notifications", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: notif.title,
-        message: notif.message,
-        time: notif.time,
-        severity: notif.severity,
-        category: notif.category,
-        actionLabel: notif.actionLabel,
-        actionUrl: notif.actionUrl,
+        title: enrichedNotif.title,
+        message: enrichedNotif.message,
+        time: enrichedNotif.time,
+        severity: enrichedNotif.severity,
+        category: enrichedNotif.category,
+        actionLabel: enrichedNotif.actionLabel,
+        actionUrl: enrichedNotif.actionUrl,
       }),
     });
   }, []);

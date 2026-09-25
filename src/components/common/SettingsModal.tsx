@@ -8,7 +8,6 @@ import {
   Bell,
   Building,
   BrainCircuit,
-  Database,
   CheckCircle2,
   Save,
   ShieldCheck,
@@ -19,8 +18,8 @@ import {
 } from "lucide-react";
 
 export default function SettingsModal() {
-  const { isSettingsOpen, setIsSettingsOpen, currentRole, dbConnected } = useApp();
-  const [activeTab, setActiveTab] = useState<"profile" | "alerts" | "ai" | "database">("profile");
+  const { isSettingsOpen, setIsSettingsOpen, currentRole } = useApp();
+  const [activeTab, setActiveTab] = useState<"profile" | "alerts" | "ai">("profile");
 
   // Form State
   const [orgName, setOrgName] = useState(
@@ -123,17 +122,6 @@ export default function SettingsModal() {
           >
             <BrainCircuit className="w-3.5 h-3.5" />
             AI & Automation
-          </button>
-          <button
-            onClick={() => setActiveTab("database")}
-            className={`pb-3 px-3 text-xs font-bold transition-all flex items-center gap-2 border-b-2 ${
-              activeTab === "database"
-                ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-[#6B7280] hover:text-[#111827]"
-            }`}
-          >
-            <Database className="w-3.5 h-3.5" />
-            MongoDB Status
           </button>
         </div>
 
@@ -331,39 +319,6 @@ export default function SettingsModal() {
                 />
                 <p className="text-[11px] text-[#9CA3AF] mt-1">
                   Alerts with model confidence above this score require warden or plant manager confirmation.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "database" && (
-            <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-[#FAFBFC] border border-[#E8ECF3]">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2.5">
-                    <span className={`w-3 h-3 rounded-full ${dbConnected ? "bg-emerald-500 animate-pulse" : "bg-emerald-500"}`} />
-                    <span className="text-sm font-bold text-[#111827]">
-                      {dbConnected ? "MongoDB Atlas Active & Connected" : "MongoDB Atlas Configured"}
-                    </span>
-                  </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold font-mono-data">
-                    LIVE
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs mb-3">
-                  <div className="p-3 rounded-xl bg-white border border-[#E5E7EB]">
-                    <span className="text-[#6B7280] block text-[11px]">Database Cluster</span>
-                    <strong className="text-[#111827] font-mono-data">cluster0.0qcpfne.mongodb.net</strong>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white border border-[#E5E7EB]">
-                    <span className="text-[#6B7280] block text-[11px]">Database Name</span>
-                    <strong className="text-[#111827] font-mono-data">foodwise</strong>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-[#6B7280]">
-                  Connected collections: <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded">notifications</code>, <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded">surplus_items</code>, <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded">complaints</code>, <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded">manager_overrides</code>, <code className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded">donor_feedback</code>.
                 </p>
               </div>
             </div>

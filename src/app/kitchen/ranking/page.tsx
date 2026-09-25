@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useApp, getDonorTier, DonorHotel, DonorTier } from "@/context/AppContext";
+import { downloadDonorRankingPdf } from "@/lib/pdfGenerator";
 import {
   Trophy,
   Medal,
@@ -196,11 +197,19 @@ export default function KitchenRankingPage() {
             )}
           </button>
           <button
-            onClick={() => window.print()}
-            className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95"
+            onClick={() =>
+              downloadDonorRankingPdf({
+                donorName: myKitchen?.name || "IIT Delhi Central Dining Mess",
+                rank: myRank,
+                totalPoints: currentPoints,
+                tier: myTier,
+                location: myKitchen?.location || "Hauz Khas, New Delhi",
+              })
+            }
+            className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>Download Certificate</span>
+            <span>Download Certificate (PDF)</span>
           </button>
         </div>
       </div>

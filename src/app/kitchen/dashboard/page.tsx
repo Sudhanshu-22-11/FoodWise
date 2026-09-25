@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useApp, getDonorTier } from "@/context/AppContext";
+import { downloadKitchenAuditPdf } from "@/lib/pdfGenerator";
 import {
   INSTITUTIONS,
   DEMAND_VS_ACTUAL_14DAYS,
@@ -154,11 +155,11 @@ export default function KitchenDashboardPage() {
 
           {/* Export Report */}
           <button
-            onClick={() => alert(`Exporting ${timePeriod} Kitchen Waste & Production Audit Report (PDF)...`)}
-            className="btn-primary"
+            onClick={() => downloadKitchenAuditPdf({ period: timePeriod })}
+            className="btn-primary cursor-pointer active:scale-95 transition-all"
           >
             <FileText className="w-4 h-4" />
-            Export Report
+            Export Report (PDF)
           </button>
         </div>
       </div>
@@ -1003,173 +1004,6 @@ export default function KitchenDashboardPage() {
         onClose={() => setSelectedNgoDirection(null)}
         ngo={selectedNgoDirection}
       />
-
-      {/* ═══ DONOR REPUTATION & NGO POINTS SECTION ═══ */}
-      <div className="card p-6" style={{ border: "1px solid #FDE68A", background: "linear-gradient(135deg, #FFFEFB 0%, #FFFDF7 100%)" }}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Trophy className="w-5 h-5" style={{ color: "#F59E0B" }} />
-              <h2 className="text-[18px] font-bold" style={{ color: "#111827" }}>
-                Donor Reputation & NGO Points
-              </h2>
-            </div>
-            <p className="text-xs" style={{ color: "#6B7280" }}>
-              Your reputation score from NGO feedback — points update live when NGOs rate your donations
-            </p>
-          </div>
-          <Link
-            href="/kitchen/ranking"
-            className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap hover:scale-105"
-            style={{ background: "#FFFBEB", color: "#D97706", border: "1px solid #FDE68A" }}
-          >
-            <Trophy className="w-3.5 h-3.5" />
-            View Full Leaderboard →
-          </Link>
-        </div>
-
-        {/* Your Stats Row */}
-        {kitchenHotel && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
-            {/* Rank Card */}
-            <div className="p-4 rounded-2xl text-center" style={{ background: TIER_COLORS[kitchenTier].gradient, boxShadow: `0 6px 20px ${TIER_COLORS[kitchenTier].color}35` }}>
-              <div className="text-[10px] font-semibold text-white/80 uppercase tracking-wider mb-1">Your Rank</div>
-              <div className="text-4xl font-extrabold text-white font-mono-data">#{kitchenRank}</div>
-              <div className="text-[11px] font-bold text-white/90 mt-1">of {rankedHotels.length} donors</div>
-            </div>
-
-            {/* Points Card */}
-            <div className="p-4 rounded-2xl text-center" style={{ background: "#FFFFFF", border: `2px solid ${TIER_COLORS[kitchenTier].border}` }}>
-              <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "#9CA3AF" }}>Total Points</div>
-              <div className="text-3xl font-extrabold font-mono-data" style={{ color: TIER_COLORS[kitchenTier].color }}>
-                {kitchenHotel.totalPoints.toLocaleString()}
-              </div>
-              <div className="text-[11px] font-bold mt-1" style={{ color: TIER_COLORS[kitchenTier].color }}>
-                {kitchenTier} Tier
-              </div>
-            </div>
-
-            {/* Avg Rating */}
-            <div className="p-4 rounded-2xl text-center" style={{ background: "#FFFFFF", border: "2px solid #FDE68A" }}>
-              <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "#9CA3AF" }}>Avg Rating</div>
-              <div className="flex items-center justify-center gap-1 mb-1">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className="w-4 h-4" style={{ color: s <= Math.round(kitchenHotel.avgRating) ? "#F59E0B" : "#E5E7EB", fill: s <= Math.round(kitchenHotel.avgRating) ? "#F59E0B" : "none" }} />
-                ))}
-              </div>
-              <div className="text-2xl font-extrabold font-mono-data" style={{ color: "#F59E0B" }}>{kitchenHotel.avgRating}</div>
-              <div className="text-[10px]" style={{ color: "#9CA3AF" }}>({kitchenHotel.totalRatings} reviews)</div>
-            </div>
-
-            {/* Streak */}
-            <div className="p-4 rounded-2xl text-center" style={{ background: "#FFFFFF", border: "2px solid #A7F3D0" }}>
-              <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "#9CA3AF" }}>Donation Streak</div>
-              <div className="text-3xl font-extrabold font-mono-data" style={{ color: "#059669" }}>{kitchenHotel.streak}</div>
-              <div className="text-[11px] font-bold mt-1" style={{ color: "#059669" }}>consecutive days</div>
-            </div>
-          </div>
-        )}
-
-        {/* Mini Leaderboard + Recent Feedback side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* Mini Leaderboard */}
-          <div className="p-4 rounded-2xl" style={{ background: "#FFFFFF", border: "1px solid #E8ECF3" }}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[14px] font-bold flex items-center gap-2" style={{ color: "#111827" }}>
-                <Trophy className="w-4 h-4" style={{ color: "#F59E0B" }} />
-                Donor Leaderboard
-              </h3>
-              <Link href="/kitchen/ranking" className="text-[10px] font-mono-data font-bold hover:underline" style={{ color: "#059669" }}>
-                View All →
-              </Link>
-            </div>
-            <div className="space-y-2">
-              {rankedHotels.slice(0, 6).map((hotel, idx) => {
-                const tier = getDonorTier(hotel.totalPoints);
-                const isYou = hotel.id === kitchenHotelId;
-                return (
-                  <div
-                    key={hotel.id}
-                    className="flex items-center gap-3 p-2.5 rounded-xl transition-all"
-                    style={{
-                      background: isYou ? `${TIER_COLORS[tier].color}10` : idx < 3 ? "#FAFBFC" : "transparent",
-                      border: isYou ? `2px solid ${TIER_COLORS[tier].color}` : "1px solid transparent",
-                    }}
-                  >
-                    <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-extrabold shrink-0"
-                      style={{
-                        background: idx < 3 ? TIER_COLORS[tier].gradient : "#F3F4F6",
-                        color: idx < 3 ? "#FFFFFF" : "#6B7280",
-                      }}
-                    >
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[12px] font-bold truncate" style={{ color: "#111827" }}>
-                        {hotel.name} {isYou && <span className="text-[10px] font-bold" style={{ color: TIER_COLORS[tier].color }}>(You)</span>}
-                      </div>
-                      <div className="flex items-center gap-2 text-[10px]" style={{ color: "#9CA3AF" }}>
-                        <span className="font-bold" style={{ color: TIER_COLORS[tier].color }}>{tier}</span>
-                        <span>•</span>
-                        <span>⭐ {hotel.avgRating}</span>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-[13px] font-extrabold font-mono-data" style={{ color: TIER_COLORS[tier].color }}>
-                        {hotel.totalPoints.toLocaleString()}
-                      </div>
-                      <div className="text-[9px]" style={{ color: "#9CA3AF" }}>pts</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Recent Feedback */}
-          <div className="p-4 rounded-2xl" style={{ background: "#FFFFFF", border: "1px solid #E8ECF3" }}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[14px] font-bold flex items-center gap-2" style={{ color: "#111827" }}>
-                <Star className="w-4 h-4" style={{ color: "#F59E0B" }} />
-                Recent Feedback Received
-              </h3>
-              <span className="text-[10px] font-mono-data" style={{ color: "#9CA3AF" }}>From NGO partners</span>
-            </div>
-            {kitchenFeedback.length > 0 ? (
-              <div className="space-y-2.5">
-                {kitchenFeedback.slice(0, 4).map((fb) => (
-                  <div key={fb.id} className="p-3 rounded-xl" style={{ background: "#FAFBFC", border: "1px solid #F3F4F6" }}>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} className="w-3 h-3" style={{ color: s <= Math.round(fb.overallRating) ? "#F59E0B" : "#E5E7EB", fill: s <= Math.round(fb.overallRating) ? "#F59E0B" : "none" }} />
-                        ))}
-                        <span className="text-[11px] font-bold ml-1" style={{ color: "#F59E0B" }}>{fb.overallRating}</span>
-                      </div>
-                      <span className="text-[12px] font-extrabold font-mono-data" style={{ color: "#059669" }}>+{fb.pointsAwarded} pts</span>
-                    </div>
-                    <p className="text-[11px] mb-1" style={{ color: "#6B7280" }}>{fb.comment}</p>
-                    <div className="flex items-center gap-2 text-[10px]" style={{ color: "#9CA3AF" }}>
-                      <span>🍽️ {fb.foodQuality}/5</span>
-                      <span>📦 {fb.packaging}/5</span>
-                      <span>⏰ {fb.timeliness}/5</span>
-                      <span>📊 {fb.quantity}/5</span>
-                      <span className="ml-auto">{fb.date}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <Star className="w-8 h-8 mx-auto mb-2" style={{ color: "#E5E7EB" }} />
-                <div className="text-[13px] font-semibold" style={{ color: "#6B7280" }}>No feedback yet</div>
-                <div className="text-[11px]" style={{ color: "#9CA3AF" }}>NGO partners will rate your food donations</div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

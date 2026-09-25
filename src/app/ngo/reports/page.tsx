@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { downloadNgoImpactCertificatePdf } from "@/lib/pdfGenerator";
 import {
   HeartHandshake,
   Users,
@@ -70,11 +71,30 @@ export default function NgoReportsPage() {
 
   const handleExport = (type: string) => {
     setDownloading(true);
+    if (type.includes("Certificate") || type.includes("PDF")) {
+      downloadNgoImpactCertificatePdf({
+        ngoName: "Robin Hood Army & Feeding India Coalition",
+        certificateType: type,
+        mealsServed: 24800,
+        co2SavedKg: 12400,
+      });
+    } else {
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        "Day,MealsDistributed,AvgDeliveryMin\n" +
+        dailyDistributionTrend.map(d => `${d.day},${d.meals},${d.avgDeliveryMin}`).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "FoodWise_NGO_Distribution_Report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
     setTimeout(() => {
       setDownloading(false);
       setToastMessage(`${type} downloaded successfully!`);
       setTimeout(() => setToastMessage(null), 4000);
-    }, 1200);
+    }, 600);
   };
 
   return (

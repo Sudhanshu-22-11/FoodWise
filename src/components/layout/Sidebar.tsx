@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard,
   BrainCircuit,
@@ -47,8 +47,9 @@ interface NavItem {
   highlight?: boolean;
 }
 
-export default function Sidebar({ type }: SidebarProps) {
+function SidebarContent({ type }: SidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [collapsed, setCollapsed] = useState(false);
   const { unreadCount, setIsNotificationOpen, setIsSettingsOpen } = useApp();
 
@@ -88,11 +89,11 @@ export default function Sidebar({ type }: SidebarProps) {
 
   const ngoNav: NavItem[] = [
     { label: "Overview", href: "/ngo/dashboard", icon: LayoutDashboard },
-    { label: "Live Food Claims", href: "/ngo/dashboard", icon: PackageCheck, badge: "Live" },
-    { label: "Traffic & Safe Routing", href: "/ngo/dashboard", icon: Route },
-    { label: "Scheduled Pickups", href: "/ngo/dashboard", icon: Truck },
-    { label: "Pickup History", href: "/ngo/dashboard", icon: Clock },
-    { label: "Raise Complaint", href: "/ngo/complaints", icon: ShieldAlert, badge: "FSSAI", highlight: true },
+    { label: "Live Food Claims", href: "/ngo/dashboard?tab=claims", icon: PackageCheck, badge: "Live" },
+    { label: "Traffic & Safe Routing", href: "/ngo/dashboard?tab=routing", icon: Route },
+    { label: "Scheduled Pickups", href: "/ngo/dashboard?tab=scheduled", icon: Truck },
+    { label: "Pickup History", href: "/ngo/dashboard?tab=history", icon: Clock },
+    { label: "Report Issue", href: "/ngo/complaints", icon: ShieldAlert, badge: "Admin Desk", highlight: true },
     { label: "Feedback & Points", href: "/ngo/feedback", icon: Star, badge: "Points" },
     { label: "Impact & Reports", href: "/ngo/reports", icon: BarChart3 },
   ];
@@ -324,7 +325,16 @@ export default function Sidebar({ type }: SidebarProps) {
           </div>
         )}
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const tab = searchParams?.get("tab");
+          let isActive = false;
+          if (item.href.includes("?tab=")) {
+            const itemTab = item.href.split("?tab=")[1];
+            isActive = pathname === "/ngo/dashboard" && tab === itemTab;
+          } else if (item.href === "/ngo/dashboard") {
+            isActive = pathname === "/ngo/dashboard" && !tab;
+          } else {
+            isActive = pathname === item.href;
+          }
           const Icon = item.icon;
           return (
             <Link
@@ -536,5 +546,13 @@ export default function Sidebar({ type }: SidebarProps) {
         )}
       </div>
     </aside>
+  );
+}
+
+export default function Sidebar(props: SidebarProps) {
+  return (
+    <Suspense fallback={<aside className="sticky top-0 h-screen shrink-0 z-20 w-[260px] bg-[#072B1E]" />}>
+      <SidebarContent {...props} />
+    </Suspense>
   );
 }

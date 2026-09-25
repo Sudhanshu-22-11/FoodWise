@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { downloadKitchenAuditPdf } from "@/lib/pdfGenerator";
 import {
   BarChart3,
   Calendar,
@@ -130,11 +131,29 @@ export default function KitchenReportsPage() {
 
   const handleExport = (type: "PDF" | "CSV") => {
     setDownloading(true);
+    if (type === "PDF") {
+      downloadKitchenAuditPdf({
+        period: "Monthly Warden Audit",
+        facilityName: "IIT Delhi Central Mess",
+        facilityCode: "DL-KIT-001",
+      });
+    } else {
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        "Date,MealService,PlannedMeals,DinersServed,SurplusKg,FssaiTemp,Status\n" +
+        mealLogs.map(r => `"${r.date}","${r.meal}","${r.plannedMeals}","${r.dinersServed}","${r.surplusDonatedKg}","${r.fssaiTemp}","${r.status}"`).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "FoodWise_Kitchen_Audit.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
     setTimeout(() => {
       setDownloading(false);
-      setToastMessage(`Kitchen Audit Report (${type}) successfully generated!`);
+      setToastMessage(`Kitchen Audit Report (${type}) successfully downloaded!`);
       setTimeout(() => setToastMessage(null), 4000);
-    }, 1200);
+    }, 600);
   };
 
   return (

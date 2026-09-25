@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { INSTITUTIONS } from "@/lib/mockData";
 import {
@@ -23,6 +24,11 @@ import {
   Route,
   Zap,
   ExternalLink,
+  PackageCheck,
+  Layers,
+  Search,
+  Download,
+  Key,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -43,14 +49,17 @@ interface SurplusFeedItem {
   etaMinutes: number;
 }
 
-export default function NgoDashboardPage() {
+function NgoDashboardContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const activeTabFromUrl = searchParams.get("tab") || "overview";
+
   const { acceptedPickups, acceptNgoPickup } = useApp();
   const [filterType, setFilterType] = useState<string>("All");
   const [selectedPickup, setSelectedPickup] = useState<SurplusFeedItem | null>(null);
   const [scheduleSuccess, setScheduleSuccess] = useState<string | null>(null);
-  const [pickupsTab, setPickupsTab] = useState<"scheduled" | "history">("scheduled");
-  const [mapView, setMapView] = useState<"google" | "traffic" | "routes">("google");
-
+  const [mapMode, setMapMode] = useState<"google" | "corridor">("google");
+  const [historySearch, setHistorySearch] = useState("");
 
   const pastPickupsHistory = [
     {
@@ -60,6 +69,8 @@ export default function NgoDashboardPage() {
       food: "Rajma & Jeera Rice (75 kg)",
       recipient: "Aasha Shelter (220 meals)",
       receipt: "FSSAI-RELIEF-9041",
+      driver: "Ramesh Kumar (Van DL-1L-4492)",
+      status: "Delivered & Verified",
     },
     {
       id: "hist-2",
@@ -68,6 +79,8 @@ export default function NgoDashboardPage() {
       food: "Paneer Curry & Rotis (42 kg)",
       recipient: "Nizamuddin Night Shelter (130 meals)",
       receipt: "FSSAI-RELIEF-8992",
+      driver: "Satish Pal (E-Rickshaw DL-4E-9021)",
+      status: "Delivered & Verified",
     },
     {
       id: "hist-3",
@@ -76,6 +89,8 @@ export default function NgoDashboardPage() {
       food: "Assorted Breads & Dal (55 kg)",
       recipient: "Sarai Kale Khan Center (160 meals)",
       receipt: "FSSAI-RELIEF-8951",
+      driver: "Vikram Singh (Van DL-2C-1108)",
+      status: "Delivered & Verified",
     },
   ];
 
@@ -178,8 +193,8 @@ export default function NgoDashboardPage() {
   const getTrafficLabel = (status: string) => {
     switch (status) {
       case "low": return "Clear Roads";
-      case "moderate": return "Moderate Traffic";
-      case "heavy": return "Heavy Traffic";
+      case "moderate": return "Moderate Congestion";
+      case "heavy": return "Heavy Delays";
       default: return "Unknown";
     }
   };
@@ -199,274 +214,282 @@ export default function NgoDashboardPage() {
     return item.etaMinutes + bufferMinutes < safeMinutes;
   };
 
+  const setTab = (newTab: string) => {
+    if (newTab === "overview") {
+      router.push("/ngo/dashboard");
+    } else {
+      router.push(`/ngo/dashboard?tab=${newTab}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4" style={{ borderBottom: "1px solid #E8ECF3" }}>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5" style={{ color: "#10B981" }}>
-                <HeartHandshake className="w-3.5 h-3.5" />
-                NGO Food Redistribution Network
-              </span>
-              <span style={{ color: "#D1D5DB" }}>•</span>
-              <span className="text-xs" style={{ color: "#9CA3AF" }}>{INSTITUTIONS.ngo.name}</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "#111827" }}>
-              Surplus Pickup & Traffic Intelligence
-            </h1>
+      {/* ═══ TOP HEADER ═══ */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#E8ECF3]">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
+              <HeartHandshake className="w-3.5 h-3.5" />
+              NGO Food Relief Network
+            </span>
+            <span className="text-gray-300">•</span>
+            <span className="text-xs text-gray-500 font-semibold">{INSTITUTIONS.ngo.name}</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold" style={{ background: "#ECFDF5", border: "1px solid #A7F3D0", color: "#059669" }}>
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#10B981" }} />
-              {INSTITUTIONS.ngo.volunteers}
-            </div>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
+            {activeTabFromUrl === "claims"
+              ? "Live Food Claims & Donor Matches"
+              : activeTabFromUrl === "routing"
+              ? "Traffic & Safe Route Command Center"
+              : activeTabFromUrl === "scheduled"
+              ? "Scheduled Pickups & Active Dispatches"
+              : activeTabFromUrl === "history"
+              ? "Completed Delivery History & Receipts"
+              : "NGO Surplus Logistics & Traffic Intelligence"}
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+            Real-time surplus claims, traffic congestion margins, vehicle dispatch OTPs, and relief verification.
+          </p>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="stat-card stat-card-green p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>Available Pickups</span>
-              <div className="icon-container icon-container-green"><Utensils className="w-5 h-5" /></div>
-            </div>
-            <div className="text-[28px] font-extrabold font-mono-data" style={{ color: "#111827" }}>{initialFeed.length}</div>
-            <div className="text-[12px] font-medium" style={{ color: "#059669" }}>FSSAI verified surplus nearby</div>
-          </div>
-
-          <div className="stat-card stat-card-amber p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>Urgent (Under 4 hrs)</span>
-              <div className="icon-container icon-container-amber"><Timer className="w-5 h-5" /></div>
-            </div>
-            <div className="text-[28px] font-extrabold font-mono-data" style={{ color: "#111827" }}>{initialFeed.filter(i => i.hoursLeft <= 4).length}</div>
-            <div className="text-[12px] font-medium" style={{ color: "#D97706" }}>Time-sensitive batches</div>
-          </div>
-
-          <div className="stat-card stat-card-emerald p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>Traffic: Clear Routes</span>
-              <div className="icon-container icon-container-green"><Navigation className="w-5 h-5" /></div>
-            </div>
-            <div className="text-[28px] font-extrabold font-mono-data" style={{ color: "#111827" }}>{initialFeed.filter(i => i.trafficStatus === "low").length}</div>
-            <div className="text-[12px] font-medium" style={{ color: "#059669" }}>Fast delivery possible</div>
-          </div>
-
-          <div className="stat-card stat-card-red p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>Delivery Risk</span>
-              <div className="icon-container icon-container-red"><AlertTriangle className="w-5 h-5" /></div>
-            </div>
-            <div className="text-[28px] font-extrabold font-mono-data" style={{ color: "#111827" }}>{initialFeed.filter(i => !canDeliverInTime(i)).length}</div>
-            <div className="text-[12px] font-medium" style={{ color: "#DC2626" }}>May not arrive safely in time</div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-50 border border-emerald-200 text-emerald-700">
+            <span className="w-2 h-2 rounded-full animate-pulse bg-emerald-500" />
+            <span>{INSTITUTIONS.ngo.volunteers}</span>
           </div>
         </div>
+      </div>
 
-        {scheduleSuccess && (
-          <div className="alert-banner alert-banner-success">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: "#059669" }} />
-              <span>Pickup confirmed for <strong>{scheduleSuccess}</strong>! Volunteer driver notified. Verification OTP generated.</span>
+      {/* ═══ SECTION NAVIGATION TABS ═══ */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-gray-200 text-xs font-bold">
+        {[
+          { id: "overview", label: "Overview", icon: Layers },
+          { id: "claims", label: `Live Claims (${initialFeed.length})`, icon: PackageCheck, badge: "Live" },
+          { id: "routing", label: "Traffic & Safe Routing", icon: Route },
+          { id: "scheduled", label: `Scheduled Pickups (${acceptedPickups.length + 1})`, icon: Truck },
+          { id: "history", label: `Pickup History (${pastPickupsHistory.length})`, icon: Clock },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTabFromUrl === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setTab(tab.id)}
+              className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                isActive
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25"
+                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+              {tab.badge && !isActive && (
+                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white">
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {scheduleSuccess && (
+        <div className="alert-banner alert-banner-success">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+            <span>
+              Pickup successfully dispatched for <strong>{scheduleSuccess}</strong>! Driver notified with verification OTP.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ TAB 1: OVERVIEW ═══ */}
+      {activeTabFromUrl === "overview" && (
+        <div className="space-y-6">
+          {/* KPI Stat Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="stat-card stat-card-green p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[13px] font-medium text-gray-500">Available Surplus</span>
+                <div className="icon-container icon-container-green"><Utensils className="w-5 h-5" /></div>
+              </div>
+              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">{initialFeed.length} Batches</div>
+              <div className="text-[12px] font-medium text-emerald-600">173 kg verified nutritious food</div>
+            </div>
+
+            <div className="stat-card stat-card-amber p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[13px] font-medium text-gray-500">Urgent (&lt; 4 hrs)</span>
+                <div className="icon-container icon-container-amber"><Timer className="w-5 h-5" /></div>
+              </div>
+              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
+                {initialFeed.filter((i) => i.hoursLeft <= 4).length} Batches
+              </div>
+              <div className="text-[12px] font-medium text-amber-600">Requires rapid dispatch</div>
+            </div>
+
+            <div className="stat-card stat-card-emerald p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[13px] font-medium text-gray-500">Clear Traffic Routes</span>
+                <div className="icon-container icon-container-green"><Navigation className="w-5 h-5" /></div>
+              </div>
+              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
+                {initialFeed.filter((i) => i.trafficStatus === "low").length} Routes
+              </div>
+              <div className="text-[12px] font-medium text-emerald-600">Fast safe transit guaranteed</div>
+            </div>
+
+            <div className="stat-card stat-card-red p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[13px] font-medium text-gray-500">Traffic Risk Flag</span>
+                <div className="icon-container icon-container-red"><AlertTriangle className="w-5 h-5" /></div>
+              </div>
+              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
+                {initialFeed.filter((i) => !canDeliverInTime(i)).length} High-Risk
+              </div>
+              <div className="text-[12px] font-medium text-rose-600">Heavy congestion alert</div>
             </div>
           </div>
-        )}
 
-        {/* Main Content: Map + Feed */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* TRAFFIC MAP PANEL (7 cols) */}
-          <div className="lg:col-span-7 space-y-5">
-            <div className="card p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="section-title flex items-center gap-2">
-                    <Navigation className="w-5 h-5" style={{ color: "#10B981" }} />
-                    Live Traffic & Route Map
-                  </h3>
-                  <p className="section-subtitle">Real-time traffic conditions for pickup route planning</p>
+          {/* Quick Split: Map + Feed */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7">
+              <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2">
+                      <Navigation className="w-4 h-4 text-emerald-600" />
+                      Live Traffic & Routing Map
+                    </h3>
+                    <p className="text-xs text-gray-500">Real-time corridor conditions for pickup routes</p>
+                  </div>
+                  {/* Merged 2-mode selector (No duplicate views!) */}
+                  <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+                    <button
+                      onClick={() => setMapMode("google")}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                        mapMode === "google" ? "bg-white text-emerald-700 shadow-xs" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      Google Maps (Live)
+                    </button>
+                    <button
+                      onClick={() => setMapMode("corridor")}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                        mapMode === "corridor" ? "bg-white text-emerald-700 shadow-xs" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      Interactive Route Network
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setMapView("google")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
-                    style={{
-                      background: mapView === "google" ? "#10B981" : "#F9FAFB",
-                      color: mapView === "google" ? "#FFFFFF" : "#6B7280",
-                      border: mapView === "google" ? "none" : "1px solid #E5E7EB",
-                    }}
-                  >
-                    <Navigation className="w-3 h-3" />
-                    Google Maps (Live)
-                  </button>
-                  <button
-                    onClick={() => setMapView("traffic")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                    style={{
-                      background: mapView === "traffic" ? "#10B981" : "#F9FAFB",
-                      color: mapView === "traffic" ? "#FFFFFF" : "#6B7280",
-                      border: mapView === "traffic" ? "none" : "1px solid #E5E7EB",
-                    }}
-                  >
-                    Traffic View
-                  </button>
-                  <button
-                    onClick={() => setMapView("routes")}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                    style={{
-                      background: mapView === "routes" ? "#10B981" : "#F9FAFB",
-                      color: mapView === "routes" ? "#FFFFFF" : "#6B7280",
-                      border: mapView === "routes" ? "none" : "1px solid #E5E7EB",
-                    }}
-                  >
-                    Route Plan
-                  </button>
-                </div>
+
+                {mapMode === "google" ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 h-80">
+                    <iframe
+                      src={`https://maps.google.com/maps?saddr=28.5459,77.1926&daddr=${
+                        selectedPickup ? `${selectedPickup.lat},${selectedPickup.lng}` : "28.5672,77.2100"
+                      }&layer=t&output=embed`}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Google Maps Live Directions & Traffic"
+                    />
+                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-xl border border-gray-200 text-xs font-bold text-gray-900 shadow-sm flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      {selectedPickup ? `Route to: ${selectedPickup.institution}` : "Google Maps Traffic Active"}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative rounded-2xl overflow-hidden bg-slate-900 h-80 p-4">
+                    <div
+                      className="absolute inset-0 opacity-20"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                        backgroundSize: "30px 30px",
+                      }}
+                    />
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 320">
+                      <line x1="50" y1="160" x2="550" y2="160" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
+                      <line x1="300" y1="20" x2="300" y2="300" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
+                      <ellipse cx="300" cy="160" rx="180" ry="110" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2" />
+                      <line x1="300" y1="160" x2="160" y2="220" stroke="#10B981" strokeWidth="4" strokeLinecap="round" />
+                      <line x1="300" y1="160" x2="230" y2="90" stroke="#F59E0B" strokeWidth="4" strokeLinecap="round" />
+                      <line x1="300" y1="160" x2="440" y2="80" stroke="#EF4444" strokeWidth="4" strokeLinecap="round" />
+                      <line x1="300" y1="160" x2="460" y2="240" stroke="#EF4444" strokeWidth="4" strokeLinecap="round" />
+                    </svg>
+
+                    <div className="absolute left-[47%] top-[45%] flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-lg">
+                        <HeartHandshake className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-[9px] font-black text-white bg-black/70 px-1.5 py-0.5 rounded mt-0.5">NGO HUB</span>
+                    </div>
+
+                    <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm p-2 rounded-xl text-[10px] text-white space-y-1">
+                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-emerald-400" /> Hauz Khas: 12 min (Clear)</div>
+                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-amber-400" /> AIIMS: 22 min (Moderate)</div>
+                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-rose-500" /> Oberoi / Okhla: 38-45 min (Heavy)</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Claims Feed (Right 5 cols) */}
+            <div className="lg:col-span-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-sm text-gray-900">Urgent Food Available for Pickup</h3>
+                <button onClick={() => setTab("claims")} className="text-xs font-bold text-emerald-600 hover:underline">
+                  View All ({initialFeed.length}) →
+                </button>
               </div>
 
-              {/* Map Visualization */}
-              {mapView === "google" ? (
-                <div className="relative rounded-2xl overflow-hidden border border-[#E8ECF3] bg-[#F3F4F6]" style={{ height: "380px" }}>
-                  <iframe
-                    src={`https://maps.google.com/maps?saddr=28.5459,77.1926&daddr=${selectedPickup ? `${selectedPickup.lat},${selectedPickup.lng}` : "28.5672,77.2100"}&layer=t&output=embed`}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Google Maps Live Directions & Traffic"
-                  />
-                  <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#E8ECF3] shadow-md text-xs font-bold text-[#111827] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-                    {selectedPickup ? `Route to: ${selectedPickup.institution}` : "Google Maps Live Traffic & Directions"}
-                  </div>
-                </div>
-              ) : (
-                <div className="relative rounded-2xl overflow-hidden" style={{ background: "#1B2138", height: "380px" }}>
-                  {/* Map Grid Background */}
-                  <div className="absolute inset-0 opacity-20" style={{
-                    backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
-                    backgroundSize: "40px 40px",
-                  }} />
-
-                {/* Road network lines */}
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 380">
-                  {/* Major roads */}
-                  <line x1="50" y1="190" x2="550" y2="190" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
-                  <line x1="300" y1="30" x2="300" y2="350" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
-                  <line x1="100" y1="80" x2="500" y2="300" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-                  <line x1="100" y1="300" x2="500" y2="80" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-                  {/* Ring road */}
-                  <ellipse cx="300" cy="190" rx="200" ry="140" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2" />
-
-                  {/* Traffic colored route segments */}
-                  {/* Route to IIT Delhi - Green (clear) */}
-                  <line x1="300" y1="190" x2="150" y2="250" stroke="#10B981" strokeWidth="4" strokeLinecap="round" opacity="0.8" />
-                  {/* Route to AIIMS - Amber (moderate) */}
-                  <line x1="300" y1="190" x2="220" y2="120" stroke="#F59E0B" strokeWidth="4" strokeLinecap="round" opacity="0.8" />
-                  {/* Route to Oberoi - Red (heavy) */}
-                  <line x1="300" y1="190" x2="430" y2="100" stroke="#EF4444" strokeWidth="4" strokeLinecap="round" opacity="0.8" />
-                  {/* Route to Bikanervala - Red (heavy) */}
-                  <line x1="300" y1="190" x2="450" y2="280" stroke="#EF4444" strokeWidth="4" strokeLinecap="round" opacity="0.8" />
-                </svg>
-
-                {/* NGO Hub (Center) */}
-                <div className="absolute flex flex-col items-center" style={{ left: "calc(50% - 20px)", top: "calc(50% - 20px)" }}>
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg" style={{ background: "#10B981", border: "3px solid white" }}>
-                    <HeartHandshake className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-[10px] font-bold text-white mt-1 px-2 py-0.5 rounded" style={{ background: "rgba(0,0,0,0.6)" }}>NGO HUB</span>
-                </div>
-
-                {/* Pickup Points */}
-                {initialFeed.map((item, idx) => {
-                  const positions = [
-                    { left: "22%", top: "62%" },
-                    { left: "34%", top: "28%" },
-                    { left: "70%", top: "22%" },
-                    { left: "73%", top: "70%" },
-                  ];
-                  const pos = positions[idx];
+              <div className="space-y-2.5">
+                {initialFeed.slice(0, 3).map((item) => {
+                  const safe = canDeliverInTime(item);
                   const isAccepted = acceptedPickups.includes(item.id);
                   return (
                     <div
                       key={item.id}
-                      className="absolute flex flex-col items-center cursor-pointer group"
-                      style={{ left: pos.left, top: pos.top }}
-                      onClick={() => setSelectedPickup(item)}
+                      className="p-3.5 rounded-2xl bg-white border border-gray-200 hover:border-emerald-300 transition-all shadow-xs flex items-center justify-between gap-3"
                     >
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-125"
-                        style={{
-                          background: isAccepted ? "#9CA3AF" : getTrafficColor(item.trafficStatus),
-                          border: "2px solid white",
-                        }}
-                      >
-                        <Utensils className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="mt-1 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ background: "rgba(0,0,0,0.7)" }}>
-                        {item.etaMinutes} min • {item.distanceKm} km
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Map Legend */}
-                <div className="absolute bottom-3 left-3 px-3 py-2.5 rounded-xl" style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}>
-                  <div className="text-[10px] font-bold text-white mb-1.5">Traffic Status</div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-[10px] text-white">
-                      <span className="w-3 h-1.5 rounded-full" style={{ background: "#10B981" }} /> Clear — Send food
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] text-white">
-                      <span className="w-3 h-1.5 rounded-full" style={{ background: "#F59E0B" }} /> Moderate — Check timing
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] text-white">
-                      <span className="w-3 h-1.5 rounded-full" style={{ background: "#EF4444" }} /> Heavy — Risk of delay
-                    </div>
-                  </div>
-                </div>
-
-                {/* Live indicator */}
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg" style={{ background: "rgba(0,0,0,0.6)" }}>
-                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#10B981" }} />
-                  <span className="text-[10px] font-bold text-white">LIVE TRAFFIC</span>
-                </div>
-              </div>
-            )}
-
-              {/* Traffic Decision Summary */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                {initialFeed.map((item) => {
-                  const safe = canDeliverInTime(item);
-                  return (
-                    <div
-                      key={item.id}
-                      className="p-3 rounded-xl text-center cursor-pointer transition-all hover:scale-105"
-                      style={{ background: getTrafficBg(item.trafficStatus), border: `1px solid ${getTrafficColor(item.trafficStatus)}30` }}
-                      onClick={() => setSelectedPickup(item)}
-                    >
-                      <div className="text-[11px] font-bold truncate" style={{ color: "#111827" }}>
-                        {item.institution.split("(")[0].trim().substring(0, 18)}...
-                      </div>
-                      <div className="flex items-center justify-center gap-1 mt-1">
-                        <CircleDot className="w-3 h-3" style={{ color: getTrafficColor(item.trafficStatus) }} />
-                        <span className="text-[10px] font-bold" style={{ color: getTrafficColor(item.trafficStatus) }}>
-                          {getTrafficLabel(item.trafficStatus)}
-                        </span>
-                      </div>
-                      <div className="text-[10px] font-mono-data mt-1" style={{ color: "#6B7280" }}>
-                        ETA: {item.etaMinutes} min
-                      </div>
-                      <div className="mt-1.5">
-                        {safe ? (
-                          <span className="badge badge-success" style={{ fontSize: "9px", padding: "1px 6px" }}>
-                            <Check className="w-2.5 h-2.5" /> SAFE TO SEND
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-xs text-gray-900 truncate">{item.institution}</span>
+                          <span className="text-[10px] font-black px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700">
+                            {item.quantityKg} kg
                           </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 truncate mt-0.5">{item.foodType}</p>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-1">
+                          <span style={{ color: getTrafficColor(item.trafficStatus) }}>
+                            ● {item.etaMinutes}m ETA ({getTrafficLabel(item.trafficStatus)})
+                          </span>
+                          <span>•</span>
+                          <span>Safe until: {item.safeUntil}</span>
+                        </div>
+                      </div>
+
+                      <div className="shrink-0">
+                        {isAccepted ? (
+                          <span className="text-[11px] font-bold text-emerald-700 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                            Dispatched
+                          </span>
+                        ) : safe ? (
+                          <button
+                            onClick={() => handleAccept(item)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95"
+                          >
+                            Claim
+                          </button>
                         ) : (
-                          <span className="badge badge-danger" style={{ fontSize: "9px", padding: "1px 6px" }}>
-                            <AlertTriangle className="w-2.5 h-2.5" /> RISKY
+                          <span className="text-[10px] font-bold text-rose-600 px-2 py-1 rounded bg-rose-50 border border-rose-200">
+                            Traffic Risk
                           </span>
                         )}
                       </div>
@@ -475,264 +498,396 @@ export default function NgoDashboardPage() {
                 })}
               </div>
             </div>
-
-            {/* Selected Pickup Detail */}
-            {selectedPickup && (
-              <div className="card p-5" style={{ borderLeft: `4px solid ${getTrafficColor(selectedPickup.trafficStatus)}` }}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-[15px] font-bold" style={{ color: "#111827" }}>{selectedPickup.institution}</h3>
-                      <span className="badge" style={{ background: getTrafficBg(selectedPickup.trafficStatus), color: getTrafficColor(selectedPickup.trafficStatus), fontSize: "10px" }}>
-                        {getTrafficLabel(selectedPickup.trafficStatus)}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                      <div>
-                        <div className="text-[10px]" style={{ color: "#9CA3AF" }}>Food</div>
-                        <div className="text-[13px] font-semibold">{selectedPickup.foodType}</div>
-                      </div>
-                      <div>
-                        <div className="text-[10px]" style={{ color: "#9CA3AF" }}>Quantity</div>
-                        <div className="text-[13px] font-semibold font-mono-data">{selectedPickup.quantityKg} kg</div>
-                      </div>
-                      <div>
-                        <div className="text-[10px]" style={{ color: "#9CA3AF" }}>ETA via Current Traffic</div>
-                        <div className="text-[13px] font-bold font-mono-data" style={{ color: getTrafficColor(selectedPickup.trafficStatus) }}>
-                          {selectedPickup.etaMinutes} minutes
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[10px]" style={{ color: "#9CA3AF" }}>Safe Until</div>
-                        <div className="text-[13px] font-semibold">{selectedPickup.safeUntil}</div>
-                      </div>
-                    </div>
-
-                    {/* Decision Box */}
-                    <div className="p-3 rounded-xl" style={{ background: canDeliverInTime(selectedPickup) ? "#ECFDF5" : "#FEF2F2", border: `1px solid ${canDeliverInTime(selectedPickup) ? "#A7F3D0" : "#FECACA"}` }}>
-                      <div className="flex items-center gap-2 text-[13px] font-bold" style={{ color: canDeliverInTime(selectedPickup) ? "#059669" : "#DC2626" }}>
-                        {canDeliverInTime(selectedPickup) ? (
-                          <>
-                            <CheckCircle2 className="w-4 h-4" />
-                            Decision: SAFE TO SEND — Food will arrive well within the safety window.
-                          </>
-                        ) : (
-                          <>
-                            <AlertTriangle className="w-4 h-4" />
-                            Decision: HIGH RISK — Heavy traffic may cause food to expire during transit. Consider alternatives.
-                          </>
-                        )}
-                      </div>
-                      <p className="text-[11px] mt-1" style={{ color: "#6B7280" }}>
-                        Travel time ({selectedPickup.etaMinutes} min) + loading buffer (30 min) = {selectedPickup.etaMinutes + 30} min total.
-                        Food safe for {Math.round(selectedPickup.hoursLeft * 60)} min.
-                        {canDeliverInTime(selectedPickup)
-                          ? ` Margin: ${Math.round(selectedPickup.hoursLeft * 60) - selectedPickup.etaMinutes - 30} minutes buffer.`
-                          : ` Deficit: ${selectedPickup.etaMinutes + 30 - Math.round(selectedPickup.hoursLeft * 60)} minutes short.`}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&origin=28.5459,77.1926&destination=${selectedPickup.lat},${selectedPickup.lng}&travelmode=driving`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-xl text-[12px] font-bold border border-[#A7F3D0] bg-[#ECFDF5] text-[#059669] hover:bg-[#D1FAE5] flex items-center justify-center gap-1.5 transition-all shadow-sm"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5 text-[#10B981]" />
-                      Directions on Google Maps
-                    </a>
-
-                    {acceptedPickups.includes(selectedPickup.id) ? (
-                      <span className="px-4 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-1.5" style={{ background: "#ECFDF5", color: "#059669", border: "1px solid #A7F3D0" }}>
-                        <CheckCircle2 className="w-4 h-4" /> Scheduled
-                      </span>
-                    ) : canDeliverInTime(selectedPickup) ? (
-                      <button
-                        onClick={() => handleAccept(selectedPickup)}
-                        className="px-4 py-2.5 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all hover:scale-105"
-                        style={{ background: "#10B981", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(16,185,129,0.3)" }}
-                      >
-                        <Truck className="w-4 h-4" /> Accept & Dispatch
-                      </button>
-                    ) : (
-                      <button className="px-4 py-2.5 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-60" style={{ background: "#D1D5DB", color: "#6B7280" }}>
-                        <AlertTriangle className="w-4 h-4" /> Too Risky
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
+        </div>
+      )}
 
-          {/* RIGHT COLUMN: Feed + History */}
-          <div className="lg:col-span-5 space-y-5">
-            {/* Filters */}
+      {/* ═══ TAB 2: DEDICATED LIVE FOOD CLAIMS ═══ */}
+      {activeTabFromUrl === "claims" && (
+        <div className="space-y-5">
+          {/* Filters Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white border border-gray-200 rounded-2xl">
             <div className="flex items-center gap-2 flex-wrap">
-              <Filter className="w-4 h-4" style={{ color: "#9CA3AF" }} />
+              <Filter className="w-4 h-4 text-gray-400" />
               {["All", "< 5 km", "> 40 kg", "Urgent (< 4 hrs)", "Low Traffic"].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilterType(f)}
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
-                  style={{
-                    background: filterType === f ? "#10B981" : "#FFFFFF",
-                    color: filterType === f ? "#FFFFFF" : "#6B7280",
-                    border: filterType === f ? "none" : "1px solid #E5E7EB",
-                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    filterType === f
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
                 >
                   {f}
                 </button>
               ))}
             </div>
+            <div className="text-xs font-semibold text-gray-500">
+              Showing {filteredFeed.length} verified donor surplus items
+            </div>
+          </div>
 
-            {/* Surplus Feed Cards */}
-            <div className="space-y-3">
-              {filteredFeed.map((item) => {
-                const isAccepted = acceptedPickups.includes(item.id);
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredFeed.map((item) => {
+              const isAccepted = acceptedPickups.includes(item.id);
+              const safe = canDeliverInTime(item);
+
+              return (
+                <div
+                  key={item.id}
+                  className="card p-5 bg-white border border-gray-200 hover:border-emerald-300 transition-all rounded-2xl shadow-sm space-y-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-extrabold text-sm text-gray-900">{item.institution}</h3>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          {item.diet}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                        <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                        {item.location} ({item.distanceKm} km away)
+                      </p>
+                    </div>
+
+                    <span className="text-right">
+                      <span className="text-xl font-black font-mono-data text-emerald-700 block">
+                        {item.quantityKg} kg
+                      </span>
+                      <span className="text-[10px] text-gray-400">~{Math.round(item.quantityKg * 3.2)} Meals</span>
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs">
+                    <span className="text-gray-400 block text-[11px] mb-0.5">Prepared Food Description:</span>
+                    <strong className="text-gray-900 font-semibold">{item.foodType}</strong>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
+                    <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
+                      <span className="text-gray-400 block text-[10px]">Safe Until</span>
+                      <span className="font-bold text-gray-800">{item.safeUntil}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
+                      <span className="text-gray-400 block text-[10px]">Traffic ETA</span>
+                      <span className="font-bold font-mono-data" style={{ color: getTrafficColor(item.trafficStatus) }}>
+                        {item.etaMinutes} mins
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
+                      <span className="text-gray-400 block text-[10px]">Transit Margin</span>
+                      <span className={`font-bold ${safe ? "text-emerald-600" : "text-rose-600"}`}>
+                        {safe ? "Safe Window" : "High Risk"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&origin=28.5459,77.1926&destination=${item.lat},${item.lng}&travelmode=driving`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Google Directions
+                    </a>
+
+                    {isAccepted ? (
+                      <span className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4" /> Claimed & Scheduled
+                      </span>
+                    ) : safe ? (
+                      <button
+                        onClick={() => handleAccept(item)}
+                        className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/30 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                      >
+                        <Truck className="w-4 h-4" /> Claim Batch & Dispatch
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-gray-200 text-gray-500 cursor-not-allowed"
+                      >
+                        High Congestion Risk
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ TAB 3: DEDICATED TRAFFIC & SAFE ROUTING (MERGED MAP!) ═══ */}
+      {activeTabFromUrl === "routing" && (
+        <div className="space-y-5">
+          <div className="card p-6 bg-white border border-gray-200 rounded-2xl shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="font-extrabold text-base text-gray-900 flex items-center gap-2">
+                  <Route className="w-5 h-5 text-emerald-600" />
+                  Live Corridor Traffic & Safety Margin Analyzer
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Combines Google Maps Live Traffic with FoodWise Shelf-Life Buffer Algorithm (30 min loading + transit time).
+                </p>
+              </div>
+
+              {/* Mode switch */}
+              <div className="flex items-center gap-1 bg-gray-100 p-1.5 rounded-xl">
+                <button
+                  onClick={() => setMapMode("google")}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    mapMode === "google" ? "bg-white text-emerald-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Google Maps Live Satellite
+                </button>
+                <button
+                  onClick={() => setMapMode("corridor")}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    mapMode === "corridor" ? "bg-white text-emerald-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Interactive Corridor Network
+                </button>
+              </div>
+            </div>
+
+            {/* Map Area */}
+            {mapMode === "google" ? (
+              <div className="relative rounded-2xl overflow-hidden border border-gray-300 bg-gray-100 h-96">
+                <iframe
+                  src="https://maps.google.com/maps?saddr=28.5459,77.1926&daddr=28.5672,77.2100&layer=t&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Google Maps Live Routing"
+                />
+              </div>
+            ) : (
+              <div className="relative rounded-2xl overflow-hidden bg-slate-900 h-96 p-4">
+                <div
+                  className="absolute inset-0 opacity-20"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                    backgroundSize: "30px 30px",
+                  }}
+                />
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 360">
+                  <line x1="50" y1="180" x2="550" y2="180" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+                  <line x1="300" y1="30" x2="300" y2="330" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+                  <ellipse cx="300" cy="180" rx="200" ry="120" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
+                  <line x1="300" y1="180" x2="160" y2="240" stroke="#10B981" strokeWidth="5" strokeLinecap="round" />
+                  <line x1="300" y1="180" x2="230" y2="100" stroke="#F59E0B" strokeWidth="5" strokeLinecap="round" />
+                  <line x1="300" y1="180" x2="440" y2="90" stroke="#EF4444" strokeWidth="5" strokeLinecap="round" />
+                  <line x1="300" y1="180" x2="470" y2="260" stroke="#EF4444" strokeWidth="5" strokeLinecap="round" />
+                </svg>
+
+                <div className="absolute left-[47%] top-[45%] flex flex-col items-center">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-xl">
+                    <HeartHandshake className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-[10px] font-black text-white bg-black/70 px-2 py-0.5 rounded mt-1">NGO HUB</span>
+                </div>
+
+                <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md p-3 rounded-2xl text-xs text-white space-y-1.5 border border-white/10">
+                  <div className="font-bold text-emerald-400 mb-1">Live Congestion Feed</div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-emerald-400" /> Hauz Khas: 12 min (Margin: +150 min buffer)</div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-amber-400" /> AIIMS Flyover: 22 min (Margin: +230 min buffer)</div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-rose-500" /> Mathura Road / Okhla: 45 min (Deficit risk)</div>
+                </div>
+              </div>
+            )}
+
+            {/* Corridor Safety Breakdown Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+              {initialFeed.map((item) => {
                 const safe = canDeliverInTime(item);
                 return (
                   <div
                     key={item.id}
-                    className="card p-4 cursor-pointer transition-all"
-                    style={{
-                      opacity: isAccepted ? 0.6 : 1,
-                      borderLeft: `3px solid ${getTrafficColor(item.trafficStatus)}`,
-                    }}
-                    onClick={() => setSelectedPickup(item)}
+                    className="p-3.5 rounded-xl border border-gray-200 bg-gray-50/70 space-y-1.5"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[13px] font-bold" style={{ color: "#111827" }}>{item.foodType}</span>
-                          {item.fssaiVerified && (
-                            <ShieldCheck className="w-3.5 h-3.5" style={{ color: "#059669" }} />
-                          )}
-                        </div>
-                        <div className="text-[11px]" style={{ color: "#6B7280" }}>{item.institution}</div>
-
-                        <div className="flex items-center gap-3 mt-2 text-[11px]">
-                          <span className="flex items-center gap-1" style={{ color: "#6B7280" }}>
-                            <MapPin className="w-3 h-3" /> {item.distanceKm} km
-                          </span>
-                          <span className="flex items-center gap-1 font-bold" style={{ color: getTrafficColor(item.trafficStatus) }}>
-                            <Navigation className="w-3 h-3" /> {item.etaMinutes} min
-                          </span>
-                          <span className="flex items-center gap-1" style={{ color: item.hoursLeft <= 4 ? "#D97706" : "#6B7280" }}>
-                            <Clock className="w-3 h-3" /> {item.hoursLeft}h left
-                          </span>
-                          <span className="font-mono-data font-bold" style={{ color: "#111827" }}>{item.quantityKg} kg</span>
-                        </div>
-
-                        {/* Traffic Decision Badge */}
-                        <div className="mt-2">
-                          {safe ? (
-                            <span className="badge badge-success" style={{ fontSize: "10px" }}>
-                              <Check className="w-3 h-3" /> Safe to send — will arrive in time
-                            </span>
-                          ) : (
-                            <span className="badge badge-danger" style={{ fontSize: "10px" }}>
-                              <AlertTriangle className="w-3 h-3" /> Risky — traffic may cause delay
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        {isAccepted ? (
-                          <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg" style={{ background: "#ECFDF5", color: "#059669" }}>
-                            <Check className="w-3 h-3 inline" /> Scheduled
-                          </span>
-                        ) : safe ? (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleAccept(item); }}
-                            className="text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all hover:scale-105"
-                            style={{ background: "#10B981", color: "#FFFFFF" }}
-                          >
-                            Accept
-                          </button>
-                        ) : (
-                          <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg" style={{ background: "#FEF2F2", color: "#DC2626" }}>
-                            Risky
-                          </span>
-                        )}
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-gray-900 truncate">{item.institution.split(" ")[0]}</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: getTrafficBg(item.trafficStatus), color: getTrafficColor(item.trafficStatus) }}>
+                        {item.etaMinutes}m ETA
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-gray-500">
+                      {safe ? (
+                        <span className="text-emerald-700 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Safe to dispatch
+                        </span>
+                      ) : (
+                        <span className="text-rose-700 font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5" /> Delay risk
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* Past Pickups History */}
-            <div className="card p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid #E5E7EB" }}>
-                  <button
-                    onClick={() => setPickupsTab("scheduled")}
-                    className="px-3 py-1.5 text-[12px] font-semibold"
-                    style={{
-                      background: pickupsTab === "scheduled" ? "#10B981" : "#FFFFFF",
-                      color: pickupsTab === "scheduled" ? "#FFFFFF" : "#6B7280",
-                    }}
-                  >
-                    Scheduled
-                  </button>
-                  <button
-                    onClick={() => setPickupsTab("history")}
-                    className="px-3 py-1.5 text-[12px] font-semibold"
-                    style={{
-                      background: pickupsTab === "history" ? "#10B981" : "#FFFFFF",
-                      color: pickupsTab === "history" ? "#FFFFFF" : "#6B7280",
-                    }}
-                  >
-                    History
-                  </button>
+      {/* ═══ TAB 4: DEDICATED SCHEDULED PICKUPS ═══ */}
+      {activeTabFromUrl === "scheduled" && (
+        <div className="space-y-4">
+          <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
+            <h3 className="font-bold text-sm text-gray-900 mb-1">
+              Active Pickups in Transit
+            </h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Authorized volunteer drivers, destination relief homes, and handover verification OTP codes.
+            </p>
+
+            <div className="space-y-3">
+              {[
+                {
+                  id: "sched-1",
+                  institution: "IIT Delhi Central Mess (Aravali)",
+                  food: "Dal Makhani & Steamed Rice (60 kg)",
+                  destination: "Aasha Shelter Home, Malviya Nagar",
+                  driver: "Ramesh Kumar (Van DL-1L-4492)",
+                  phone: "+91 98112 34567",
+                  otp: "8942",
+                  eta: "Arriving at Kitchen in 8 mins",
+                  status: "En Route to Kitchen",
+                },
+                {
+                  id: "sched-2",
+                  institution: "AIIMS Cafeteria Unit 2",
+                  food: "Fresh Mixed Sabzi & 140 Rotis (35 kg)",
+                  destination: "Nizamuddin Rain Basera Center",
+                  driver: "Satish Pal (E-Loader DL-4E-9021)",
+                  phone: "+91 98770 12345",
+                  otp: "4119",
+                  eta: "Loaded & In Transit to Shelter",
+                  status: "Delivering to Shelter",
+                },
+              ].map((pickup) => (
+                <div
+                  key={pickup.id}
+                  className="p-5 rounded-2xl border border-gray-200 bg-gray-50/60 hover:bg-white transition-all space-y-3"
+                >
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-gray-200">
+                    <div>
+                      <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full">
+                        ● {pickup.status}
+                      </span>
+                      <h4 className="font-extrabold text-sm text-gray-900 mt-1">{pickup.institution}</h4>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono-data bg-gray-900 text-white px-3 py-1 rounded-xl flex items-center gap-1.5">
+                        <Key className="w-3.5 h-3.5 text-amber-400" />
+                        Verification OTP: <strong>{pickup.otp}</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <span className="text-gray-400 block text-[10px]">Food Batch</span>
+                      <span className="font-semibold text-gray-800">{pickup.food}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block text-[10px]">Destination Shelter</span>
+                      <span className="font-semibold text-gray-800">{pickup.destination}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block text-[10px]">Driver & Contact</span>
+                      <span className="font-semibold text-gray-800">{pickup.driver} • {pickup.phone}</span>
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ TAB 5: DEDICATED PICKUP HISTORY & RECEIPTS ═══ */}
+      {activeTabFromUrl === "history" && (
+        <div className="space-y-4">
+          <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <h3 className="font-bold text-sm text-gray-900">
+                  Completed Surplus Food Distributions
+                </h3>
+                <p className="text-xs text-gray-500">Official digital delivery logs, shelter acknowledgments, and relief audit receipts</p>
               </div>
 
-              {pickupsTab === "history" && (
-                <div className="space-y-2.5">
-                  {pastPickupsHistory.map((h) => (
-                    <div key={h.id} className="p-3 rounded-xl" style={{ background: "#F9FAFB", border: "1px solid #F3F4F6" }}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[12px] font-bold" style={{ color: "#111827" }}>{h.food}</span>
-                        <span className="text-[10px] font-mono-data" style={{ color: "#9CA3AF" }}>{h.receipt}</span>
-                      </div>
-                      <div className="text-[11px]" style={{ color: "#6B7280" }}>{h.institution} → {h.recipient}</div>
-                      <div className="text-[10px]" style={{ color: "#9CA3AF" }}>{h.date}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {pickupsTab === "scheduled" && (
-                <div className="text-center py-6">
-                  {acceptedPickups.length > 0 ? (
-                    <div className="space-y-2">
-                      {initialFeed.filter(i => acceptedPickups.includes(i.id)).map(item => (
-                        <div key={item.id} className="p-3 rounded-xl text-left" style={{ background: "#ECFDF5", border: "1px solid #A7F3D0" }}>
-                          <div className="text-[12px] font-bold" style={{ color: "#059669" }}>{item.foodType} — {item.quantityKg} kg</div>
-                          <div className="text-[11px]" style={{ color: "#6B7280" }}>{item.institution}</div>
-                          <div className="text-[10px] font-mono-data mt-1" style={{ color: "#059669" }}>
-                            ETA: {item.etaMinutes} min • Driver dispatched
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Truck className="w-8 h-8 mx-auto" style={{ color: "#D1D5DB" }} />
-                      <div className="text-[13px] font-semibold" style={{ color: "#6B7280" }}>No scheduled pickups yet</div>
-                      <div className="text-[11px]" style={{ color: "#9CA3AF" }}>Accept a surplus pickup from the feed to get started</div>
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="relative w-full sm:w-64">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search receipt, mess, shelter..."
+                  value={historySearch}
+                  onChange={(e) => setHistorySearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
             </div>
+
+            <div className="space-y-3">
+              {pastPickupsHistory
+                .filter(
+                  (h) =>
+                    h.institution.toLowerCase().includes(historySearch.toLowerCase()) ||
+                    h.recipient.toLowerCase().includes(historySearch.toLowerCase()) ||
+                    h.receipt.toLowerCase().includes(historySearch.toLowerCase())
+                )
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-gray-900">{item.institution}</span>
+                        <span className="text-[10px] font-mono-data font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          {item.receipt}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-600 mt-0.5">{item.food} ➔ {item.recipient}</div>
+                      <div className="text-[11px] text-gray-400 mt-1">
+                        Delivered on {item.date} by {item.driver}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified Delivered
+                      </span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
+  );
+}
+
+export default function NgoDashboardPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading NGO Command Desk...</div>}>
+      <NgoDashboardContent />
+    </Suspense>
   );
 }

@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const db = await getDb();
 
-    const fssaiRef = `FSSAI-CMP-2026-${Math.floor(80000 + Math.random() * 10000)}`;
+    const ticketRef = `FW-SUPPORT-2026-${Math.floor(80000 + Math.random() * 10000)}`;
 
     const complaint = {
       complaintId: `cmp-${Date.now()}`,
@@ -34,16 +34,19 @@ export async function POST(request: Request) {
       location: body.location,
       category: body.category,
       severity: body.severity || "High",
-      status: "Submitted",
-      fssaiRef,
+      status: "Under Review by Admin",
+      ticketRef,
+      fssaiRef: ticketRef, // backwards compatibility
       description: body.description,
       contactPhone: body.contactPhone,
       hasImage: body.hasImage || false,
+      adminAssigned: "FoodWise Incident Ops Desk",
+      resolutionEta: "Within 30 mins",
       createdAt: new Date(),
     };
 
     await db.collection("complaints").insertOne(complaint);
-    return NextResponse.json({ success: true, data: complaint, fssaiRef });
+    return NextResponse.json({ success: true, data: complaint, ticketRef, fssaiRef: ticketRef });
   } catch (error) {
     console.error("Complaints POST error:", error);
     return NextResponse.json({ error: "Failed to create complaint" }, { status: 500 });

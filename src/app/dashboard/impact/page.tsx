@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { downloadNgoImpactCertificatePdf } from "@/lib/pdfGenerator";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
@@ -73,8 +74,15 @@ export default function SustainabilityImpactPage() {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => alert("Downloading ESG Audit Certificate (PDF)...")}
-              className="px-4 py-2.5 rounded-xl bg-[#F3F4F6] hover:bg-white/[0.1] text-[#111827] text-xs font-semibold border border-[#E5E7EB] transition-all flex items-center gap-2"
+              onClick={() =>
+                downloadNgoImpactCertificatePdf({
+                  certificateType: "FoodWise National ESG Audit Certificate (PDF)",
+                  mealsServed: 342190,
+                  co2SavedKg: 171095,
+                  ngoName: "FoodWise National Food Recovery Coalition",
+                })
+              }
+              className="px-4 py-2.5 rounded-xl bg-[#F3F4F6] hover:bg-white/[0.1] text-[#111827] text-xs font-semibold border border-[#E5E7EB] transition-all flex items-center gap-2 cursor-pointer active:scale-95"
             >
               <Download className="w-3.5 h-3.5 text-[#10B981]" />
               Export ESG Audit (PDF)

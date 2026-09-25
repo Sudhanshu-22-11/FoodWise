@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { downloadFactoryAuditPdf } from "@/lib/pdfGenerator";
 import {
   Factory,
   Layers,
@@ -100,11 +101,29 @@ export default function FactoryReportsPage() {
 
   const handleExport = (type: string) => {
     setDownloading(true);
+    if (type.includes("PDF")) {
+      downloadFactoryAuditPdf({
+        title: type,
+        facilityName: "Punjab Agro Processing Facility #4",
+        plantCode: "PB-IND-004",
+      });
+    } else {
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        "MachineId,Line,OEE,Vibration,SpoilageRisk,PreventiveAction,Status\n" +
+        machineAuditLogs.map(m => `"${m.machineId}","${m.line}","${m.oee}","${m.vibrationMmS}","${m.spoilageRisk}","${m.preventiveAction}","${m.status}"`).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "FoodWise_Factory_Audit.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
     setTimeout(() => {
       setDownloading(false);
       setToastMessage(`${type} successfully compiled and downloaded!`);
       setTimeout(() => setToastMessage(null), 4000);
-    }, 1200);
+    }, 600);
   };
 
   return (
