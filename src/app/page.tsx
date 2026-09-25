@@ -37,12 +37,18 @@ export default function LandingPage() {
       badge: "IIT Delhi Warden",
       defaultEmail: "warden.mess@iitd.ac.in",
       destination: "/kitchen/dashboard",
-      quote:
-        "Seamless surplus forecasting & recovery experience! FoodWise makes forecasting student meals and coordinating with local shelter homes effortless. We prevented 1,840 kg of edible food waste this month alone.",
-      author: "Dr. S.R. Sharma",
-      title: "Mess Warden, IIT Delhi Central Mess",
-      avatarBg: "#10B981",
-      avatarInitials: "SR",
+      facility: "Institutional Mess & Commercial Kitchens",
+      tagline: "Autonomous Demand Forecasting & Zero Surplus Waste",
+      features: [
+        "AI Meal Demand & Headcount Forecaster (±4% error margin)",
+        "Automated First-In-First-Out (FIFO) Spoilage Watchdog",
+        "1-Click NGO Surplus Matching & Safe Transit Dispatch",
+      ],
+      metrics: [
+        { label: "Meals Rescued", val: "38,400+" },
+        { label: "Prediction Accuracy", val: "94.2%" },
+        { label: "Cost Rescued", val: "₹14.8L" },
+      ],
     },
     {
       id: "FACTORY_MANAGER" as InstitutionRole,
@@ -50,12 +56,18 @@ export default function LandingPage() {
       badge: "Haldirams Unit 3",
       defaultEmail: "ops.head@haldirams.com",
       destination: "/factory/dashboard",
-      quote:
-        "Industrial IoT precision at its finest. Cold-storage ethylene and machine telemetry alerts salvaged 3 high-risk spinach batches before spoilage, boosting line recovery yield by 18.5%.",
-      author: "Rajesh K. Singhania",
-      title: "VP Production, Punjab Agro Facility",
-      avatarBg: "#F59E0B",
-      avatarInitials: "RS",
+      facility: "Agro-Processing & Industrial Production Plant",
+      tagline: "Adaptive Quality Monitoring & Machine Health Analytics",
+      features: [
+        "Produce-Specific AI Adaptive Storage (Ethylene, Temp, RH)",
+        "Early Machine Anomaly Detection via Telemetry & Acoustics",
+        "Industrial Byproduct Valorization & Circular Mass Balance",
+      ],
+      metrics: [
+        { label: "Line Yield", val: "+18.5%" },
+        { label: "Downtime Prevented", val: "142 hrs" },
+        { label: "Spoilage Risk", val: "-62%" },
+      ],
     },
     {
       id: "NGO_PARTNER" as InstitutionRole,
@@ -63,12 +75,18 @@ export default function LandingPage() {
       badge: "Robin Hood Army",
       defaultEmail: "relief@robinhoodarmy.com",
       destination: "/ngo/dashboard",
-      quote:
-        "Instant relief dispatch with verified FSSAI handoff! Real-time traffic congestion buffers ensure hot nutritious meals reach homeless shelters in Hauz Khas and Malviya Nagar in under 22 minutes.",
-      author: "Aasha Verma",
-      title: "Zonal Director, Food Relief Network",
-      avatarBg: "#3B82F6",
-      avatarInitials: "AV",
+      facility: "Community Relief Hub & Cold-Chain Logistics",
+      tagline: "Rapid Food Claiming, Traffic-Aware Routing & Verification",
+      features: [
+        "Real-Time Push Alerts for Verified Edible Food Donations",
+        "Traffic & Heat-Aware Safe Routing with Dynamic Buffer Times",
+        "Digital FSSAI Golden-Hour Temperature & Safety Audit Logs",
+      ],
+      metrics: [
+        { label: "Avg Delivery", val: "19 mins" },
+        { label: "Shelters Fed", val: "48+" },
+        { label: "Food Quality", val: "100% Safe" },
+      ],
     },
   ];
 
@@ -110,9 +128,11 @@ export default function LandingPage() {
           {/* Top Logo & Brand */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden bg-white p-1 border border-emerald-200 shadow-xs flex items-center justify-center shrink-0">
-                <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="FoodWise Logo"
+                className="w-10 h-10 sm:w-11 sm:h-11 object-contain shrink-0"
+              />
               <div>
                 <span className="font-extrabold text-xl text-[#143826] tracking-tight block leading-tight">
                   FoodWise
@@ -323,49 +343,54 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Impact Quote & Thematic Illustration (5 cols) */}
-        <div className="lg:col-span-5 bg-[#F5F2EB] p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative overflow-hidden border-t lg:border-t-0 lg:border-l border-gray-200">
-          {/* Top quote area */}
-          <div className="space-y-3 relative z-10">
-            {/* Orange Quote Mark */}
-            <div className="text-[#E66A35] font-serif text-3xl font-black leading-none select-none">
-              “
+        {/* RIGHT COLUMN: Real-Time Intelligence & Capabilities (5 cols) */}
+        <div className="lg:col-span-5 bg-[#F5F2EB] p-6 sm:p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden border-t lg:border-t-0 lg:border-l border-gray-200">
+          <div className="space-y-4 relative z-10">
+            {/* Top capability badge */}
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-300/80 text-[11px] font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                AI Circular Infrastructure
+              </span>
             </div>
 
-            {/* Testimonial Quote */}
-            <p className="text-xs sm:text-sm font-medium text-gray-800 leading-relaxed">
-              {currentRoleConfig.quote}
-            </p>
-
-            <div className="text-[#E66A35] font-serif text-3xl font-black leading-none select-none text-right">
-              ”
+            {/* Role Facility Title & Tagline */}
+            <div>
+              <h2 className="text-base sm:text-lg font-extrabold text-gray-900 leading-snug">
+                {currentRoleConfig.facility}
+              </h2>
+              <p className="text-xs font-semibold text-emerald-800 mt-1">
+                {currentRoleConfig.tagline}
+              </p>
             </div>
 
-            {/* Author Block */}
-            <div className="flex items-center gap-3 pt-1">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs text-white shadow-xs shrink-0"
-                style={{ background: currentRoleConfig.avatarBg }}
-              >
-                {currentRoleConfig.avatarInitials}
-              </div>
-              <div>
-                <div className="font-bold text-xs sm:text-sm text-gray-900">
-                  {currentRoleConfig.author}
+            {/* Feature Highlights */}
+            <div className="space-y-2 pt-1">
+              {currentRoleConfig.features.map((feat, i) => (
+                <div key={i} className="flex items-start gap-2.5 text-xs text-gray-700 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">{feat}</span>
                 </div>
-                <div className="text-[11px] text-gray-500">
-                  {currentRoleConfig.title}
+              ))}
+            </div>
+
+            {/* 3 Metric Pills */}
+            <div className="grid grid-cols-3 gap-2 pt-2">
+              {currentRoleConfig.metrics.map((m, i) => (
+                <div key={i} className="bg-white/85 border border-emerald-200/80 rounded-xl p-2.5 text-center shadow-xs">
+                  <div className="text-xs sm:text-sm font-extrabold text-emerald-900">{m.val}</div>
+                  <div className="text-[10px] text-gray-500 font-medium leading-tight mt-0.5">{m.label}</div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Project Illustration matching reference */}
-          <div className="mt-6 -mx-6 -mb-6 sm:-mx-10 sm:-mb-10 lg:-mx-12 lg:-mb-12 relative flex justify-end">
+          {/* Project Illustration */}
+          <div className="mt-4 -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 lg:-mx-10 lg:-mb-10 relative flex justify-end">
             <img
               src="/login-illustration.png"
               alt="FoodWise Sustainable Kitchen & Food Logistics"
-              className="w-full max-h-[310px] object-cover object-bottom opacity-95 hover:opacity-100 transition-opacity"
+              className="w-full max-h-[250px] object-cover object-bottom opacity-95 hover:opacity-100 transition-opacity"
             />
           </div>
         </div>
