@@ -1,5 +1,5 @@
-# FoodWise (SIH 2026) — Complete Platform Documentation
-> **AI-Driven Circular Food Waste Management, Industrial Mass Balance & Community Hunger Relief Platform**  
+# FoodWise — Complete Platform Documentation
+> **“Making Every Meal Count”** — AI-Driven Circular Food Waste Management, Industrial Mass Balance & Community Hunger Relief Platform  
 > *Live Deployed URL:* [https://food-wise-puce.vercel.app](https://food-wise-puce.vercel.app)
 
 ---
@@ -262,4 +262,4 @@ Database: foodwise (MongoDB Atlas Cluster0)
 
 ---
 
-*Authored for Smart India Hackathon (SIH 2026) • Project: FoodWise (FoodSense AI)*
+*FoodWise (FoodSense AI) • “Making every meal count”*

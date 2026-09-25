@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import {
   X,
@@ -15,11 +16,18 @@ import {
   Sliders,
   Sparkles,
   RefreshCw,
+  LogOut,
 } from "lucide-react";
 
 export default function SettingsModal() {
+  const router = useRouter();
   const { isSettingsOpen, setIsSettingsOpen, currentRole } = useApp();
   const [activeTab, setActiveTab] = useState<"profile" | "alerts" | "ai">("profile");
+
+  const handleLogout = () => {
+    setIsSettingsOpen(false);
+    router.push("/");
+  };
 
   // Form State
   const [orgName, setOrgName] = useState(
@@ -325,27 +333,39 @@ export default function SettingsModal() {
           )}
 
           {/* Footer Actions */}
-          <div className="pt-4 border-t border-[#E8ECF3] flex items-center justify-between">
-            {savedSuccess ? (
-              <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4" />
-                Settings saved successfully!
-              </div>
-            ) : (
-              <span className="text-[11px] text-[#9CA3AF]">Changes will apply immediately across all modules</span>
-            )}
+          <div className="pt-4 border-t border-[#E8ECF3] flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                title="End current session and return to Login page"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
 
-            <div className="flex items-center gap-2">
+              {savedSuccess ? (
+                <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Settings saved!
+                </div>
+              ) : (
+                <span className="text-[11px] text-[#9CA3AF] hidden sm:inline">Settings apply across all modules</span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <button
                 type="button"
                 onClick={() => setIsSettingsOpen(false)}
-                className="px-4 py-2 rounded-xl border border-[#E5E7EB] text-xs font-bold text-[#6B7280] hover:bg-[#F3F4F6] transition-colors"
+                className="px-4 py-2 rounded-xl border border-[#E5E7EB] text-xs font-bold text-[#6B7280] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-md shadow-emerald-500/25 flex items-center gap-1.5 transition-all"
+                className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-md shadow-emerald-500/25 flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <Save className="w-3.5 h-3.5" />
                 Save Changes

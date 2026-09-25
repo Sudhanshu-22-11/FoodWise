@@ -148,7 +148,7 @@ export default function ApiInspectorModal() {
                 </span>
               </div>
               <p className="text-xs text-[#94A3B8]">
-                Interactive evaluation console for SIH 2026 Jury: Verify machine learning inference & heuristics
+                Interactive evaluation console: Verify machine learning inference &amp; heuristics
               </p>
             </div>
           </div>

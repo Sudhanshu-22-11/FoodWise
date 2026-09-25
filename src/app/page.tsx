@@ -110,16 +110,21 @@ export default function LandingPage() {
           {/* Top Logo & Brand */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl overflow-hidden bg-white p-0.5 border border-emerald-200 shadow-xs flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl overflow-hidden bg-white p-1 border border-emerald-200 shadow-xs flex items-center justify-center shrink-0">
                 <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="font-extrabold text-xl text-[#143826] tracking-tight">
-                FoodWise
-              </span>
+              <div>
+                <span className="font-extrabold text-xl text-[#143826] tracking-tight block leading-tight">
+                  FoodWise
+                </span>
+                <span className="text-[11px] font-semibold text-emerald-800 tracking-wide block">
+                  Making every meal count
+                </span>
+              </div>
             </div>
 
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100/70 text-emerald-800 border border-emerald-300 font-mono-data">
-              SIH &apos;26 • AI Engine
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100/80 text-emerald-900 border border-emerald-300 font-mono-data">
+              AI Platform
             </span>
           </div>
 
@@ -129,7 +134,10 @@ export default function LandingPage() {
               <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
                 Sign In
               </h1>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">
+              <p className="text-xs sm:text-sm font-semibold text-emerald-800 mt-1 italic tracking-wide">
+                &ldquo;Making every meal count&rdquo;
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
                 Welcome back! Please enter your details to continue
               </p>
             </div>
@@ -293,7 +301,7 @@ export default function LandingPage() {
                 Don&apos;t have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => alert("SIH 2026 Evaluation: All 3 roles (Kitchen, Factory, NGO) are pre-unlocked. Select any role above to enter.")}
+                  onClick={() => alert("Demo Access: All 3 roles (Kitchen, Factory, NGO) are pre-unlocked. Select any role above to enter.")}
                   className="font-bold text-emerald-800 hover:underline cursor-pointer"
                 >
                   Sign Up
@@ -364,8 +372,8 @@ export default function LandingPage() {
       </div>
 
       {/* Footer Branding */}
-      <div className="mt-6 text-center text-xs text-emerald-300/60 font-medium">
-        FoodWise • AI Autonomous Food Waste Prevention & Redistribution Platform • Smart India Hackathon 2026
+      <div className="mt-6 text-center text-xs text-emerald-300/70 font-medium">
+        FoodWise • AI Autonomous Food Waste Prevention & Redistribution Platform • <span className="italic font-semibold text-emerald-200">&ldquo;Making every meal count&rdquo;</span>
       </div>
     </div>
   );

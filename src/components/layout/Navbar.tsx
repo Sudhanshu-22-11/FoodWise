@@ -56,7 +56,7 @@ export default function Navbar() {
                   border: "1px solid #A7F3D0",
                 }}
               >
-                SIH &apos;26
+                AI Live
               </span>
             </div>
             <p className="text-[11px] font-medium hidden sm:block" style={{ color: "#9CA3AF" }}>
@@ -115,7 +115,7 @@ export default function Navbar() {
           </button>
 
           <Link
-            href="/login"
+            href="/"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
             style={{
               background: "#F4F6FA",
@@ -124,7 +124,7 @@ export default function Navbar() {
             }}
           >
             <LogIn className="w-3.5 h-3.5" style={{ color: "#10B981" }} />
-            <span className="hidden sm:inline">Role Access</span>
+            <span className="hidden sm:inline">Sign In</span>
           </Link>
 
           <Link

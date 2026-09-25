@@ -155,7 +155,7 @@ export default function NotificationDrawer() {
             <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
             <span>AI Event Bus: Active</span>
           </div>
-          <span className="font-mono-data text-[11px] text-[#475569]">v2.4.0-sih</span>
+          <span className="font-mono-data text-[11px] text-[#475569]">v2.4.0</span>
         </div>
       </div>
     </div>

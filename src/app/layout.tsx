@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "NGO food redistribution",
     "smart kitchen",
     "FSSAI compliance",
-    "SIH 2026",
+    "Making every meal count",
   ],
 };
 

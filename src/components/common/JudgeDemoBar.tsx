@@ -56,7 +56,7 @@ export default function JudgeDemoBar() {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse" />
             <span className="font-bold text-[#111827] tracking-wide flex items-center gap-1.5">
-              SIH 2026 JUDGE CONTROL BAR
+              DEMO &amp; EVALUATION CONTROL BAR
             </span>
             <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/30 font-mono-data hidden sm:inline-block">
               FoodWise
