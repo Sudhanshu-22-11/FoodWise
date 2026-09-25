@@ -88,8 +88,8 @@ export default function FactoryMachinesPage() {
                       isCheckRequired
                         ? "bg-amber-500 text-white font-extrabold animate-pulse"
                         : isWarning
-                        ? "bg-amber-500/20 text-[#D97706] border border-[#FDE68A]"
-                        : "bg-[#10B981]/15 text-[#059669] border border-[#10B981]/30"
+                        ? "bg-amber-100 text-amber-800 border border-amber-300 font-bold"
+                        : "bg-emerald-50 text-[#065F46] border border-emerald-300 font-extrabold"
                     }`}
                   >
                     {isCheckRequired
@@ -103,10 +103,10 @@ export default function FactoryMachinesPage() {
                 {/* Efficiency metrics with circular preview */}
                 <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#F3F4F6] mb-4 flex items-center justify-between">
                   <div>
-                    <div className="text-[11px] text-[#6B7280]">Yield Efficiency</div>
+                    <div className="text-[11px] text-[#6B7280] font-medium">Yield Efficiency</div>
                     <div
                       className={`text-2xl font-black font-mono-data ${
-                        isCheckRequired ? "text-amber-400" : "text-[#111827]"
+                        isCheckRequired ? "text-amber-600" : "text-[#111827]"
                       }`}
                     >
                       {machine.efficiencyPct}%
@@ -114,8 +114,8 @@ export default function FactoryMachinesPage() {
                   </div>
 
                   <div className="text-right">
-                    <div className="text-[11px] text-[#6B7280]">Normal Range</div>
-                    <div className="text-xs font-mono-data font-semibold text-white/80">
+                    <div className="text-[11px] text-[#6B7280] font-medium">Normal Range</div>
+                    <div className="text-xs font-mono-data font-bold text-gray-800">
                       {machine.normalRange}
                     </div>
                   </div>
@@ -123,40 +123,40 @@ export default function FactoryMachinesPage() {
 
                 {/* ANOMALY CALLOUT (SPECIFIC TO PM-03 & SR-05) */}
                 {machine.anomalyDetected && (
-                  <div className="space-y-2.5 p-3.5 rounded-xl bg-black/50 border border-[#FDE68A] text-xs text-[#F1F5F9] mb-4">
-                    <div className="font-bold text-[#D97706] flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                  <div className="space-y-2.5 p-3.5 rounded-xl bg-amber-50/80 border-2 border-amber-300 text-xs text-amber-950 mb-4 shadow-xs">
+                    <div className="font-extrabold text-amber-900 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                       ANOMALY DETECTED:
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[11px] py-1 border-y border-[#F3F4F6] font-mono-data">
+                    <div className="grid grid-cols-2 gap-2 text-[11px] py-1 border-y border-amber-200 font-mono-data">
                       <div>
-                        <span className="text-[#6B7280]">Current:</span>
-                        <div className="font-bold text-[#D97706]">{machine.currentValue}</div>
+                        <span className="text-amber-800 font-medium">Current:</span>
+                        <div className="font-extrabold text-rose-700">{machine.currentValue}</div>
                       </div>
                       <div>
-                        <span className="text-[#6B7280]">Benchmark:</span>
-                        <div className="font-semibold text-[#111827]">{machine.expectedValue}</div>
+                        <span className="text-amber-800 font-medium">Benchmark:</span>
+                        <div className="font-bold text-gray-900">{machine.expectedValue}</div>
                       </div>
                     </div>
 
                     <div className="text-[11px] space-y-1">
-                      <div className="text-[#92400E]">
-                        <strong>Extra Loss Rate:</strong> {machine.lossRatePerHour}
+                      <div className="text-amber-900 font-medium">
+                        <strong className="font-bold text-amber-950">Extra Loss Rate:</strong> {machine.lossRatePerHour}
                       </div>
-                      <div className="text-[#DC2626] font-bold">
+                      <div className="text-rose-700 font-extrabold">
                         Estimated Waste: ~{machine.estimatedExtraWasteKgPerHour} kg/hour
                       </div>
                     </div>
 
                     {machine.possibleCause && (
-                      <div className="text-[11px] text-[#6B7280] pt-1">
+                      <div className="text-[11px] text-amber-900 pt-1">
                         <strong>Possible cause:</strong> {machine.possibleCause}
                       </div>
                     )}
 
                     {machine.note && (
-                      <div className="p-2 rounded bg-[#FFF8EB] border border-amber-500/20 text-[10px] text-[#D97706]/90 italic">
+                      <div className="p-2 rounded-lg bg-amber-100/90 border border-amber-300 text-[11px] text-amber-950 font-medium italic">
                         ⚠️ {machine.note}
                       </div>
                     )}
@@ -167,14 +167,14 @@ export default function FactoryMachinesPage() {
                 {!machine.anomalyDetected && (
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-[11px] text-[#6B7280] mb-1.5">
-                      <span>Shift Stability Trend</span>
-                      <span className="text-[#059669] font-semibold">100% In Spec</span>
+                      <span className="font-medium">Shift Stability Trend</span>
+                      <span className="text-[#047857] font-bold">100% In Spec</span>
                     </div>
-                    <div className="flex items-end gap-1 h-8 bg-black/20 p-1.5 rounded-lg border border-[#F3F4F6]">
+                    <div className="flex items-end gap-1 h-8 bg-emerald-50/70 p-1.5 rounded-lg border border-emerald-100">
                       {machine.trend.map((val, i) => (
                         <div
                           key={i}
-                          className="flex-1 bg-[#10B981]/60 rounded-t"
+                          className="flex-1 bg-emerald-500 rounded-t"
                           style={{ height: `${(val / 100) * 100}%` }}
                         />
                       ))}
@@ -188,8 +188,8 @@ export default function FactoryMachinesPage() {
                 {isCheckRequired ? (
                   <>
                     {isTechnicianAssigned ? (
-                      <div className="flex-1 py-2 px-3 rounded-xl bg-[#10B981]/20 border border-[#10B981]/30 text-[#059669] text-xs font-bold flex items-center justify-center gap-1.5">
-                        <UserCheck className="w-3.5 h-3.5" />
+                      <div className="flex-1 py-2 px-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center justify-center gap-1.5">
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
                         Technician Dispatched
                       </div>
                     ) : (

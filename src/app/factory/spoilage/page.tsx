@@ -152,11 +152,11 @@ export default function FactorySpoilagePage() {
 
             {/* Batch Info */}
             <div className="mb-4">
-              <div className="text-xs text-[#6B7280] font-mono-data">Batch Identifier:</div>
+              <div className="text-xs text-[#6B7280] font-mono-data font-semibold">Batch Identifier:</div>
               <div className="text-xl font-black text-[#111827] font-mono-data">TOM-2024-0234</div>
-              <div className="text-xs text-white/80 mt-1 flex items-center gap-3">
+              <div className="text-xs text-gray-700 font-semibold mt-1 flex items-center gap-3">
                 <span>🍅 Processing Tomatoes</span>
-                <span>•</span>
+                <span className="text-gray-400">•</span>
                 <span className="font-mono-data font-bold text-[#DC2626]">3,200 kg</span>
               </div>
               <div className="text-[11px] text-[#6B7280] mt-0.5">
@@ -165,61 +165,64 @@ export default function FactorySpoilagePage() {
             </div>
 
             {/* Spoilage Prediction Metrics */}
-            <div className="p-4 rounded-xl bg-black/50 border border-[#E8ECF3] mb-4 space-y-2.5">
+            <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] mb-4 space-y-2.5 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#111827]">
+                <span className="text-xs font-bold text-gray-800">
                   Estimated Time to Spoilage:
                 </span>
-                <span className="text-lg font-black text-red-400 font-mono-data">
+                <span className="text-lg font-black text-rose-600 font-mono-data">
                   31 hours
                 </span>
               </div>
 
               <div>
-                <div className="flex items-center justify-between text-[11px] text-[#6B7280] mb-1">
+                <div className="flex items-center justify-between text-[11px] text-gray-600 font-semibold mb-1">
                   <span>Confidence Score</span>
-                  <span className="font-mono-data font-bold text-[#111827]">82%</span>
+                  <span className="font-mono-data font-bold text-gray-900">82%</span>
                 </div>
-                <div className="w-full bg-[#F3F4F6] rounded-full h-2 overflow-hidden">
-                  <div className="bg-red-500 h-2 rounded-full" style={{ width: "82%" }} />
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div className="bg-rose-500 h-2 rounded-full" style={{ width: "82%" }} />
                 </div>
               </div>
             </div>
 
             {/* Contributing Factors */}
             <div className="space-y-2 mb-5">
-              <div className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">
+              <div className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                 Contributing Sensor Factors:
               </div>
-              <ul className="space-y-1.5 text-xs text-[#F1F5F9]">
-                <li className="flex items-start gap-2 text-[#D97706]">
+              <ul className="space-y-1.5 text-xs">
+                <li className="flex items-start gap-2 text-amber-800 font-medium">
                   <span className="shrink-0">⚠️</span>
                   <span>Temperature exceeded 10°C threshold 3x today (peak 13.1°C)</span>
                 </li>
-                <li className="flex items-start gap-2 text-[#D97706]">
+                <li className="flex items-start gap-2 text-amber-800 font-medium">
                   <span className="shrink-0">⚠️</span>
                   <span>Humidity dipped to 87% (below 92% baseline)</span>
                 </li>
-                <li className="flex items-start gap-2 text-[#D97706]">
+                <li className="flex items-start gap-2 text-amber-800 font-medium">
                   <span className="shrink-0">⚠️</span>
                   <span>Batch age approaching physiological respiration limit</span>
                 </li>
-                <li className="flex items-start gap-2 text-[#6B7280]">
+                <li className="flex items-start gap-2 text-gray-700 font-medium">
                   <span className="shrink-0">ℹ️</span>
                   <span>Historical match: Batch TOM-2024-0198 spoiled in 28 hrs</span>
                 </li>
               </ul>
             </div>
 
-            {/* AI Recommendation Box */}
-            <div className="p-3.5 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] mb-5">
-              <div className="text-xs font-bold text-[#10B981] flex items-center gap-1.5 mb-1">
-                <Sparkles className="w-3.5 h-3.5" />
+            {/* AI Recommendation Box (High Contrast Crystal Clear) */}
+            <div className="p-4 rounded-xl bg-emerald-50 border-2 border-emerald-300 mb-5 shadow-xs">
+              <div className="text-xs font-extrabold text-[#065F46] flex items-center gap-1.5 mb-1.5">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
                 AI Operational Recommendation:
               </div>
-              <p className="text-xs text-[#F1F5F9] leading-relaxed">
+              <p className="text-xs text-[#064E3B] font-medium leading-relaxed">
                 &quot;Prioritize this batch for processing today. Estimated{" "}
-                <strong className="text-[#10B981] font-bold">2,800 kg can be salvaged</strong> if processed within the next 8 hours on Ketchup Line 2.&quot;
+                <strong className="text-emerald-950 font-black bg-emerald-200/70 px-1.5 py-0.5 rounded border border-emerald-300">
+                  2,800 kg can be salvaged
+                </strong>{" "}
+                if processed within the next 8 hours on Ketchup Line 2.&quot;
               </p>
             </div>
           </div>
@@ -227,14 +230,14 @@ export default function FactorySpoilagePage() {
           {/* Action Buttons */}
           <div className="space-y-2 pt-2 border-t border-[#E8ECF3]">
             {isBatchPrioritized ? (
-              <div className="w-full py-3 rounded-xl bg-[#10B981]/20 border border-[#10B981]/40 text-[#059669] font-bold text-xs flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="w-full py-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 font-bold text-xs flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 Rerouted to Ketchup Line 2 (In Queue)
               </div>
             ) : (
               <button
                 onClick={prioritizeBatch}
-                className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 text-[#111827] font-bold text-xs shadow-lg shadow-red-500/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+                className="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md shadow-rose-500/25 transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 Prioritize in Production
@@ -393,10 +396,10 @@ export default function FactorySpoilagePage() {
                 </p>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#10B981]">
-                <div className="font-bold mb-1">Economic & CO₂ Valuation</div>
-                <p className="text-[#111827]">
-                  Salvaging 2,800 kg preserves <strong className="text-[#10B981]">₹1,12,000</strong> raw procurement outlay and avoids 7.0 tons CO₂e landfill methane generation.
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950">
+                <div className="font-extrabold text-[#065F46] mb-1">Economic & CO₂ Valuation</div>
+                <p className="text-[#064E3B] font-medium">
+                  Salvaging 2,800 kg preserves <strong className="text-emerald-950 font-black bg-emerald-200/70 px-1.5 py-0.5 rounded border border-emerald-300">₹1,12,000</strong> raw procurement outlay and avoids 7.0 tons CO₂e landfill methane generation.
                 </p>
               </div>
             </div>
