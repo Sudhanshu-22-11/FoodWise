@@ -94,7 +94,7 @@ function SidebarContent({ type }: SidebarProps) {
     { label: "Scheduled Pickups", href: "/ngo/dashboard?tab=scheduled", icon: Truck },
     { label: "Pickup History", href: "/ngo/dashboard?tab=history", icon: Clock },
     { label: "Report Issue", href: "/ngo/complaints", icon: ShieldAlert, badge: "Admin Desk", highlight: true },
-    { label: "Feedback & Points", href: "/ngo/feedback", icon: Star, badge: "Points" },
+    { label: "Feedback & Donor Rankings", href: "/ngo/feedback", icon: Star, badge: "Rankings" },
     { label: "Impact & Reports", href: "/ngo/reports", icon: BarChart3 },
   ];
 

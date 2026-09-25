@@ -140,10 +140,10 @@ export default function NgoFeedbackPage() {
             <span className="text-xs" style={{ color: "#9CA3AF" }}>Points-Based Rating System</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "#111827" }}>
-            Hotel & Donor Feedback Portal
+            Feedback & Donor Rankings Portal
           </h1>
           <p className="text-sm mt-1" style={{ color: "#6B7280" }}>
-            Rate food quality, reward good donors with points, and build a trusted supply chain
+            Rate food quality, reward good donors with points, track leaderboard rankings, and build a trusted supply chain
           </p>
         </div>
         <div className="flex items-center gap-3">

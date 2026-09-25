@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { downloadFactoryAuditPdf } from "@/lib/pdfGenerator";
 import { useApp } from "@/context/AppContext";
@@ -21,6 +21,7 @@ import {
   Layers,
   ShieldCheck,
   CheckCircle2,
+  Check,
   Calendar,
   ChevronDown,
   FileText,
@@ -31,6 +32,56 @@ import {
 
 export default function FactoryDashboardPage() {
   const { isBatchPrioritized, prioritizeBatch } = useApp();
+  const [timePeriod, setTimePeriod] = useState<"Today" | "This Week" | "This Month">("Today");
+  const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
+
+  // Period-based dynamic metrics
+  const PERIOD_DATA = {
+    Today: {
+      rawMaterial: "34.5K",
+      rawSub: "Across 4 cold zones",
+      atRisk: 3,
+      atRiskHigh: 1,
+      atRiskMed: 2,
+      atRiskSafe: 12,
+      efficiency: "84.2",
+      efficiencyTrend: "-2.1% from target",
+      efficiencyIsUp: false,
+      valorized: "1,840",
+      valorizedTrend: "+18.5% vs last period",
+      subTitle: "Welcome back. Manufacturing line telemetry overview for today.",
+    },
+    "This Week": {
+      rawMaterial: "241.5K",
+      rawSub: "Weekly cumulative intake across 4 zones",
+      atRisk: 7,
+      atRiskHigh: 2,
+      atRiskMed: 5,
+      atRiskSafe: 38,
+      efficiency: "88.6",
+      efficiencyTrend: "+2.3% above benchmark",
+      efficiencyIsUp: true,
+      valorized: "12,880",
+      valorizedTrend: "+14.2% vs previous week",
+      subTitle: "Welcome back. Manufacturing line telemetry overview for this week.",
+    },
+    "This Month": {
+      rawMaterial: "980.2K",
+      rawSub: "Monthly plant throughput (92% capacity)",
+      atRisk: 19,
+      atRiskHigh: 4,
+      atRiskMed: 15,
+      atRiskSafe: 142,
+      efficiency: "89.9",
+      efficiencyTrend: "+3.6% monthly efficiency gain",
+      efficiencyIsUp: true,
+      valorized: "54,320",
+      valorizedTrend: "+21.4% vs previous month",
+      subTitle: "Welcome back. Manufacturing line telemetry overview for this month.",
+    },
+  };
+
+  const currentStats = PERIOD_DATA[timePeriod];
 
   return (
     <div className="space-y-6">
@@ -41,23 +92,49 @@ export default function FactoryDashboardPage() {
             Dashboard
           </h1>
           <p className="text-sm" style={{ color: "#6B7280" }}>
-            Welcome back. Manufacturing line telemetry overview.
+            {currentStats.subTitle}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-pointer"
-            style={{
-              background: "#FFFFFF",
-              border: "1px solid #E8ECF3",
-              color: "#374151",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-            }}
-          >
-            <Calendar className="w-4 h-4" style={{ color: "#6B7280" }} />
-            Today
-            <ChevronDown className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} />
+          {/* Time Period Selector */}
+          <div className="relative">
+            <button
+              onClick={() => setIsPeriodDropdownOpen(!isPeriodDropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all hover:bg-gray-50"
+              style={{
+                background: "#FFFFFF",
+                border: "1px solid #E8ECF3",
+                color: "#374151",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+              }}
+            >
+              <Calendar className="w-4 h-4 text-emerald-600" />
+              <span>{timePeriod}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-[#9CA3AF] transition-transform ${isPeriodDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {isPeriodDropdownOpen && (
+              <div
+                className="absolute right-0 mt-1.5 w-36 bg-white rounded-xl shadow-xl border border-[#E8ECF3] py-1 z-30 animate-in fade-in slide-in-from-top-1 duration-150"
+              >
+                {(["Today", "This Week", "This Month"] as const).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => {
+                      setTimePeriod(period);
+                      setIsPeriodDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3.5 py-2 text-xs font-semibold flex items-center justify-between hover:bg-emerald-50 hover:text-emerald-700 transition-colors ${
+                      timePeriod === period ? "text-emerald-600 bg-emerald-50/50 font-bold" : "text-[#4B5563]"
+                    }`}
+                  >
+                    <span>{period}</span>
+                    {timePeriod === period && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <Link
@@ -77,7 +154,7 @@ export default function FactoryDashboardPage() {
           </Link>
 
           <button
-            onClick={() => downloadFactoryAuditPdf({ title: "Plant Mass Balance & Spoilage Audit" })}
+            onClick={() => downloadFactoryAuditPdf({ title: `Plant Mass Balance & Spoilage Audit (${timePeriod})` })}
             className="btn-primary cursor-pointer active:scale-95 transition-all"
           >
             <FileText className="w-4 h-4" />
@@ -171,12 +248,12 @@ export default function FactoryDashboardPage() {
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            34.5K <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            {currentStats.rawMaterial} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>kg</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              Across 4 cold zones
+              {currentStats.rawSub}
             </span>
           </div>
         </div>
@@ -192,12 +269,12 @@ export default function FactoryDashboardPage() {
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            3
+            {currentStats.atRisk}
           </div>
           <div className="flex items-center gap-3 text-[11px] font-medium">
-            <span style={{ color: "#DC2626" }}>● 1 High</span>
-            <span style={{ color: "#D97706" }}>● 2 Medium</span>
-            <span style={{ color: "#059669" }}>● 12 Safe</span>
+            <span style={{ color: "#DC2626" }}>● {currentStats.atRiskHigh} High</span>
+            <span style={{ color: "#D97706" }}>● {currentStats.atRiskMed} Medium</span>
+            <span style={{ color: "#059669" }}>● {currentStats.atRiskSafe} Safe</span>
           </div>
         </div>
 
@@ -212,12 +289,12 @@ export default function FactoryDashboardPage() {
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            84.2<span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>%</span>
+            {currentStats.efficiency}<span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="trend-down">
-              <TrendingDown className="w-3.5 h-3.5" />
-              -2.1% from target
+            <span className={currentStats.efficiencyIsUp ? "trend-up" : "trend-down"}>
+              {currentStats.efficiencyIsUp ? <ArrowUpRight className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+              {currentStats.efficiencyTrend}
             </span>
           </div>
         </div>
@@ -233,12 +310,12 @@ export default function FactoryDashboardPage() {
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            1,840 <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            {currentStats.valorized} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>kg</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +18.5% vs last period
+              {currentStats.valorizedTrend}
             </span>
           </div>
         </div>
