@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useMemo } from "react";
+import React, { useState, Suspense, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { INSTITUTIONS } from "@/lib/mockData";
@@ -29,6 +29,9 @@ import {
   Search,
   Download,
   Key,
+  X,
+  Phone,
+  User,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -49,6 +52,184 @@ interface SurplusFeedItem {
   etaMinutes: number;
 }
 
+export interface ScheduledPickup {
+  id: string;
+  itemId?: string;
+  institution: string;
+  food: string;
+  destination: string;
+  driver: string;
+  phone: string;
+  otp: string;
+  eta: string;
+  status: string;
+  lat?: number;
+  lng?: number;
+  quantityKg?: number;
+  timestamp?: number;
+}
+
+const VOLUNTEER_DRIVERS = [
+  { name: "Ramesh Kumar", vehicle: "Van DL-1L-4492", phone: "+91 98112 34567" },
+  { name: "Satish Pal", vehicle: "E-Loader DL-4E-9021", phone: "+91 98770 12345" },
+  { name: "Vikram Singh", vehicle: "Eco Van DL-2C-1108", phone: "+91 98104 56789" },
+  { name: "Harpreet Singh", vehicle: "Refrigerated Van DL-3S-8821", phone: "+91 98188 44321" },
+];
+
+const RELIEF_DESTINATIONS = [
+  { name: "Aasha Shelter Home, Malviya Nagar", capacity: "250 meals" },
+  { name: "Nizamuddin Rain Basera Center", capacity: "180 meals" },
+  { name: "Sarai Kale Khan Relief Center", capacity: "320 meals" },
+  { name: "Kalkaji Community Food Bank", capacity: "150 meals" },
+  { name: "Okhla Slum Children Relief", capacity: "200 meals" },
+];
+
+const DEFAULT_SCHEDULED_PICKUPS: ScheduledPickup[] = [
+  {
+    id: "sched-1",
+    itemId: "feed-1",
+    institution: "IIT Delhi Central Mess (Aravali)",
+    food: "Dal Makhani & Steamed Rice (60 kg)",
+    destination: "Aasha Shelter Home, Malviya Nagar",
+    driver: "Ramesh Kumar (Van DL-1L-4492)",
+    phone: "+91 98112 34567",
+    otp: "8942",
+    eta: "Arriving at Kitchen in 8 mins",
+    status: "En Route to Kitchen",
+    lat: 28.5459,
+    lng: 77.1926,
+    quantityKg: 60,
+    timestamp: Date.now() - 1000 * 60 * 15,
+  },
+  {
+    id: "sched-2",
+    itemId: "feed-2",
+    institution: "AIIMS Hospital Staff Cafeteria",
+    food: "Mixed Veg Sabzi & 140 Phulkas (35 kg)",
+    destination: "Nizamuddin Rain Basera Center",
+    driver: "Satish Pal (E-Loader DL-4E-9021)",
+    phone: "+91 98770 12345",
+    otp: "4119",
+    eta: "Loaded & In Transit to Shelter",
+    status: "Delivering to Shelter",
+    lat: 28.5672,
+    lng: 77.2100,
+    quantityKg: 35,
+    timestamp: Date.now() - 1000 * 60 * 45,
+  },
+];
+
+export interface PastPickupHistoryItem {
+  id: string;
+  date: string;
+  institution: string;
+  food: string;
+  recipient: string;
+  receipt: string;
+  driver: string;
+  status: string;
+}
+
+const INITIAL_PAST_HISTORY: PastPickupHistoryItem[] = [
+  {
+    id: "hist-1",
+    date: "Yesterday, 3:30 PM",
+    institution: "IIT Delhi Mess",
+    food: "Rajma & Jeera Rice (75 kg)",
+    recipient: "Aasha Shelter (220 meals)",
+    receipt: "FSSAI-RELIEF-9041",
+    driver: "Ramesh Kumar (Van DL-1L-4492)",
+    status: "Delivered & Verified",
+  },
+  {
+    id: "hist-2",
+    date: "Sep 20, 2:15 PM",
+    institution: "AIIMS Cafeteria",
+    food: "Paneer Curry & Rotis (42 kg)",
+    recipient: "Nizamuddin Night Shelter (130 meals)",
+    receipt: "FSSAI-RELIEF-8992",
+    driver: "Satish Pal (E-Rickshaw DL-4E-9021)",
+    status: "Delivered & Verified",
+  },
+  {
+    id: "hist-3",
+    date: "Sep 19, 4:00 PM",
+    institution: "The Oberoi Banquets",
+    food: "Assorted Breads & Dal (55 kg)",
+    recipient: "Sarai Kale Khan Center (160 meals)",
+    receipt: "FSSAI-RELIEF-8951",
+    driver: "Vikram Singh (Van DL-2C-1108)",
+    status: "Delivered & Verified",
+  },
+];
+
+const initialFeed: SurplusFeedItem[] = [
+  {
+    id: "feed-1",
+    institution: "IIT Delhi Central Mess (Aravali)",
+    foodType: "Dal Makhani & Steamed Rice",
+    diet: "Vegetarian",
+    quantityKg: 60,
+    location: "Hauz Khas, New Delhi",
+    distanceKm: 3.2,
+    safeUntil: "5:00 PM Today",
+    hoursLeft: 3.5,
+    fssaiVerified: true,
+    lat: 28.5459,
+    lng: 77.1926,
+    trafficStatus: "low",
+    etaMinutes: 12,
+  },
+  {
+    id: "feed-2",
+    institution: "AIIMS Hospital Staff Cafeteria",
+    foodType: "Mixed Veg Sabzi & 140 Phulkas",
+    diet: "Vegetarian",
+    quantityKg: 35,
+    location: "Ansari Nagar, New Delhi",
+    distanceKm: 4.8,
+    safeUntil: "6:15 PM Today",
+    hoursLeft: 4.8,
+    fssaiVerified: true,
+    lat: 28.5672,
+    lng: 77.2100,
+    trafficStatus: "moderate",
+    etaMinutes: 22,
+  },
+  {
+    id: "feed-3",
+    institution: "The Oberoi Pantry & Banquet",
+    foodType: "Paneer Lababdar & Jeera Rice",
+    diet: "Vegetarian",
+    quantityKg: 28,
+    location: "Dr. Zakir Hussain Marg, New Delhi",
+    distanceKm: 6.1,
+    safeUntil: "7:00 PM Today",
+    hoursLeft: 5.5,
+    fssaiVerified: true,
+    lat: 28.6024,
+    lng: 77.2399,
+    trafficStatus: "heavy",
+    etaMinutes: 38,
+  },
+  {
+    id: "feed-4",
+    institution: "Bikanervala Central Kitchen",
+    foodType: "Chana Masala & Puri",
+    diet: "Vegetarian",
+    quantityKg: 50,
+    location: "Okhla Phase III, New Delhi",
+    distanceKm: 7.4,
+    safeUntil: "4:30 PM Today",
+    hoursLeft: 3.0,
+    fssaiVerified: true,
+    lat: 28.5305,
+    lng: 77.2707,
+    trafficStatus: "heavy",
+    etaMinutes: 45,
+  },
+];
+
 function NgoDashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -57,119 +238,135 @@ function NgoDashboardContent() {
   const { acceptedPickups, acceptNgoPickup } = useApp();
   const [filterType, setFilterType] = useState<string>("All");
   const [selectedPickup, setSelectedPickup] = useState<SurplusFeedItem | null>(null);
-  const [scheduleSuccess, setScheduleSuccess] = useState<string | null>(null);
   const [mapMode, setMapMode] = useState<"google" | "corridor">("google");
   const [historySearch, setHistorySearch] = useState("");
 
-  const pastPickupsHistory = [
-    {
-      id: "hist-1",
-      date: "Yesterday, 3:30 PM",
-      institution: "IIT Delhi Mess",
-      food: "Rajma & Jeera Rice (75 kg)",
-      recipient: "Aasha Shelter (220 meals)",
-      receipt: "FSSAI-RELIEF-9041",
-      driver: "Ramesh Kumar (Van DL-1L-4492)",
-      status: "Delivered & Verified",
-    },
-    {
-      id: "hist-2",
-      date: "Sep 20, 2:15 PM",
-      institution: "AIIMS Cafeteria",
-      food: "Paneer Curry & Rotis (42 kg)",
-      recipient: "Nizamuddin Night Shelter (130 meals)",
-      receipt: "FSSAI-RELIEF-8992",
-      driver: "Satish Pal (E-Rickshaw DL-4E-9021)",
-      status: "Delivered & Verified",
-    },
-    {
-      id: "hist-3",
-      date: "Sep 19, 4:00 PM",
-      institution: "The Oberoi Banquets",
-      food: "Assorted Breads & Dal (55 kg)",
-      recipient: "Sarai Kale Khan Center (160 meals)",
-      receipt: "FSSAI-RELIEF-8951",
-      driver: "Vikram Singh (Van DL-2C-1108)",
-      status: "Delivered & Verified",
-    },
-  ];
+  // Scheduled pickups state (with localStorage persistence)
+  const [scheduledPickups, setScheduledPickups] = useState<ScheduledPickup[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("foodwise_ngo_scheduled_pickups");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return DEFAULT_SCHEDULED_PICKUPS;
+  });
 
-  const initialFeed: SurplusFeedItem[] = [
-    {
-      id: "feed-1",
-      institution: "IIT Delhi Central Mess (Aravali)",
-      foodType: "Dal Makhani & Steamed Rice",
-      diet: "Vegetarian",
-      quantityKg: 60,
-      location: "Hauz Khas, New Delhi",
-      distanceKm: 3.2,
-      safeUntil: "5:00 PM Today",
-      hoursLeft: 3.5,
-      fssaiVerified: true,
-      lat: 28.5459,
-      lng: 77.1926,
-      trafficStatus: "low",
-      etaMinutes: 12,
-    },
-    {
-      id: "feed-2",
-      institution: "AIIMS Hospital Staff Cafeteria",
-      foodType: "Mixed Veg Sabzi & 140 Phulkas",
-      diet: "Vegetarian",
-      quantityKg: 35,
-      location: "Ansari Nagar, New Delhi",
-      distanceKm: 4.8,
-      safeUntil: "6:15 PM Today",
-      hoursLeft: 4.8,
-      fssaiVerified: true,
-      lat: 28.5672,
-      lng: 77.2100,
-      trafficStatus: "moderate",
-      etaMinutes: 22,
-    },
-    {
-      id: "feed-3",
-      institution: "The Oberoi Pantry & Banquet",
-      foodType: "Paneer Lababdar & Jeera Rice",
-      diet: "Vegetarian",
-      quantityKg: 28,
-      location: "Dr. Zakir Hussain Marg, New Delhi",
-      distanceKm: 6.1,
-      safeUntil: "7:00 PM Today",
-      hoursLeft: 5.5,
-      fssaiVerified: true,
-      lat: 28.6024,
-      lng: 77.2399,
-      trafficStatus: "heavy",
-      etaMinutes: 38,
-    },
-    {
-      id: "feed-4",
-      institution: "Bikanervala Central Kitchen",
-      foodType: "Chana Masala & Puri",
-      diet: "Vegetarian",
-      quantityKg: 50,
-      location: "Okhla Phase III, New Delhi",
-      distanceKm: 7.4,
-      safeUntil: "4:30 PM Today",
-      hoursLeft: 3.0,
-      fssaiVerified: true,
-      lat: 28.5305,
-      lng: 77.2707,
-      trafficStatus: "heavy",
-      etaMinutes: 45,
-    },
-  ];
+  // Pickup delivery history state (with localStorage persistence)
+  const [pickupHistory, setPickupHistory] = useState<PastPickupHistoryItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("foodwise_ngo_pickup_history");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return INITIAL_PAST_HISTORY;
+  });
 
-  const handleAccept = (item: SurplusFeedItem) => {
+  // Schedule modal state
+  const [scheduleModalItem, setScheduleModalItem] = useState<SurplusFeedItem | null>(null);
+  const [selectedDriverIdx, setSelectedDriverIdx] = useState(0);
+  const [selectedDestination, setSelectedDestination] = useState(RELIEF_DESTINATIONS[0].name);
+  const [generatedModalOtp, setGeneratedModalOtp] = useState("4821");
+
+  // Rich success banner
+  const [scheduleSuccess, setScheduleSuccess] = useState<{
+    foodType: string;
+    driver: string;
+    otp: string;
+    institution: string;
+  } | null>(null);
+
+  const handleOpenScheduleModal = (item: SurplusFeedItem) => {
+    setScheduleModalItem(item);
+    setGeneratedModalOtp(String(Math.floor(1000 + Math.random() * 9000)));
+    setSelectedDriverIdx(0);
+    setSelectedDestination(RELIEF_DESTINATIONS[0].name);
+  };
+
+  const handleScheduleConfirm = (
+    item: SurplusFeedItem,
+    driverIdx: number,
+    destination: string,
+    otp: string
+  ) => {
+    const driver = VOLUNTEER_DRIVERS[driverIdx] || VOLUNTEER_DRIVERS[0];
+    const newPickup: ScheduledPickup = {
+      id: `sched-${Date.now()}`,
+      itemId: item.id,
+      institution: item.institution,
+      food: `${item.foodType} (${item.quantityKg} kg)`,
+      destination,
+      driver: `${driver.name} (${driver.vehicle})`,
+      phone: driver.phone,
+      otp,
+      eta: `Arriving in ${item.etaMinutes} mins`,
+      status: "En Route to Kitchen",
+      lat: item.lat,
+      lng: item.lng,
+      quantityKg: item.quantityKg,
+      timestamp: Date.now(),
+    };
+
+    const updated = [newPickup, ...scheduledPickups];
+    setScheduledPickups(updated);
+    try {
+      localStorage.setItem("foodwise_ngo_scheduled_pickups", JSON.stringify(updated));
+    } catch {}
+
     acceptNgoPickup(item.id);
-    setScheduleSuccess(item.foodType);
-    confetti({
-      particleCount: 60,
-      spread: 60,
-      origin: { y: 0.7 },
+
+    setScheduleModalItem(null);
+    setScheduleSuccess({
+      foodType: item.foodType,
+      driver: driver.name,
+      otp,
+      institution: item.institution,
     });
-    setTimeout(() => setScheduleSuccess(null), 5000);
+
+    confetti({
+      particleCount: 75,
+      spread: 70,
+      origin: { y: 0.65 },
+      colors: ["#10B981", "#059669", "#34D399"],
+    });
+
+    setTimeout(() => setScheduleSuccess(null), 8000);
+  };
+
+  const handleMarkDelivered = (pickup: ScheduledPickup) => {
+    const newHistoryItem = {
+      id: `hist-${Date.now()}`,
+      date: "Just now",
+      institution: pickup.institution,
+      food: pickup.food,
+      recipient: pickup.destination,
+      receipt: `FSSAI-RELIEF-${pickup.otp}`,
+      driver: pickup.driver,
+      status: "Delivered & Verified",
+    };
+
+    const updatedHistory = [newHistoryItem, ...pickupHistory];
+    const updatedScheduled = scheduledPickups.filter((p) => p.id !== pickup.id);
+
+    setPickupHistory(updatedHistory);
+    setScheduledPickups(updatedScheduled);
+
+    try {
+      localStorage.setItem("foodwise_ngo_pickup_history", JSON.stringify(updatedHistory));
+      localStorage.setItem("foodwise_ngo_scheduled_pickups", JSON.stringify(updatedScheduled));
+    } catch {}
+
+    confetti({
+      particleCount: 50,
+      spread: 50,
+      origin: { y: 0.7 },
+      colors: ["#10B981", "#60A5FA"],
+    });
+  };
+
+  const isItemAccepted = (itemId: string) => {
+    return acceptedPickups.includes(itemId) || scheduledPickups.some((p) => p.itemId === itemId);
   };
 
   const filteredFeed = initialFeed.filter((item) => {
@@ -265,8 +462,8 @@ function NgoDashboardContent() {
           { id: "overview", label: "Overview", icon: Layers },
           { id: "claims", label: `Live Claims (${initialFeed.length})`, icon: PackageCheck, badge: "Live" },
           { id: "routing", label: "Traffic & Safe Routing", icon: Route },
-          { id: "scheduled", label: `Scheduled Pickups (${acceptedPickups.length + 1})`, icon: Truck },
-          { id: "history", label: `Pickup History (${pastPickupsHistory.length})`, icon: Clock },
+          { id: "scheduled", label: `Scheduled Pickups (${scheduledPickups.length})`, icon: Truck },
+          { id: "history", label: `Pickup History (${pickupHistory.length})`, icon: Clock },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTabFromUrl === tab.id;
@@ -293,13 +490,28 @@ function NgoDashboardContent() {
       </div>
 
       {scheduleSuccess && (
-        <div className="alert-banner alert-banner-success">
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-            <span>
-              Pickup successfully dispatched for <strong>{scheduleSuccess}</strong>! Driver notified with verification OTP.
-            </span>
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-2.5 text-xs font-bold text-emerald-900">
+            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
+            <div>
+              <span>
+                Pickup successfully scheduled for <strong>{scheduleSuccess.foodType}</strong> ({scheduleSuccess.institution})!
+              </span>
+              <p className="text-[11px] font-normal text-emerald-700 mt-0.5">
+                Driver <strong>{scheduleSuccess.driver}</strong> dispatched. Handoff Verification OTP:{" "}
+                <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-300 text-emerald-800">
+                  {scheduleSuccess.otp}
+                </span>
+              </p>
+            </div>
           </div>
+          <button
+            onClick={() => setTab("scheduled")}
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shrink-0 flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+          >
+            <span>View in Scheduled Pickups</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
 
@@ -452,7 +664,7 @@ function NgoDashboardContent() {
               <div className="space-y-2.5">
                 {initialFeed.slice(0, 3).map((item) => {
                   const safe = canDeliverInTime(item);
-                  const isAccepted = acceptedPickups.includes(item.id);
+                  const isAccepted = isItemAccepted(item.id);
                   return (
                     <div
                       key={item.id}
@@ -475,17 +687,25 @@ function NgoDashboardContent() {
                         </div>
                       </div>
 
-                      <div className="shrink-0">
+                      <div className="shrink-0 flex items-center gap-2">
                         {isAccepted ? (
-                          <span className="text-[11px] font-bold text-emerald-700 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200">
-                            Dispatched
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] font-bold text-emerald-700 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Dispatched
+                            </span>
+                            <button
+                              onClick={() => setTab("scheduled")}
+                              className="text-xs font-bold text-emerald-600 hover:underline cursor-pointer"
+                            >
+                              View →
+                            </button>
+                          </div>
                         ) : safe ? (
                           <button
-                            onClick={() => handleAccept(item)}
-                            className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95"
+                            onClick={() => handleOpenScheduleModal(item)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95 transition-all flex items-center gap-1"
                           >
-                            Claim
+                            <Truck className="w-3.5 h-3.5" /> Claim
                           </button>
                         ) : (
                           <span className="text-[10px] font-bold text-rose-600 px-2 py-1 rounded bg-rose-50 border border-rose-200">
@@ -531,7 +751,7 @@ function NgoDashboardContent() {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredFeed.map((item) => {
-              const isAccepted = acceptedPickups.includes(item.id);
+              const isAccepted = isItemAccepted(item.id);
               const safe = canDeliverInTime(item);
 
               return (
@@ -596,15 +816,24 @@ function NgoDashboardContent() {
                     </a>
 
                     {isAccepted ? (
-                      <span className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4" /> Claimed & Scheduled
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Claimed & Scheduled
+                        </span>
+                        <button
+                          onClick={() => setTab("scheduled")}
+                          className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-300 transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>View Pickup</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     ) : safe ? (
                       <button
-                        onClick={() => handleAccept(item)}
+                        onClick={() => handleOpenScheduleModal(item)}
                         className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/30 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
                       >
-                        <Truck className="w-4 h-4" /> Claim Batch & Dispatch
+                        <Truck className="w-4 h-4" /> Claim Batch & Schedule
                       </button>
                     ) : (
                       <button
@@ -746,75 +975,117 @@ function NgoDashboardContent() {
       {activeTabFromUrl === "scheduled" && (
         <div className="space-y-4">
           <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
-            <h3 className="font-bold text-sm text-gray-900 mb-1">
-              Active Pickups in Transit
-            </h3>
-            <p className="text-xs text-gray-500 mb-4">
-              Authorized volunteer drivers, destination relief homes, and handover verification OTP codes.
-            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <h3 className="font-bold text-base text-gray-900 flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-emerald-600" />
+                  Active Pickups in Transit ({scheduledPickups.length})
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Authorized volunteer drivers, destination relief homes, and handover verification OTP codes.
+                </p>
+              </div>
 
-            <div className="space-y-3">
-              {[
-                {
-                  id: "sched-1",
-                  institution: "IIT Delhi Central Mess (Aravali)",
-                  food: "Dal Makhani & Steamed Rice (60 kg)",
-                  destination: "Aasha Shelter Home, Malviya Nagar",
-                  driver: "Ramesh Kumar (Van DL-1L-4492)",
-                  phone: "+91 98112 34567",
-                  otp: "8942",
-                  eta: "Arriving at Kitchen in 8 mins",
-                  status: "En Route to Kitchen",
-                },
-                {
-                  id: "sched-2",
-                  institution: "AIIMS Cafeteria Unit 2",
-                  food: "Fresh Mixed Sabzi & 140 Rotis (35 kg)",
-                  destination: "Nizamuddin Rain Basera Center",
-                  driver: "Satish Pal (E-Loader DL-4E-9021)",
-                  phone: "+91 98770 12345",
-                  otp: "4119",
-                  eta: "Loaded & In Transit to Shelter",
-                  status: "Delivering to Shelter",
-                },
-              ].map((pickup) => (
-                <div
-                  key={pickup.id}
-                  className="p-5 rounded-2xl border border-gray-200 bg-gray-50/60 hover:bg-white transition-all space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-gray-200">
-                    <div>
-                      <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full">
-                        ● {pickup.status}
-                      </span>
-                      <h4 className="font-extrabold text-sm text-gray-900 mt-1">{pickup.institution}</h4>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono-data bg-gray-900 text-white px-3 py-1 rounded-xl flex items-center gap-1.5">
-                        <Key className="w-3.5 h-3.5 text-amber-400" />
-                        Verification OTP: <strong>{pickup.otp}</strong>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    <div>
-                      <span className="text-gray-400 block text-[10px]">Food Batch</span>
-                      <span className="font-semibold text-gray-800">{pickup.food}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400 block text-[10px]">Destination Shelter</span>
-                      <span className="font-semibold text-gray-800">{pickup.destination}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400 block text-[10px]">Driver & Contact</span>
-                      <span className="font-semibold text-gray-800">{pickup.driver} • {pickup.phone}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <button
+                onClick={() => setTab("claims")}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <PackageCheck className="w-4 h-4" />
+                <span>+ Claim More Food</span>
+              </button>
             </div>
+
+            {scheduledPickups.length === 0 ? (
+              <div className="text-center py-12 px-4 border border-dashed border-gray-200 rounded-2xl space-y-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                  <Truck className="w-6 h-6" />
+                </div>
+                <h4 className="font-bold text-sm text-gray-900">No Active Pickups Scheduled</h4>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                  All claimed surplus batches have been delivered or none are currently scheduled. Claim available food from partner kitchens to dispatch relief.
+                </p>
+                <button
+                  onClick={() => setTab("claims")}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer transition-all"
+                >
+                  Browse Available Food Claims
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {scheduledPickups.map((pickup) => (
+                  <div
+                    key={pickup.id}
+                    className="p-5 rounded-2xl border border-gray-200 bg-gray-50/60 hover:bg-white hover:shadow-sm transition-all space-y-3"
+                  >
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-gray-200">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            {pickup.status}
+                          </span>
+                          <span className="text-xs text-gray-400 font-mono-data">• {pickup.eta}</span>
+                        </div>
+                        <h4 className="font-extrabold text-base text-gray-900 mt-1">{pickup.institution}</h4>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-mono-data bg-gray-900 text-white px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-xs">
+                          <Key className="w-3.5 h-3.5 text-amber-400" />
+                          Handover OTP: <strong className="text-amber-400 text-sm">{pickup.otp}</strong>
+                        </span>
+
+                        <button
+                          onClick={() => handleMarkDelivered(pickup)}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95 transition-all flex items-center gap-1.5"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Mark Delivered</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div className="p-2.5 rounded-xl bg-white border border-gray-100">
+                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">Food Batch</span>
+                        <span className="font-semibold text-gray-900">{pickup.food}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white border border-gray-100">
+                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">Destination Shelter</span>
+                        <span className="font-semibold text-gray-900">{pickup.destination}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white border border-gray-100">
+                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">Assigned Volunteer Driver</span>
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-gray-900">{pickup.driver}</span>
+                          <a
+                            href={`tel:${pickup.phone}`}
+                            className="text-[11px] font-bold text-emerald-600 hover:underline flex items-center gap-1 ml-1"
+                          >
+                            <Phone className="w-3 h-3" /> Call
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 text-xs">
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&origin=28.5459,77.1926&destination=${pickup.lat || 28.5672},${pickup.lng || 77.2100}&travelmode=driving`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-600 font-bold hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> Open Google Live Directions
+                      </a>
+                      <span className="text-gray-400 text-[11px]">
+                        Driver ID Verified • Handover receipt logged with FSSAI audit trail
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -826,7 +1097,7 @@ function NgoDashboardContent() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <div>
                 <h3 className="font-bold text-sm text-gray-900">
-                  Completed Surplus Food Distributions
+                  Completed Surplus Food Distributions ({pickupHistory.length})
                 </h3>
                 <p className="text-xs text-gray-500">Official digital delivery logs, shelter acknowledgments, and relief audit receipts</p>
               </div>
@@ -844,7 +1115,7 @@ function NgoDashboardContent() {
             </div>
 
             <div className="space-y-3">
-              {pastPickupsHistory
+              {pickupHistory
                 .filter(
                   (h) =>
                     h.institution.toLowerCase().includes(historySearch.toLowerCase()) ||
@@ -876,6 +1147,123 @@ function NgoDashboardContent() {
                     </div>
                   </div>
                 ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ SCHEDULE PICKUP MODAL ═══ */}
+      {scheduleModalItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 space-y-5 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-emerald-600" />
+                  Schedule Food Pickup & Dispatch
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Confirm volunteer driver, relief shelter destination, and verification OTP.
+                </p>
+              </div>
+              <button
+                onClick={() => setScheduleModalItem(null)}
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Food item preview */}
+            <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-xs text-gray-900">{scheduleModalItem.institution}</span>
+                <span className="text-xs font-black font-mono-data text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200">
+                  {scheduleModalItem.quantityKg} kg (~{Math.round(scheduleModalItem.quantityKg * 3.2)} Meals)
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-emerald-950">{scheduleModalItem.foodType}</p>
+              <div className="flex items-center gap-3 text-[11px] text-gray-500 pt-1">
+                <span>📍 {scheduleModalItem.location}</span>
+                <span>•</span>
+                <span>⏳ Safe until: {scheduleModalItem.safeUntil}</span>
+              </div>
+            </div>
+
+            {/* Driver Assignment */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-700 flex items-center justify-between">
+                <span>Assign Volunteer Driver & Vehicle:</span>
+                <span className="text-[11px] font-normal text-emerald-600">Active Fleet</span>
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {VOLUNTEER_DRIVERS.map((driver, idx) => (
+                  <button
+                    type="button"
+                    key={driver.name}
+                    onClick={() => setSelectedDriverIdx(idx)}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      selectedDriverIdx === idx
+                        ? "border-emerald-600 bg-emerald-50/60 shadow-xs"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
+                    }`}
+                  >
+                    <div className="font-bold text-xs text-gray-900">{driver.name}</div>
+                    <div className="text-[11px] text-gray-500">{driver.vehicle}</div>
+                    <div className="text-[10px] text-emerald-700 mt-1 font-mono-data">{driver.phone}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Destination Shelter */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-700">
+                Destination Relief Shelter:
+              </label>
+              <select
+                value={selectedDestination}
+                onChange={(e) => setSelectedDestination(e.target.value)}
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-white font-medium text-gray-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+              >
+                {RELIEF_DESTINATIONS.map((dest) => (
+                  <option key={dest.name} value={dest.name}>
+                    {dest.name} (Capacity: {dest.capacity})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* OTP & Summary Note */}
+            <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-gray-500 block">Auto-Generated Handover OTP</span>
+                <span className="text-xs text-gray-600">Give to Kitchen Warden at pickup</span>
+              </div>
+              <span className="text-base font-black font-mono-data bg-gray-900 text-amber-400 px-3 py-1 rounded-xl tracking-wider">
+                {generatedModalOtp}
+              </span>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setScheduleModalItem(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleScheduleConfirm(scheduleModalItem, selectedDriverIdx, selectedDestination, generatedModalOtp);
+                }}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/30 flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+              >
+                <Truck className="w-4 h-4" />
+                <span>Confirm & Dispatch Pickup</span>
+              </button>
             </div>
           </div>
         </div>
