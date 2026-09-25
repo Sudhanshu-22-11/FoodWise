@@ -38,11 +38,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div
-            className="w-10 h-10 rounded-xl overflow-hidden group-hover:scale-105 transition-transform bg-white border border-[#E8ECF3] shadow-sm flex items-center justify-center p-1"
-          >
-            <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="FoodWise Logo"
+            className="w-9 h-9 object-contain group-hover:scale-105 transition-transform shrink-0"
+          />
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-black tracking-tight" style={{ color: "#111827" }}>

@@ -137,9 +137,7 @@ function SidebarContent({ type }: SidebarProps) {
             <Menu className="w-5 h-5" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg overflow-hidden bg-white p-0.5 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
-            </div>
+            <img src="/logo.png" alt="FoodWise Logo" className="w-7 h-7 object-contain shrink-0" />
             <div>
               <span className="font-extrabold text-sm text-white block leading-tight">FoodWise</span>
               <span className="text-[9px] font-semibold text-emerald-300 block capitalize">{type} Portal</span>
@@ -186,9 +184,7 @@ function SidebarContent({ type }: SidebarProps) {
             {/* Top Drawer Header */}
             <div className="flex items-center justify-between px-4 h-16 border-b border-emerald-500/20 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg overflow-hidden bg-white p-0.5 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                  <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
-                </div>
+                <img src="/logo.png" alt="FoodWise Logo" className="w-8 h-8 object-contain shrink-0" />
                 <div>
                   <div className="text-sm font-extrabold text-white">FoodWise</div>
                   <div className="text-[10px] text-emerald-300 font-medium">Making every meal count</div>
@@ -310,11 +306,11 @@ function SidebarContent({ type }: SidebarProps) {
         style={{ borderColor: "rgba(16, 185, 129, 0.18)" }}
       >
         <Link href="/" className="flex items-center gap-3 group">
-          <div
-            className="w-9 h-9 rounded-xl overflow-hidden shrink-0 shadow-md border border-emerald-500/20 bg-white p-0.5 group-hover:scale-105 transition-transform flex items-center justify-center"
-          >
-            <img src="/logo.png" alt="FoodWise Logo" className="w-full h-full object-contain" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="FoodWise Logo"
+            className="w-9 h-9 object-contain group-hover:scale-105 transition-transform shrink-0"
+          />
           {!collapsed && (
             <div className="overflow-hidden">
               <div className="text-[15px] font-extrabold text-white tracking-tight whitespace-nowrap">
