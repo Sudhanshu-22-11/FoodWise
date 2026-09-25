@@ -1,34 +1,34 @@
 import { MongoClient, Db } from "mongodb";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add your MongoDB URI to .env.local as MONGODB_URI");
-}
+const uri = process.env.MONGODB_URI || "";
 
-const uri = process.env.MONGODB_URI;
-const options = {};
+if (!uri) {
+  console.warn("⚠️ MONGODB_URI is not set in environment variables");
+}
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-// In development, use a global variable to preserve the client across HMR
 const globalWithMongo = global as typeof globalThis & {
   _mongoClientPromise?: Promise<MongoClient>;
 };
 
-if (process.env.NODE_ENV === "development") {
-  if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    globalWithMongo._mongoClientPromise = client.connect();
-  }
-  clientPromise = globalWithMongo._mongoClientPromise;
-} else {
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+if (!globalWithMongo._mongoClientPromise) {
+  client = new MongoClient(uri, {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 8000,
+    socketTimeoutMS: 45000,
+  });
+  globalWithMongo._mongoClientPromise = client.connect();
 }
+clientPromise = globalWithMongo._mongoClientPromise;
 
 export default clientPromise;
 
 export async function getDb(): Promise<Db> {
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI environment variable is missing.");
+  }
   const client = await clientPromise;
   return client.db("foodwise");
 }
