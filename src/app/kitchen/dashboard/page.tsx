@@ -1019,11 +1019,11 @@ export default function KitchenDashboardPage() {
             </p>
           </div>
           <Link
-            href="/ngo/feedback"
+            href="/kitchen/ranking"
             className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap hover:scale-105"
             style={{ background: "#FFFBEB", color: "#D97706", border: "1px solid #FDE68A" }}
           >
-            <Star className="w-3.5 h-3.5" />
+            <Trophy className="w-3.5 h-3.5" />
             View Full Leaderboard →
           </Link>
         </div>
@@ -1079,7 +1079,9 @@ export default function KitchenDashboardPage() {
                 <Trophy className="w-4 h-4" style={{ color: "#F59E0B" }} />
                 Donor Leaderboard
               </h3>
-              <span className="text-[10px] font-mono-data" style={{ color: "#9CA3AF" }}>Live Rankings</span>
+              <Link href="/kitchen/ranking" className="text-[10px] font-mono-data font-bold hover:underline" style={{ color: "#059669" }}>
+                View All →
+              </Link>
             </div>
             <div className="space-y-2">
               {rankedHotels.slice(0, 6).map((hotel, idx) => {

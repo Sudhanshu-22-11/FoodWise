@@ -29,6 +29,7 @@ import {
   Sparkles,
   Truck,
   Clock,
+  Trophy,
   LucideIcon,
 } from "lucide-react";
 import { INSTITUTIONS } from "@/lib/mockData";
@@ -65,6 +66,7 @@ export default function Sidebar({ type }: SidebarProps) {
     { label: "Surplus & NGO Matching", href: "/kitchen/surplus", icon: HeartHandshake, badge: "Action" },
     { label: "Route Optimization", href: "/kitchen/routes", icon: Route },
     { label: "Reports", href: "/kitchen/reports", icon: BarChart3 },
+    { label: "Donor Rankings", href: "/kitchen/ranking", icon: Trophy, badge: "Live" },
   ];
 
   const factoryNav: NavItem[] = [
