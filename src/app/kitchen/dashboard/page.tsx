@@ -81,6 +81,8 @@ export default function KitchenDashboardPage() {
   const [selectedShift, setSelectedShift] = useState<"Morning" | "Afternoon" | "Evening">("Afternoon");
   const [appliedSuggestion, setAppliedSuggestion] = useState<string | null>(null);
   const [selectedNgoDirection, setSelectedNgoDirection] = useState<NgoDirectionData | null>(null);
+  const [timePeriod, setTimePeriod] = useState<"Today" | "This Week" | "This Month">("This Week");
+  const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
 
   // Kitchen's own data — IIT Delhi Central Mess is h-2
   const kitchenHotelId = "h-2";
@@ -96,7 +98,6 @@ export default function KitchenDashboardPage() {
     Bronze: { color: "#D97706", bg: "#FFF8EB", border: "#FDE68A", gradient: "linear-gradient(135deg, #D97706, #B45309)" },
   };
 
-
   return (
     <div className="space-y-6">
       {/* ═══ TOP HEADER BAR ═══ */}
@@ -106,28 +107,56 @@ export default function KitchenDashboardPage() {
             Dashboard
           </h1>
           <p className="text-sm" style={{ color: "#6B7280" }}>
-            Welcome back, Dr. Sharma. Here&apos;s what&apos;s happening.
+            Welcome back, Dr. Sharma. Overview for {timePeriod.toLowerCase()}.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Time Period Selector */}
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-pointer"
-            style={{
-              background: "#FFFFFF",
-              border: "1px solid #E8ECF3",
-              color: "#374151",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-            }}
-          >
-            <Calendar className="w-4 h-4" style={{ color: "#6B7280" }} />
-            This Week
-            <ChevronDown className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} />
+          <div className="relative">
+            <button
+              onClick={() => setIsPeriodDropdownOpen(!isPeriodDropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all hover:bg-gray-50"
+              style={{
+                background: "#FFFFFF",
+                border: "1px solid #E8ECF3",
+                color: "#374151",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+              }}
+            >
+              <Calendar className="w-4 h-4 text-emerald-600" />
+              <span>{timePeriod}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-[#9CA3AF] transition-transform ${isPeriodDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {isPeriodDropdownOpen && (
+              <div
+                className="absolute right-0 mt-1.5 w-36 bg-white rounded-xl shadow-xl border border-[#E8ECF3] py-1 z-30 animate-in fade-in slide-in-from-top-1 duration-150"
+              >
+                {(["Today", "This Week", "This Month"] as const).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => {
+                      setTimePeriod(period);
+                      setIsPeriodDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3.5 py-2 text-xs font-semibold flex items-center justify-between hover:bg-emerald-50 hover:text-emerald-700 transition-colors ${
+                      timePeriod === period ? "text-emerald-600 bg-emerald-50/50 font-bold" : "text-[#4B5563]"
+                    }`}
+                  >
+                    <span>{period}</span>
+                    {timePeriod === period && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Export Report */}
-          <button className="btn-primary">
+          <button
+            onClick={() => alert(`Exporting ${timePeriod} Kitchen Waste & Production Audit Report (PDF)...`)}
+            className="btn-primary"
+          >
             <FileText className="w-4 h-4" />
             Export Report
           </button>
@@ -136,18 +165,22 @@ export default function KitchenDashboardPage() {
 
       {/* ═══ KPI STAT CARDS ROW (4 CARDS) ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Card 1: Today's Prediction */}
+        {/* Card 1: Prediction */}
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              Today&apos;s Prediction
+              {timePeriod === "Today" ? "Today's Prediction" : timePeriod === "This Week" ? "Weekly Target" : "Monthly Target"}
             </span>
             <div className="icon-container icon-container-indigo">
               <Sparkles className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            {managerOverride ? managerOverride.meals.toLocaleString() : "847"}
+            {timePeriod === "Today"
+              ? (managerOverride ? managerOverride.meals.toLocaleString() : "847")
+              : timePeriod === "This Week"
+              ? "5,820"
+              : "24,650"}
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
@@ -168,7 +201,8 @@ export default function KitchenDashboardPage() {
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            73 <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            {timePeriod === "Today" ? "73" : timePeriod === "This Week" ? "511" : "2,190"}{" "}
+            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>kg</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
@@ -182,14 +216,15 @@ export default function KitchenDashboardPage() {
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              Surplus Available
+              {timePeriod === "Today" ? "Active Surplus" : "Total Surplus Routed"}
             </span>
             <div className="icon-container icon-container-amber">
               <Package className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            12 <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            {timePeriod === "Today" ? "12" : timePeriod === "This Week" ? "84" : "365"}{" "}
+            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>kg</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
@@ -210,7 +245,8 @@ export default function KitchenDashboardPage() {
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            0.47 <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>tons</span>
+            {timePeriod === "Today" ? "0.47" : timePeriod === "This Week" ? "3.29" : "14.1"}{" "}
+            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>tons</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
@@ -646,60 +682,63 @@ export default function KitchenDashboardPage() {
               </Link>
             </div>
 
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Meal</th>
-                  <th>Pred</th>
-                  <th>Prep</th>
-                  <th>Rem</th>
-                  <th style={{ textAlign: "right" }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {TODAY_MEAL_PLAN.map((row) => (
-                  <tr
-                    key={row.meal}
-                    style={{
-                      background: row.highlight ? "#FFF8EB" : undefined,
-                    }}
-                  >
-                    <td className="font-semibold flex items-center gap-1.5">
-                      <Utensils className="w-3.5 h-3.5" style={{ color: "#9CA3AF" }} />
-                      {row.meal}
-                    </td>
-                    <td className="font-mono-data">{row.predicted}</td>
-                    <td className="font-mono-data">
-                      {row.prepared > 0 ? row.prepared : "—"}
-                    </td>
-                    <td className="font-mono-data">
-                      {row.remaining > 0 ? (
-                        <span
-                          className="font-bold"
-                          style={{ color: row.highlight ? "#D97706" : undefined }}
-                        >
-                          {row.remaining} kg
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td style={{ textAlign: "right" }}>
-                      <Link
-                        href="/kitchen/prediction"
-                        className="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors"
-                        style={{
-                          background: "#ECFDF5",
-                          color: "#10B981",
-                        }}
-                      >
-                        Adjust
-                      </Link>
-                    </td>
+            <div className="overflow-x-auto -mx-1 sm:mx-0">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-[#E8ECF3] text-[11px] uppercase tracking-wider text-[#6B7280]">
+                    <th className="py-2.5 px-3 font-bold w-1/3">Meal</th>
+                    <th className="py-2.5 px-2 font-bold text-center">Pred</th>
+                    <th className="py-2.5 px-2 font-bold text-center">Prep</th>
+                    <th className="py-2.5 px-2 font-bold text-center">Rem</th>
+                    <th className="py-2.5 px-3 font-bold text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#F3F4F6]">
+                  {TODAY_MEAL_PLAN.map((row) => (
+                    <tr
+                      key={row.meal}
+                      className="hover:bg-[#F9FAFB] transition-colors"
+                      style={{
+                        background: row.highlight ? "#FFF8EB" : undefined,
+                      }}
+                    >
+                      <td className="py-3 px-3 font-semibold text-[#111827]">
+                        <div className="flex items-center gap-2">
+                          <Utensils className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
+                          <span className="truncate">{row.meal}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 font-mono-data text-center text-[#374151] font-medium">
+                        {row.predicted}
+                      </td>
+                      <td className="py-3 px-2 font-mono-data text-center text-[#374151] font-medium">
+                        {row.prepared > 0 ? row.prepared : "—"}
+                      </td>
+                      <td className="py-3 px-2 font-mono-data text-center">
+                        {row.remaining > 0 ? (
+                          <span
+                            className="font-bold font-mono-data"
+                            style={{ color: row.highlight ? "#D97706" : "#059669" }}
+                          >
+                            {row.remaining} kg
+                          </span>
+                        ) : (
+                          <span className="text-[#9CA3AF]">—</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <Link
+                          href="/kitchen/prediction"
+                          className="inline-block px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#059669]"
+                        >
+                          Adjust
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Active Alerts */}

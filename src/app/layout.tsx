@@ -6,6 +6,7 @@ import ClientProvider from "@/components/providers/ClientProvider";
 import NotificationDrawer from "@/components/common/NotificationDrawer";
 import OnboardingModal from "@/components/common/OnboardingModal";
 import ApiInspectorModal from "@/components/common/ApiInspectorModal";
+import SettingsModal from "@/components/common/SettingsModal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,6 +52,7 @@ export default function RootLayout({
           <NotificationDrawer />
           <OnboardingModal />
           <ApiInspectorModal />
+          <SettingsModal />
 
         </ClientProvider>
       </body>

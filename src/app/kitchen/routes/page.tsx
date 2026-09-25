@@ -365,24 +365,28 @@ function RoutesContent() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto shrink-0">
             <a
               href={googleMapsDirectionsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 lg:flex-none px-4 py-2.5 rounded-xl bg-white hover:bg-emerald-50 text-[#059669] border border-[#A7F3D0] text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5"
+              className="h-11 px-4 rounded-xl bg-white hover:bg-emerald-50 text-[#059669] border border-[#A7F3D0] text-xs font-bold shadow-sm transition-colors flex items-center justify-center gap-2 whitespace-nowrap shrink-0"
             >
-              <ExternalLink className="w-4 h-4 text-[#10B981]" />
-              Open Live Directions on Google Maps
+              <ExternalLink className="w-4 h-4 text-[#10B981] shrink-0" />
+              <span>Open Live Directions on Maps</span>
             </a>
 
             <button
               onClick={handleDispatch}
               disabled={isDispatched}
-              className="flex-1 lg:flex-none px-5 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold shadow-lg shadow-[#10B981]/25 flex items-center justify-center gap-1.5 transition-all hover:scale-105"
+              className={`h-11 px-5 rounded-xl text-white text-xs font-bold shadow-md shadow-[#10B981]/20 flex items-center justify-center gap-2 whitespace-nowrap transition-colors shrink-0 ${
+                isDispatched
+                  ? "bg-[#059669] cursor-default opacity-90"
+                  : "bg-[#10B981] hover:bg-[#059669] cursor-pointer"
+              }`}
             >
-              <Truck className="w-4 h-4" />
-              {isDispatched ? "Route Dispatched!" : "Dispatch Van & Share Route"}
+              <Truck className="w-4 h-4 shrink-0" />
+              <span>{isDispatched ? "Route Dispatched!" : "Dispatch Van & Share Route"}</span>
             </button>
           </div>
         </div>

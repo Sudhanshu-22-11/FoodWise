@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getDb } from "@/lib/mongodb";
 
 export async function POST(request: Request) {
   try {
@@ -19,8 +20,7 @@ export async function POST(request: Request) {
     const distanceSavingsKm = 3.2; // 27.5% distance reduction
     const capacityUtilizationPct = Math.round((currentPayloadKg / vehicleCapacityKg) * 1000) / 10;
 
-    return NextResponse.json({
-      success: true,
+    const routeResult = {
       solver: "OR-Tools-VRP-TimeWindowed-v2.1",
       origin,
       vehicle: {
@@ -64,11 +64,35 @@ export async function POST(request: Request) {
           verificationOtp: "3914",
         },
       ],
+    };
+
+    // Log route optimization to MongoDB
+    const db = await getDb();
+    await db.collection("route_optimizations_log").insertOne({
+      origin,
+      stops,
+      vehicleCapacityKg,
+      currentPayloadKg,
+      result: routeResult,
+      createdAt: new Date(),
     });
+
+    return NextResponse.json({ success: true, ...routeResult });
   } catch {
     return NextResponse.json(
       { error: "Failed to solve route optimization model" },
       { status: 500 }
     );
+  }
+}
+
+// GET — retrieve route stops from DB
+export async function GET() {
+  try {
+    const db = await getDb();
+    const routes = await db.collection("route_stops").find({}).sort({ stopNumber: 1 }).toArray();
+    return NextResponse.json({ success: true, data: routes });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch routes" }, { status: 500 });
   }
 }

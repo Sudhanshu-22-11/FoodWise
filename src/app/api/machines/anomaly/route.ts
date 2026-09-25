@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getDb } from "@/lib/mongodb";
 
 export async function POST(request: Request) {
   try {
@@ -8,8 +9,7 @@ export async function POST(request: Request) {
     const normalThicknessMax = 1.6;
     const isAnomaly = peelThicknessMm > normalThicknessMax;
 
-    return NextResponse.json({
-      success: true,
+    const result = {
       machineId,
       status: isAnomaly ? "CHECK_REQUIRED" : "OPTIMAL",
       anomalyDetected: isAnomaly,
@@ -24,7 +24,19 @@ export async function POST(request: Request) {
         probableCause: "Blade alignment off-center on Rotary Drum #2",
         actionRequired: "Preventative inspection during shift changeover",
       },
+    };
+
+    // Log anomaly check to MongoDB
+    const db = await getDb();
+    await db.collection("anomaly_checks_log").insertOne({
+      machineId,
+      peelThicknessMm,
+      isAnomaly,
+      result,
+      createdAt: new Date(),
     });
+
+    return NextResponse.json({ success: true, ...result });
   } catch {
     return NextResponse.json({ error: "Failed to evaluate machinery telemetry" }, { status: 500 });
   }

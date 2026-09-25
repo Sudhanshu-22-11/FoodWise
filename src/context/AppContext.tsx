@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { InstitutionRole, NotificationAlert, SurplusItem } from "@/lib/types";
 import { INITIAL_NOTIFICATIONS, SURPLUS_ITEMS } from "@/lib/mockData";
 
@@ -175,6 +175,11 @@ interface AppContextType {
   markAllNotificationsAsRead: () => void;
   isOnboardingOpen: boolean;
   setIsOnboardingOpen: (open: boolean) => void;
+  isSettingsOpen: boolean;
+  setIsSettingsOpen: (open: boolean) => void;
+  isOverrideActive: boolean;
+  setIsOverrideActive: (active: boolean) => void;
+  clearManagerOverride: () => void;
   surplusList: SurplusItem[];
   requestNgoPickup: (surplusId: string, ngoName: string) => void;
   isBatchPrioritized: boolean;
@@ -193,50 +198,193 @@ interface AppContextType {
   rankedHotels: DonorHotel[];
   submitDonorFeedback: (hotelId: string, ratings: { foodQuality: number; packaging: number; timeliness: number; quantity: number }, comment: string) => number;
   getHotelRank: (hotelId: string) => number;
+  // Database connection status
+  dbConnected: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+// Helper: fire-and-forget API call (no await needed in handlers)
+function apiCall(url: string, options?: RequestInit) {
+  fetch(url, options).catch((err) => console.error(`API call to ${url} failed:`, err));
+}
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [currentRole, setCurrentRole] = useState<InstitutionRole>("KITCHEN_MANAGER");
   const [notifications, setNotifications] = useState<NotificationAlert[]>(INITIAL_NOTIFICATIONS);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [surplusList, setSurplusList] = useState<SurplusItem[]>(SURPLUS_ITEMS);
   const [isBatchPrioritized, setIsBatchPrioritized] = useState(false);
   const [isTechnicianAssigned, setIsTechnicianAssigned] = useState(false);
   const [managerOverride, setManagerOverride] = useState<{ meals: number; reason: string } | null>(null);
+  const [isOverrideActive, setIsOverrideActive] = useState(false);
   const [acceptedPickups, setAcceptedPickups] = useState<string[]>([]);
   const [isApiInspectorOpen, setIsApiInspectorOpen] = useState(false);
   const [donorHotels, setDonorHotels] = useState<DonorHotel[]>(INITIAL_HOTELS);
   const [donorFeedback, setDonorFeedback] = useState<FeedbackEntry[]>(INITIAL_FEEDBACK);
+  const [dbConnected, setDbConnected] = useState(false);
+
+  // ─── Load data from MongoDB on mount ───────────────────────────────
+  useEffect(() => {
+    async function loadFromDb() {
+      try {
+        const res = await fetch("/api/data");
+        const json = await res.json();
+
+        if (json.success && json.data) {
+          setDbConnected(true);
+          const d = json.data;
+
+          // Hydrate notifications from DB
+          if (d.notifications?.length > 0) {
+            setNotifications(
+              d.notifications.map((n: Record<string, unknown>) => ({
+                id: (n.notifId as string) || (n._id as string),
+                title: n.title as string,
+                message: n.message as string,
+                time: n.time as string,
+                severity: n.severity as string,
+                category: n.category as string,
+                actionLabel: n.actionLabel as string | undefined,
+                actionUrl: n.actionUrl as string | undefined,
+                read: n.read as boolean,
+              }))
+            );
+          }
+
+          // Hydrate surplus from DB
+          if (d.surplusItems?.length > 0) {
+            setSurplusList(
+              d.surplusItems.map((s: Record<string, unknown>) => ({
+                id: (s.surplusId as string) || (s._id as string),
+                item: s.item as string,
+                quantityKg: s.quantityKg as number,
+                preparedAt: s.preparedAt as string,
+                safeUntil: s.safeUntil as string,
+                hoursRemaining: s.hoursRemaining as number,
+                status: s.status as string,
+                prepRecorded: s.prepRecorded as boolean,
+                tempCelsius: s.tempCelsius as number,
+                coveredHygienic: s.coveredHygienic as boolean,
+                eligible: s.eligible as boolean,
+                matchedNgo: s.matchedNgo as string | undefined,
+              }))
+            );
+          }
+
+          // Hydrate donor hotels from DB
+          if (d.donorHotels?.length > 0) {
+            setDonorHotels(
+              d.donorHotels.map((h: Record<string, unknown>) => ({
+                id: (h.hotelId as string) || (h._id as string),
+                name: h.name as string,
+                location: h.location as string,
+                totalPoints: h.totalPoints as number,
+                totalDonations: h.totalDonations as number,
+                avgRating: h.avgRating as number,
+                totalRatings: h.totalRatings as number,
+                lastDonation: h.lastDonation as string,
+                specialBadges: (h.specialBadges as string[]) || [],
+                streak: h.streak as number,
+                fssaiVerified: h.fssaiVerified as boolean,
+              }))
+            );
+          }
+
+          // Hydrate donor feedback from DB
+          if (d.donorFeedback?.length > 0) {
+            setDonorFeedback(
+              d.donorFeedback.map((f: Record<string, unknown>) => ({
+                id: (f.feedbackId as string) || (f._id as string),
+                hotelId: f.hotelId as string,
+                hotelName: f.hotelName as string,
+                date: f.date as string,
+                foodQuality: f.foodQuality as number,
+                packaging: f.packaging as number,
+                timeliness: f.timeliness as number,
+                quantity: f.quantity as number,
+                overallRating: f.overallRating as number,
+                comment: f.comment as string,
+                pointsAwarded: f.pointsAwarded as number,
+              }))
+            );
+          }
+
+          console.log("✅ FoodWise: Data loaded from MongoDB");
+        }
+      } catch (err) {
+        console.warn("⚠️ FoodWise: Could not load from MongoDB, using local mock data.", err);
+      }
+    }
+
+    loadFromDb();
+  }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markNotificationAsRead = (id: string) => {
+  const markNotificationAsRead = useCallback((id: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
-  };
+    // Persist to MongoDB
+    apiCall("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notifId: id }),
+    });
+  }, []);
 
-  const markAllNotificationsAsRead = () => {
+  const markAllNotificationsAsRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
+    // Persist to MongoDB
+    apiCall("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ markAllRead: true }),
+    });
+  }, []);
 
-  const requestNgoPickup = (surplusId: string, ngoName: string) => {
+  const addNotification = useCallback((notif: NotificationAlert) => {
+    setNotifications((prev) => [notif, ...prev]);
+    // Persist to MongoDB
+    apiCall("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: notif.title,
+        message: notif.message,
+        time: notif.time,
+        severity: notif.severity,
+        category: notif.category,
+        actionLabel: notif.actionLabel,
+        actionUrl: notif.actionUrl,
+      }),
+    });
+  }, []);
+
+  const requestNgoPickup = useCallback((surplusId: string, ngoName: string) => {
     setSurplusList((prev) =>
       prev.map((item) =>
         item.id === surplusId
           ? {
               ...item,
               matchedNgo: ngoName,
-              status: "SAFE",
+              status: "SAFE" as const,
             }
           : item
       )
     );
 
-    // Add notification
+    // Persist to MongoDB
+    apiCall("/api/surplus", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ surplusId, matchedNgo: ngoName, status: "SAFE" }),
+    });
+
+    // Add notification (this also persists to MongoDB)
     const newNotif: NotificationAlert = {
       id: `notif-${Date.now()}`,
       title: "Redistribution Pickup Dispatched",
@@ -248,11 +396,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       category: "Redistribution",
       read: false,
     };
-    setNotifications((prev) => [newNotif, ...prev]);
-  };
+    addNotification(newNotif);
+  }, [surplusList, addNotification]);
 
-  const prioritizeBatch = () => {
+  const prioritizeBatch = useCallback(() => {
     setIsBatchPrioritized(true);
+
+    // Persist to MongoDB
+    apiCall("/api/spoilage", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ batchCode: "TOM-2024-0234", prioritized: true }),
+    });
+
     const newNotif: NotificationAlert = {
       id: `notif-${Date.now()}`,
       title: "Batch TOM-2024-0234 Prioritized",
@@ -262,11 +418,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       category: "Factory",
       read: false,
     };
-    setNotifications((prev) => [newNotif, ...prev]);
-  };
+    addNotification(newNotif);
+  }, [addNotification]);
 
-  const assignTechnician = () => {
+  const assignTechnician = useCallback(() => {
     setIsTechnicianAssigned(true);
+
+    // Persist to MongoDB
+    apiCall("/api/machines", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        machineId: "PM-03",
+        assignedTechnician: "Rajesh Kumar (Senior Line Mechanic)",
+      }),
+    });
+
     const newNotif: NotificationAlert = {
       id: `notif-${Date.now()}`,
       title: "Technician Dispatched for PM-03",
@@ -276,24 +443,54 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       category: "IoT",
       read: false,
     };
-    setNotifications((prev) => [newNotif, ...prev]);
-  };
+    addNotification(newNotif);
+  }, [addNotification]);
 
-  const saveManagerOverride = (meals: number, reason: string) => {
+  const saveManagerOverride = useCallback((meals: number, reason: string) => {
     setManagerOverride({ meals, reason });
+    setIsOverrideActive(true);
+
+    // Persist to MongoDB
+    apiCall("/api/overrides", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meals, reason }),
+    });
+
     const newNotif: NotificationAlert = {
       id: `notif-${Date.now()}`,
       title: "Prediction Human Override Applied",
-      message: `Manager adjusted tomorrow's target to ${meals} meals (Reason: ${reason}). Model feedback recorded for continuous learning.`,
+      message: `Manager adjusted target to ${meals} meals (Reason: ${reason}). Model feedback recorded for continuous learning.`,
       time: "Just now",
       severity: "info",
       category: "Kitchen",
       read: false,
     };
-    setNotifications((prev) => [newNotif, ...prev]);
-  };
+    addNotification(newNotif);
+  }, [addNotification]);
 
-  const acceptNgoPickup = (itemId: string) => {
+  const clearManagerOverride = useCallback(() => {
+    setManagerOverride(null);
+    setIsOverrideActive(false);
+
+    // Deactivate in MongoDB
+    apiCall("/api/overrides", {
+      method: "DELETE",
+    });
+
+    const newNotif: NotificationAlert = {
+      id: `notif-${Date.now()}`,
+      title: "Autonomous AI Prediction Restored",
+      message: "Manager manual override disabled. Deep Learning Demand Model v4.2 autonomous forecast reinstated.",
+      time: "Just now",
+      severity: "info",
+      category: "Kitchen",
+      read: false,
+    };
+    addNotification(newNotif);
+  }, [addNotification]);
+
+  const acceptNgoPickup = useCallback((itemId: string) => {
     setAcceptedPickups((prev) => [...prev, itemId]);
     const newNotif: NotificationAlert = {
       id: `notif-${Date.now()}`,
@@ -304,8 +501,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       category: "Redistribution",
       read: false,
     };
-    setNotifications((prev) => [newNotif, ...prev]);
-  };
+    addNotification(newNotif);
+  }, [addNotification]);
 
   // Calculate points from ratings
   const calculatePoints = (ratings: { foodQuality: number; packaging: number; timeliness: number; quantity: number }) => {
@@ -319,7 +516,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return 10;
   };
 
-  const submitDonorFeedback = (
+  const submitDonorFeedback = useCallback((
     hotelId: string,
     ratings: { foodQuality: number; packaging: number; timeliness: number; quantity: number },
     comment: string
@@ -329,7 +526,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const hotel = donorHotels.find((h) => h.id === hotelId);
     if (!hotel) return 0;
 
-    // Update hotel points and rating
+    // Update hotel points and rating locally
     setDonorHotels((prev) =>
       prev.map((h) => {
         if (h.id !== hotelId) return h;
@@ -345,7 +542,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       })
     );
 
-    // Add feedback entry
+    // Add feedback entry locally
     const newFeedback: FeedbackEntry = {
       id: `fb-${Date.now()}`,
       hotelId,
@@ -361,6 +558,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
     setDonorFeedback((prev) => [newFeedback, ...prev]);
 
+    // Persist feedback to MongoDB (this also updates hotel points in DB)
+    apiCall("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hotelId,
+        foodQuality: ratings.foodQuality,
+        packaging: ratings.packaging,
+        timeliness: ratings.timeliness,
+        quantity: ratings.quantity,
+        comment,
+      }),
+    });
+
     // Add notification
     const newNotif: NotificationAlert = {
       id: `notif-${Date.now()}`,
@@ -371,10 +582,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       category: "Redistribution",
       read: false,
     };
-    setNotifications((prev) => [newNotif, ...prev]);
+    addNotification(newNotif);
 
     return points;
-  };
+  }, [donorHotels, addNotification]);
 
   // Sorted by points (descending) for ranking
   const rankedHotels = useMemo(
@@ -382,10 +593,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [donorHotels]
   );
 
-  const getHotelRank = (hotelId: string): number => {
+  const getHotelRank = useCallback((hotelId: string): number => {
     const idx = rankedHotels.findIndex((h) => h.id === hotelId);
     return idx >= 0 ? idx + 1 : -1;
-  };
+  }, [rankedHotels]);
 
   return (
     <AppContext.Provider
@@ -396,6 +607,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         unreadCount,
         isNotificationOpen,
         setIsNotificationOpen,
+        isSettingsOpen,
+        setIsSettingsOpen,
         markNotificationAsRead,
         markAllNotificationsAsRead,
         isOnboardingOpen,
@@ -407,7 +620,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         isTechnicianAssigned,
         assignTechnician,
         managerOverride,
+        isOverrideActive,
+        setIsOverrideActive,
         saveManagerOverride,
+        clearManagerOverride,
         acceptedPickups,
         acceptNgoPickup,
         isApiInspectorOpen,
@@ -417,6 +633,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         rankedHotels,
         submitDonorFeedback,
         getHotelRank,
+        dbConnected,
       }}
     >
       {children}

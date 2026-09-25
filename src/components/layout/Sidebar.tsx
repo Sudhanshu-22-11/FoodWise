@@ -32,6 +32,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { INSTITUTIONS } from "@/lib/mockData";
+import { useApp } from "@/context/AppContext";
 
 interface SidebarProps {
   type: "kitchen" | "factory" | "ngo";
@@ -48,6 +49,7 @@ interface NavItem {
 export default function Sidebar({ type }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { unreadCount, setIsNotificationOpen, setIsSettingsOpen } = useApp();
 
   const institution =
     type === "kitchen"
@@ -59,18 +61,16 @@ export default function Sidebar({ type }: SidebarProps) {
   const kitchenNav: NavItem[] = [
     { label: "Overview", href: "/kitchen/dashboard", icon: LayoutDashboard },
     { label: "Demand Prediction", href: "/kitchen/prediction", icon: BrainCircuit, badge: "AI" },
-    { label: "Waste Tracking", href: "/kitchen/dashboard", icon: Trash2 },
-    { label: "Surplus Management", href: "/kitchen/surplus", icon: PackageCheck, badge: "Action" },
-    { label: "NGO Matching", href: "/kitchen/surplus", icon: HeartHandshake },
+    { label: "Waste Tracking", href: "/kitchen/waste", icon: Trash2 },
+    { label: "Surplus & NGO Matching", href: "/kitchen/surplus", icon: HeartHandshake, badge: "Action" },
     { label: "Route Optimization", href: "/kitchen/routes", icon: Route },
     { label: "Reports", href: "/dashboard/impact", icon: BarChart3 },
-    { label: "Settings", href: "/kitchen/dashboard", icon: Settings },
   ];
 
   const factoryNav: NavItem[] = [
     { label: "Overview", href: "/factory/dashboard", icon: LayoutDashboard },
-    { label: "Raw Material Intake", href: "/factory/dashboard", icon: Boxes },
-    { label: "Storage Monitor", href: "/factory/dashboard", icon: ThermometerSnowflake },
+    { label: "Raw Material Intake", href: "/factory/intake", icon: Boxes },
+    { label: "Storage Monitor", href: "/factory/storage", icon: ThermometerSnowflake },
     {
       label: "Predictive Spoilage",
       href: "/factory/spoilage",
@@ -78,9 +78,9 @@ export default function Sidebar({ type }: SidebarProps) {
       highlight: true,
       badge: "Urgent",
     },
-    { label: "Processing Analytics", href: "/factory/dashboard", icon: Layers },
+    { label: "Processing Analytics", href: "/factory/analytics", icon: Layers },
     { label: "Machine Health", href: "/factory/machines", icon: Cpu, badge: "Anomaly" },
-    { label: "Byproduct Recovery", href: "/factory/dashboard", icon: RefreshCw },
+    { label: "Byproduct Recovery", href: "/factory/byproduct", icon: RefreshCw },
     { label: "Reports", href: "/dashboard/impact", icon: BarChart3 },
   ];
 
@@ -401,9 +401,9 @@ export default function Sidebar({ type }: SidebarProps) {
         className="px-3 py-2 border-t space-y-0.5"
         style={{ borderColor: "rgba(16, 185, 129, 0.15)" }}
       >
-        <Link
-          href="#"
-          className={`flex items-center gap-3 rounded-xl text-[13px] font-medium transition-all ${
+        <button
+          onClick={() => setIsNotificationOpen(true)}
+          className={`w-full flex items-center gap-3 rounded-xl text-[13px] font-medium transition-all cursor-pointer ${
             collapsed ? "px-0 py-2.5 justify-center" : "px-3 py-2.5"
           }`}
           style={{ color: "#A7F3D0" }}
@@ -416,13 +416,28 @@ export default function Sidebar({ type }: SidebarProps) {
             (e.currentTarget as HTMLElement).style.background = "transparent";
             (e.currentTarget as HTMLElement).style.color = "#A7F3D0";
           }}
+          title={collapsed ? "Notifications" : undefined}
         >
-          <Bell className="w-[18px] h-[18px] text-emerald-400" />
-          {!collapsed && <span>Notifications</span>}
-        </Link>
-        <Link
-          href="#"
-          className={`flex items-center gap-3 rounded-xl text-[13px] font-medium transition-all ${
+          <div className="relative">
+            <Bell className="w-[18px] h-[18px] text-emerald-400" />
+            {unreadCount > 0 && collapsed && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500" />
+            )}
+          </div>
+          {!collapsed && (
+            <div className="flex-1 flex items-center justify-between">
+              <span>Notifications</span>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-500 text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+          )}
+        </button>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className={`w-full flex items-center gap-3 rounded-xl text-[13px] font-medium transition-all cursor-pointer ${
             collapsed ? "px-0 py-2.5 justify-center" : "px-3 py-2.5"
           }`}
           style={{ color: "#A7F3D0" }}
@@ -435,10 +450,11 @@ export default function Sidebar({ type }: SidebarProps) {
             (e.currentTarget as HTMLElement).style.background = "transparent";
             (e.currentTarget as HTMLElement).style.color = "#A7F3D0";
           }}
+          title={collapsed ? "Settings" : undefined}
         >
           <Settings className="w-[18px] h-[18px] text-emerald-400" />
           {!collapsed && <span>Settings</span>}
-        </Link>
+        </button>
       </div>
 
       {/* User Profile + Collapse Toggle */}

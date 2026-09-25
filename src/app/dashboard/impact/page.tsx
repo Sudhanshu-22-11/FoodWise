@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Navbar from "@/components/layout/Navbar";
 import { ESG_DATA } from "@/lib/mockData";
 import CountUp from "@/components/common/CountUp";
 import {
@@ -35,10 +34,7 @@ import {
 
 export default function SustainabilityImpactPage() {
   return (
-    <div className="min-h-screen bg-[#F4F6FA] text-[#111827] flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-8 pb-24">
+    <div className="space-y-8">
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#E8ECF3]">
           <div>
@@ -435,7 +431,6 @@ export default function SustainabilityImpactPage() {
             </div>
           </div>
         </div>
-      </main>
     </div>
   );
 }

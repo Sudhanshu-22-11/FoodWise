@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Camera,
   Upload,
@@ -56,6 +56,42 @@ const SEVERITY_LEVELS = [
   { label: "Low", color: "#059669", bg: "#ECFDF5", border: "#A7F3D0", desc: "Minor issue — for documentation purposes" },
 ];
 
+const FALLBACK_COMPLAINTS: Complaint[] = [
+  {
+    id: "cmp-1",
+    date: "Sep 24, 2026 • 4:15 PM",
+    establishment: "Roadside Dhaba — Sarai Kale Khan",
+    category: "Unhygienic Preparation",
+    severity: "High",
+    status: "Under Review",
+    fssaiRef: "FSSAI-CMP-2026-84921",
+    description: "Open cooking without gloves, flies around food prep area. Food being served to daily wage workers.",
+    hasImage: true,
+  },
+  {
+    id: "cmp-2",
+    date: "Sep 22, 2026 • 11:30 AM",
+    establishment: "Sharma Sweets & Namkeen — Lajpat Nagar",
+    category: "Expired / Unsafe Food Served",
+    severity: "Critical",
+    status: "Action Taken",
+    fssaiRef: "FSSAI-CMP-2026-84856",
+    description: "Expired packaged sweets (best before: Aug 2026) being sold. Multiple packets with fungal growth spotted.",
+    hasImage: true,
+  },
+  {
+    id: "cmp-3",
+    date: "Sep 18, 2026 • 2:00 PM",
+    establishment: "Green Valley Caterers — Dwarka",
+    category: "Temperature Violation",
+    severity: "Medium",
+    status: "Resolved",
+    fssaiRef: "FSSAI-CMP-2026-84702",
+    description: "Buffet food kept at room temperature for 5+ hours during an event. No chafing dishes or heating arrangement.",
+    hasImage: false,
+  },
+];
+
 export default function NgoComplaintsPage() {
   const [activeTab, setActiveTab] = useState<"file" | "track">("file");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -69,46 +105,40 @@ export default function NgoComplaintsPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [generatedRef, setGeneratedRef] = useState("");
   const [showCamera, setShowCamera] = useState(false);
+  const [pastComplaints, setPastComplaints] = useState<Complaint[]>(FALLBACK_COMPLAINTS);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const pastComplaints: Complaint[] = [
-    {
-      id: "cmp-1",
-      date: "Sep 24, 2026 • 4:15 PM",
-      establishment: "Roadside Dhaba — Sarai Kale Khan",
-      category: "Unhygienic Preparation",
-      severity: "High",
-      status: "Under Review",
-      fssaiRef: "FSSAI-CMP-2026-84921",
-      description: "Open cooking without gloves, flies around food prep area. Food being served to daily wage workers.",
-      hasImage: true,
-    },
-    {
-      id: "cmp-2",
-      date: "Sep 22, 2026 • 11:30 AM",
-      establishment: "Sharma Sweets & Namkeen — Lajpat Nagar",
-      category: "Expired / Unsafe Food Served",
-      severity: "Critical",
-      status: "Action Taken",
-      fssaiRef: "FSSAI-CMP-2026-84856",
-      description: "Expired packaged sweets (best before: Aug 2026) being sold. Multiple packets with fungal growth spotted.",
-      hasImage: true,
-    },
-    {
-      id: "cmp-3",
-      date: "Sep 18, 2026 • 2:00 PM",
-      establishment: "Green Valley Caterers — Dwarka",
-      category: "Temperature Violation",
-      severity: "Medium",
-      status: "Resolved",
-      fssaiRef: "FSSAI-CMP-2026-84702",
-      description: "Buffet food kept at room temperature for 5+ hours during an event. No chafing dishes or heating arrangement.",
-      hasImage: false,
-    },
-  ];
+  // Load complaints from MongoDB on mount
+  useEffect(() => {
+    async function loadComplaints() {
+      try {
+        const res = await fetch("/api/complaints");
+        const json = await res.json();
+        if (json.success && json.data?.length > 0) {
+          setPastComplaints(
+            json.data.map((c: Record<string, unknown>) => ({
+              id: (c.complaintId as string) || (c._id as string),
+              date: c.date as string,
+              establishment: c.establishment as string,
+              category: c.category as string,
+              severity: c.severity as string,
+              status: c.status as string,
+              fssaiRef: c.fssaiRef as string,
+              description: c.description as string,
+              hasImage: c.hasImage as boolean,
+            }))
+          );
+        }
+      } catch {
+        // Use fallback data
+      }
+    }
+    loadComplaints();
+  }, []);
+
 
   const startCamera = async () => {
     try {
@@ -160,16 +190,60 @@ export default function NgoComplaintsPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedCategory || !establishment || !description) return;
     setIsSubmitting(true);
-    const ref = `FSSAI-CMP-2026-${Math.floor(80000 + Math.random() * 10000)}`;
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setGeneratedRef(ref);
-    }, 2500);
+
+    try {
+      const res = await fetch("/api/complaints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: selectedCategory,
+          severity,
+          establishment,
+          location,
+          description,
+          contactPhone,
+          hasImage: !!capturedImage,
+        }),
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        setIsSubmitting(false);
+        setSubmitSuccess(true);
+        setGeneratedRef(json.fssaiRef);
+
+        // Add the new complaint to the list
+        setPastComplaints((prev) => [
+          {
+            id: json.data.complaintId,
+            date: json.data.date,
+            establishment,
+            category: selectedCategory,
+            severity: severity as Complaint["severity"],
+            status: "Submitted",
+            fssaiRef: json.fssaiRef,
+            description,
+            hasImage: !!capturedImage,
+          },
+          ...prev,
+        ]);
+      } else {
+        throw new Error("API error");
+      }
+    } catch {
+      // Fallback to local
+      const ref = `FSSAI-CMP-2026-${Math.floor(80000 + Math.random() * 10000)}`;
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setSubmitSuccess(true);
+        setGeneratedRef(ref);
+      }, 2500);
+    }
   };
+
 
   const resetForm = () => {
     setSelectedCategory(null);
