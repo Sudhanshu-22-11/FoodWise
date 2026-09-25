@@ -64,7 +64,7 @@ export default function Sidebar({ type }: SidebarProps) {
     { label: "Waste Tracking", href: "/kitchen/waste", icon: Trash2 },
     { label: "Surplus & NGO Matching", href: "/kitchen/surplus", icon: HeartHandshake, badge: "Action" },
     { label: "Route Optimization", href: "/kitchen/routes", icon: Route },
-    { label: "Reports", href: "/dashboard/impact", icon: BarChart3 },
+    { label: "Reports", href: "/kitchen/reports", icon: BarChart3 },
   ];
 
   const factoryNav: NavItem[] = [
@@ -81,7 +81,7 @@ export default function Sidebar({ type }: SidebarProps) {
     { label: "Processing Analytics", href: "/factory/analytics", icon: Layers },
     { label: "Machine Health", href: "/factory/machines", icon: Cpu, badge: "Anomaly" },
     { label: "Byproduct Recovery", href: "/factory/byproduct", icon: RefreshCw },
-    { label: "Reports", href: "/dashboard/impact", icon: BarChart3 },
+    { label: "Reports", href: "/factory/reports", icon: BarChart3 },
   ];
 
   const ngoNav: NavItem[] = [
@@ -92,7 +92,7 @@ export default function Sidebar({ type }: SidebarProps) {
     { label: "Pickup History", href: "/ngo/dashboard", icon: Clock },
     { label: "Raise Complaint", href: "/ngo/complaints", icon: ShieldAlert, badge: "FSSAI", highlight: true },
     { label: "Feedback & Points", href: "/ngo/feedback", icon: Star, badge: "Points" },
-    { label: "Impact & Reports", href: "/dashboard/impact", icon: BarChart3 },
+    { label: "Impact & Reports", href: "/ngo/reports", icon: BarChart3 },
   ];
 
   const navItems =

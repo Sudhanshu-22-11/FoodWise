@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ESG_DATA } from "@/lib/mockData";
 import CountUp from "@/components/common/CountUp";
 import {
@@ -59,6 +60,32 @@ export default function SustainabilityImpactPage() {
               Export ESG Audit (PDF)
             </button>
           </div>
+        </div>
+
+        {/* SECTION-SPECIFIC REPORTS QUICK SWITCHER */}
+        <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-white border border-[#E8ECF3] shadow-xs">
+          <span className="text-xs font-bold text-gray-500 px-3 py-1">View Departmental Audits:</span>
+          <Link
+            href="/kitchen/reports"
+            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1.5"
+          >
+            🍳 Kitchen Waste Audit
+          </Link>
+          <Link
+            href="/factory/reports"
+            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors flex items-center gap-1.5"
+          >
+            🏭 Factory Mass Balance
+          </Link>
+          <Link
+            href="/ngo/reports"
+            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center gap-1.5"
+          >
+            ❤️ NGO Relief & Integrity
+          </Link>
+          <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-lg bg-emerald-600 text-white">
+            ⭐ Multi-Facility ESG (Current)
+          </span>
         </div>
 
         {/* ESG SCORE CARD (PROMINENT GAUGE) */}
