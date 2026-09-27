@@ -28,6 +28,8 @@ import {
   ThumbsUp,
   Heart,
   ChevronRight,
+  Eye,
+  X,
 } from "lucide-react";
 
 const TIER_CONFIG: Record<
@@ -101,6 +103,7 @@ export default function KitchenRankingPage() {
   const [selectedTier, setSelectedTier] = useState<string>("ALL");
   const [onlyMyKitchen, setOnlyMyKitchen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showCertModal, setShowCertModal] = useState(false);
 
   // Kitchen's own profile - IIT Delhi Central Mess is h-2
   const kitchenHotelId = "h-2";
@@ -195,6 +198,13 @@ export default function KitchenRankingPage() {
                 <span>Share Standing</span>
               </>
             )}
+          </button>
+          <button
+            onClick={() => setShowCertModal(true)}
+            className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm border border-emerald-500/30 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 active:scale-95 cursor-pointer"
+          >
+            <Eye className="w-4 h-4 text-emerald-600" />
+            <span>View Certificate</span>
           </button>
           <button
             onClick={() =>
@@ -830,6 +840,150 @@ export default function KitchenRankingPage() {
           </div>
         </div>
       </div>
+
+      {/* ═══ CERTIFICATE PREVIEW MODAL ═══ */}
+      {showCertModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-b from-[#FFFDF9] to-[#FBF7EE] text-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full border-4 border-amber-500/90 p-6 sm:p-10 relative max-h-[92vh] overflow-y-auto">
+            {/* Close button */}
+            <button
+              onClick={() => setShowCertModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Inner certificate frame */}
+            <div className="border-2 border-emerald-600/40 rounded-2xl p-6 sm:p-8 bg-white/95 relative shadow-inner">
+              {/* Header with Logos */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/logo.png"
+                    alt="FoodWise Logo"
+                    className="w-16 h-16 object-contain drop-shadow"
+                  />
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Official Credential</span>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900">FoodWise Network</h3>
+                  </div>
+                </div>
+
+                {/* Center Title */}
+                <div className="text-center order-3 sm:order-2 flex-1">
+                  <h2 className="text-xs sm:text-sm font-black tracking-wider text-amber-800 uppercase">
+                    FoodWise Sustainable Institutional Donor Recognition
+                  </h2>
+                  <p className="text-xs font-bold text-amber-600">
+                    Annual Green Donor Certificate of Excellence • {myTier.toUpperCase()} Tier
+                  </p>
+                </div>
+
+                {/* FSSAI Badge */}
+                <div className="flex items-center gap-3 order-2 sm:order-3">
+                  <div className="text-right hidden sm:block">
+                    <span className="text-[10px] font-bold text-emerald-800 uppercase block">Govt of India</span>
+                    <span className="text-xs font-black text-emerald-900">FSSAI Certified</span>
+                  </div>
+                  <img
+                    src="/fssai-badge.jpg"
+                    alt="FSSAI Verified Seal"
+                    className="w-16 h-16 object-contain rounded-full shadow-md border-2 border-emerald-500/30"
+                  />
+                </div>
+              </div>
+
+              {/* Tagline Ribbon Banner */}
+              <div className="my-3 py-2 px-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center">
+                <span className="text-xs sm:text-sm font-extrabold tracking-wide text-amber-900">
+                  ★ OFFICIAL TAGLINE: EVERY MEAL COUNTS • PREDICT LESS WASTE. FEED MORE LIVES. ★
+                </span>
+                <p className="text-[11px] text-slate-600 mt-0.5">
+                  Certified Compliant With FSSAI Food Hygiene & Safe Food Share Standards (Surplus Regulations, 2019)
+                </p>
+              </div>
+
+              {/* Recipient */}
+              <div className="text-center my-6 space-y-2">
+                <p className="text-xs text-slate-500 font-medium">This prestigious credential is conferred upon:</p>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                  {myKitchen?.name || "IIT Delhi Central Dining Mess"}
+                </h1>
+                <p className="text-xs font-semibold text-emerald-800">
+                  {myKitchen?.location || "Hauz Khas, New Delhi"} • FSSAI Food Safe Verified Kitchen Partner
+                </p>
+                <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed pt-1">
+                  In recognition of exceptional dedication to Zero Hunger and Food Waste Mitigation under the FoodWise motto{" "}
+                  <strong className="text-emerald-700">"Every Meal Counts"</strong>. Having maintained an uninterrupted daily donation streak, 99.8% FSSAI food quality safety score, and active redistribution coordination with certified NGO relief partners.
+                </p>
+              </div>
+
+              {/* 4 Standing KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                  <span className="text-[10px] font-bold text-amber-700 uppercase block">City Rank</span>
+                  <span className="text-lg font-black text-slate-900">#{myRank} in City</span>
+                </div>
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                  <span className="text-[10px] font-bold text-amber-700 uppercase block">Reputation Points</span>
+                  <span className="text-lg font-black text-amber-700">{currentPoints.toLocaleString()} pts</span>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">Donor Tier</span>
+                  <span className="text-lg font-black text-emerald-800">{myTier} Tier</span>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">FSSAI Rating</span>
+                  <span className="text-lg font-black text-emerald-800">99.8% Safe</span>
+                </div>
+              </div>
+
+              {/* Verification & Signatures */}
+              <div className="pt-6 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center items-center text-xs text-slate-600">
+                <div>
+                  <div className="font-bold text-slate-800">FoodWise Governing Council</div>
+                  <div className="text-[11px] text-slate-500">National Food Recovery Initiative</div>
+                </div>
+
+                <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <div className="font-bold text-emerald-900 text-[11px]">FSSAI FOOD SAFETY ENDORSED</div>
+                  <div className="text-[10px] text-emerald-700 font-semibold">EVERY MEAL COUNTS • ZERO WASTE</div>
+                </div>
+
+                <div>
+                  <div className="font-bold text-slate-800">Verified NGO Coalition</div>
+                  <div className="text-[11px] text-slate-500">Ref: FW-DONOR-{myRank}00{currentPoints}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-end gap-3">
+              <button
+                onClick={() => setShowCertModal(false)}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  downloadDonorRankingPdf({
+                    donorName: myKitchen?.name || "IIT Delhi Central Dining Mess",
+                    rank: myRank,
+                    totalPoints: currentPoints,
+                    tier: myTier,
+                    location: myKitchen?.location || "Hauz Khas, New Delhi",
+                  });
+                }}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Official Certificate (PDF)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

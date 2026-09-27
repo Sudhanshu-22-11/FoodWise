@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "@/context/AppContext";
-import { X, Bell, AlertTriangle, AlertCircle, CheckCircle2, Info, ArrowRight, Check } from "lucide-react";
+import { X, Bell, AlertTriangle, AlertCircle, CheckCircle2, Info, ArrowRight, Check, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default function NotificationDrawer() {
@@ -14,6 +14,18 @@ export default function NotificationDrawer() {
     markAllNotificationsAsRead,
     unreadCount,
   } = useApp();
+
+  const [now, setNow] = useState<number>(Date.now());
+
+  // Live timer tick every 15 seconds to keep relative time accurate
+  useEffect(() => {
+    if (!isNotificationOpen) return;
+    setNow(Date.now());
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [isNotificationOpen]);
 
   if (!isNotificationOpen) return null;
 
@@ -43,18 +55,39 @@ export default function NotificationDrawer() {
     }
   };
 
-  const formatNotificationTime = (time: string, createdAt?: number) => {
-    if (createdAt) {
-      const diffMs = Date.now() - createdAt;
-      const diffSec = Math.floor(diffMs / 1000);
-      if (diffSec < 45) return "Just now";
-      const diffMins = Math.floor(diffSec / 60);
-      if (diffMins < 60) return `${diffMins}m ago`;
-      const diffHours = Math.floor(diffMins / 60);
-      if (diffHours < 24) return `${diffHours}h ago`;
-      return `${Math.floor(diffHours / 24)}d ago`;
+  const formatNotificationTime = (time: string, createdAt?: number | string) => {
+    let timestamp: number | null = null;
+    if (typeof createdAt === "number" && !isNaN(createdAt)) {
+      timestamp = createdAt;
+    } else if (typeof createdAt === "string" && !isNaN(new Date(createdAt).getTime())) {
+      timestamp = new Date(createdAt).getTime();
+    } else if (time && !isNaN(new Date(time).getTime())) {
+      timestamp = new Date(time).getTime();
     }
-    if (time === "Just now") return "2m ago";
+
+    if (timestamp) {
+      const diffMs = now - timestamp;
+      const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+      const exactTime = new Date(timestamp).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      if (diffSec < 45) return `Just now • ${exactTime}`;
+      const diffMins = Math.floor(diffSec / 60);
+      if (diffMins < 60) return `${diffMins}m ago • ${exactTime}`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago • ${exactTime}`;
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays === 1) return `Yesterday • ${exactTime}`;
+      return `${diffDays}d ago • ${new Date(timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}`;
+    }
+
+    if (time === "Just now") {
+      const current = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+      return `Just now • ${current}`;
+    }
     return time;
   };
 
@@ -125,7 +158,10 @@ export default function NotificationDrawer() {
                     >
                       {notif.category}
                     </span>
-                    <span className="text-[11px] text-[#94A3B8]">{formatNotificationTime(notif.time, notif.createdAt)}</span>
+                    <span className="text-[11px] text-[#94A3B8] font-medium flex items-center gap-1.5 shrink-0">
+                      <Clock className="w-3 h-3 text-[#64748B]" />
+                      {formatNotificationTime(notif.time, notif.createdAt)}
+                    </span>
                   </div>
                   <h3 className="text-sm font-semibold text-white mb-1">
                     {notif.title}

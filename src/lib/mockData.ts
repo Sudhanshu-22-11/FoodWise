@@ -505,13 +505,14 @@ export const ESG_DATA = {
   ],
 };
 
-// Initial Notifications
+// Initial Notifications (with real timestamps)
 export const INITIAL_NOTIFICATIONS: NotificationAlert[] = [
   {
     id: "notif-1",
     title: "Urgent Batch Spoilage Warning",
     message: "Batch TOM-2024-0234 (Tomatoes, 3,200 kg) requires priority processing within 8 hours to salvage 2,800 kg.",
-    time: "10 mins ago",
+    time: "10m ago",
+    createdAt: Date.now() - 10 * 60 * 1000,
     severity: "urgent",
     category: "Factory",
     actionLabel: "Prioritize Batch",
@@ -522,7 +523,8 @@ export const INITIAL_NOTIFICATIONS: NotificationAlert[] = [
     id: "notif-2",
     title: "AI Demand Recommendation Updated",
     message: "Tomorrow's lunch recommended at 863 meals (was 891). 28 meal buffer reduction suggested.",
-    time: "25 mins ago",
+    time: "25m ago",
+    createdAt: Date.now() - 25 * 60 * 1000,
     severity: "warning",
     category: "Kitchen",
     actionLabel: "Review Forecast",
@@ -533,7 +535,8 @@ export const INITIAL_NOTIFICATIONS: NotificationAlert[] = [
     id: "notif-3",
     title: "Surplus Matched: Aasha Shelter",
     message: "60 kg Lunch surplus successfully matched with Aasha Shelter. Driver dispatched, ETA 18 mins.",
-    time: "42 mins ago",
+    time: "42m ago",
+    createdAt: Date.now() - 42 * 60 * 1000,
     severity: "success",
     category: "Redistribution",
     actionLabel: "Track Delivery",
@@ -544,7 +547,8 @@ export const INITIAL_NOTIFICATIONS: NotificationAlert[] = [
     id: "notif-4",
     title: "Machine Anomaly Flag: Peeling Drum PM-03",
     message: "Peel thickness exceeds threshold by 1.2mm (+6% loss rate). Preventative blade check recommended.",
-    time: "1 hour ago",
+    time: "1h ago",
+    createdAt: Date.now() - 65 * 60 * 1000,
     severity: "warning",
     category: "IoT",
     actionLabel: "View Telemetry",

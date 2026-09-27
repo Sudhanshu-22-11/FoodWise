@@ -142,10 +142,6 @@ export default function LandingPage() {
                 </span>
               </div>
             </div>
-
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100/80 text-emerald-900 border border-emerald-300 font-mono-data">
-              AI Platform
-            </span>
           </div>
 
           {/* Form Content */}
@@ -398,7 +394,7 @@ export default function LandingPage() {
 
       {/* Footer Branding */}
       <div className="mt-6 text-center text-xs text-emerald-300/70 font-medium">
-        FoodWise • AI Autonomous Food Waste Prevention & Redistribution Platform • <span className="italic font-semibold text-emerald-200">&ldquo;Making every meal count&rdquo;</span>
+        FoodWise • Food Waste Prevention & Redistribution • <span className="italic font-semibold text-emerald-200">&ldquo;Making every meal count&rdquo;</span>
       </div>
     </div>
   );

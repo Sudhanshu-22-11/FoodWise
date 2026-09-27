@@ -116,7 +116,7 @@ export interface NotificationAlert {
   title: string;
   message: string;
   time: string;
-  createdAt?: number;
+  createdAt?: number | string;
   severity: "urgent" | "warning" | "info" | "success";
   category: "Kitchen" | "Factory" | "Redistribution" | "IoT";
   actionLabel?: string;

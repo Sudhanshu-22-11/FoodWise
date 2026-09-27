@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const db = await getDb();
 
     const notification = {
-      notifId: `notif-${Date.now()}`,
+      notifId: body.notifId || `notif-${Date.now()}`,
       title: body.title,
       message: body.message,
       time: body.time || "Just now",
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       actionLabel: body.actionLabel,
       actionUrl: body.actionUrl,
       read: false,
-      createdAt: new Date(),
+      createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
     };
 
     await db.collection("notifications").insertOne(notification);

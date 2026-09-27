@@ -245,6 +245,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                 title: n.title as string,
                 message: n.message as string,
                 time: n.time as string,
+                createdAt: n.createdAt
+                  ? typeof n.createdAt === "number"
+                    ? n.createdAt
+                    : new Date(n.createdAt as string).getTime()
+                  : undefined,
                 severity: n.severity as string,
                 category: n.category as string,
                 actionLabel: n.actionLabel as string | undefined,
@@ -384,10 +389,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addNotification = useCallback((notif: NotificationAlert) => {
+    const createdAtNum = typeof notif.createdAt === "number"
+      ? notif.createdAt
+      : notif.createdAt
+      ? new Date(notif.createdAt).getTime()
+      : Date.now();
+    const exactTime = new Date(createdAtNum).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+
     const enrichedNotif: NotificationAlert = {
       ...notif,
-      createdAt: notif.createdAt || Date.now(),
-      time: notif.time || "Just now",
+      createdAt: createdAtNum,
+      time: notif.time && notif.time !== "Just now" ? notif.time : `Just now • ${exactTime}`,
     };
     setNotifications((prev) => [enrichedNotif, ...prev]);
     // Persist to MongoDB
@@ -395,9 +407,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        notifId: enrichedNotif.id,
         title: enrichedNotif.title,
         message: enrichedNotif.message,
         time: enrichedNotif.time,
+        createdAt: new Date(createdAtNum).toISOString(),
         severity: enrichedNotif.severity,
         category: enrichedNotif.category,
         actionLabel: enrichedNotif.actionLabel,
