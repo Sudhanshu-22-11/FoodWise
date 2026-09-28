@@ -162,7 +162,7 @@ export default function FactoryReportsPage() {
             </span>
             <span className="text-gray-300">•</span>
             <span className="text-xs text-gray-500 font-medium">
-              Mother Dairy Fruit & Vegetable Unit — {t("factory.report.plant_id")}: DL-FAC-409
+              {t("factory.report.plant_id")}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">

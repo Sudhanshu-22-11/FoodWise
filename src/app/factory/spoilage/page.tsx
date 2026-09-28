@@ -144,12 +144,12 @@ export default function FactorySpoilagePage() {
 
           <div>
             {/* Header badge */}
-            <div className="flex items-center justify-between mb-4">
-              <span className="px-3 py-1 rounded-full bg-[#FEE2E2] text-red-400 font-bold text-xs uppercase font-mono-data border border-[#FECACA] flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
-                🔴 {t("factory.spoilage.high_risk_batch")}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <span className="px-2.5 py-1 rounded-full bg-[#FEE2E2] text-red-700 font-bold text-[11px] uppercase font-mono-data border border-[#FECACA] flex items-center gap-1.5 shrink-0">
+                <span className="w-2 h-2 rounded-full bg-red-600 animate-ping shrink-0" />
+                <span>🔴 {t("factory.spoilage.high_risk_batch")}</span>
               </span>
-              <span className="text-xs font-mono-data text-[#6B7280]">{t("factory.spoilage.priority_queue")}</span>
+              <span className="text-[11px] font-mono-data text-[#6B7280] shrink-0">{t("factory.spoilage.priority_queue")}</span>
             </div>
 
             {/* Batch Info */}

@@ -578,27 +578,28 @@ export default function StorageMonitorPage() {
       </div>
 
       {/* ─── MAIN 3-SECTION EVALUATION GRID ──────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
         {/* SECTION 1: STORAGE CONDITIONS (4 cols) */}
-        <div className="lg:col-span-4 card p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <div>
-              <h3 className="section-title flex items-center gap-2">
-                <ThermometerSnowflake className="w-4 h-4 text-emerald-600" />
-                {t("factory.storage.storage_conditions")}
-              </h3>
-              <p className="section-subtitle">{t("factory.storage.realtime_microclimate")}</p>
+        <div className="lg:col-span-4 card p-6 flex flex-col justify-between h-full space-y-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 gap-2">
+              <div className="min-w-0 flex-1">
+                <h3 className="section-title flex items-center gap-2">
+                  <ThermometerSnowflake className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="truncate">{t("factory.storage.storage_conditions")}</span>
+                </h3>
+                <p className="section-subtitle truncate">{t("factory.storage.realtime_microclimate")}</p>
+              </div>
+              <span className="text-[10px] font-mono-data font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded shrink-0">
+                {t("factory.storage.iot_sensor")}
+              </span>
             </div>
-            <span className="text-[10px] font-mono-data font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-              {t("factory.storage.iot_sensor")}
-            </span>
-          </div>
 
-          {/* Temperature Sensor Card */}
-          <div className="p-3.5 rounded-xl bg-[#FAFBFC] border border-[#E8ECF3] space-y-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600 font-medium">{t("factory.storage.temperature")}</span>
+            {/* Temperature Sensor Card */}
+            <div className="p-3.5 rounded-xl bg-[#FAFBFC] border border-[#E8ECF3] space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600 font-medium">{t("factory.storage.temperature")}</span>
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded font-mono-data ${
                   activeBatch.temp > currentProfile.idealTempMax || activeBatch.temp < currentProfile.idealTempMin
@@ -670,36 +671,38 @@ export default function StorageMonitorPage() {
               <span className="font-mono-data font-bold text-emerald-600">{t("factory.storage.running")}</span>
             </div>
           </div>
-
-          {/* Blast chill trigger button */}
-          <div className="pt-2">
-            {chillTriggered ? (
-              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                {t("factory.storage.compressor_activated")}
-              </div>
-            ) : (
-              <button
-                onClick={handleTriggerBlastChill}
-                className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shadow-xs"
-              >
-                {t("factory.storage.trigger_blast_chill")} {currentProfile.name}
-              </button>
-            )}
-          </div>
         </div>
 
-        {/* SECTION 2: AI QUALITY PARAMETERS (PRODUCE-SPECIFIC) (4 cols) */}
-        <div className="lg:col-span-4 card p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <div>
-              <h3 className="section-title flex items-center gap-2">
-                <FlaskConical className="w-4 h-4 text-indigo-600" />
-                {t("factory.storage.ai_quality_params")}
-              </h3>
-              <p className="section-subtitle">{t("factory.storage.specific_to_biology")} {currentProfile.name}</p>
+        {/* Blast chill trigger button */}
+        <div className="pt-2">
+          {chillTriggered ? (
+            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              {t("factory.storage.compressor_activated")}
             </div>
-            <span className="text-[10px] font-mono-data font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+          ) : (
+            <button
+              onClick={handleTriggerBlastChill}
+              className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shadow-xs"
+            >
+              {t("factory.storage.trigger_blast_chill")} {currentProfile.name}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* SECTION 2: AI QUALITY PARAMETERS (PRODUCE-SPECIFIC) (4 cols) */}
+      <div className="lg:col-span-4 card p-6 flex flex-col justify-between h-full space-y-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100 gap-2">
+            <div className="min-w-0 flex-1">
+              <h3 className="section-title flex items-center gap-2">
+                <FlaskConical className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span className="truncate">{t("factory.storage.ai_quality_params")}</span>
+              </h3>
+              <p className="section-subtitle truncate">{t("factory.storage.specific_to_biology")} {currentProfile.name}</p>
+            </div>
+            <span className="text-[10px] font-mono-data font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded shrink-0">
               {t("factory.storage.adaptive_matrix")}
             </span>
           </div>
@@ -787,28 +790,29 @@ export default function StorageMonitorPage() {
               );
             })}
           </div>
-
-          <div className="p-3 rounded-xl bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-900 flex items-start gap-2">
-            <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-            <span>
-              {t("factory.storage.crop_metrics_note")}
-            </span>
-          </div>
         </div>
 
+        <div className="p-3 rounded-xl bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-900 flex items-start gap-2">
+          <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+          <span>
+            {t("factory.storage.crop_metrics_note")}
+          </span>
+        </div>
+      </div>
+
         {/* SECTION 3: AI QUALITY ANALYSIS & RECOMMENDATION (4 cols) */}
-        <div className="lg:col-span-4 card p-6 flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 card p-6 flex flex-col justify-between h-full space-y-4">
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <div>
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 gap-2">
+              <div className="min-w-0 flex-1">
                 <h3 className="section-title flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-emerald-600" />
-                  {t("factory.storage.ai_quality_analysis")}
+                  <Activity className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="truncate">{t("factory.storage.ai_quality_analysis")}</span>
                 </h3>
-                <p className="section-subtitle">{t("factory.storage.batch_triage")}</p>
+                <p className="section-subtitle truncate">{t("factory.storage.batch_triage")}</p>
               </div>
               <span
-                className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full font-mono-data ${
+                className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full font-mono-data shrink-0 ml-2 ${
                   activeBatch.riskLevel === "HIGH"
                     ? "bg-rose-100 text-rose-800 border border-rose-200"
                     : activeBatch.riskLevel === "MEDIUM"
