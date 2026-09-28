@@ -7,6 +7,7 @@ import NotificationDrawer from "@/components/common/NotificationDrawer";
 import OnboardingModal from "@/components/common/OnboardingModal";
 import ApiInspectorModal from "@/components/common/ApiInspectorModal";
 import SettingsModal from "@/components/common/SettingsModal";
+import PushNotificationPrompt from "@/components/common/PushNotificationPrompt";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} dark`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-[#F4F6FA] text-[#111827] font-sans antialiased selection:bg-[#10B981]/20 selection:text-[#10B981]">
@@ -53,6 +54,7 @@ export default function RootLayout({
           <OnboardingModal />
           <ApiInspectorModal />
           <SettingsModal />
+          <PushNotificationPrompt />
 
         </ClientProvider>
       </body>

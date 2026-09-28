@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { useLang } from "@/context/LanguageContext";
 import { downloadKitchenAuditPdf } from "@/lib/pdfGenerator";
 import {
   BarChart3,
@@ -40,6 +41,7 @@ import {
 } from "recharts";
 
 export default function KitchenReportsPage() {
+  const { t } = useLang();
   const [timeRange, setTimeRange] = useState<"This Week" | "This Month" | "Last 30 Days">("This Week");
   const [selectedMeal, setSelectedMeal] = useState<"ALL" | "Breakfast" | "Lunch" | "Dinner">("ALL");
   const [downloading, setDownloading] = useState(false);
@@ -151,7 +153,7 @@ export default function KitchenReportsPage() {
     }
     setTimeout(() => {
       setDownloading(false);
-      setToastMessage(`Kitchen Audit Report (${type}) successfully downloaded!`);
+      setToastMessage(t("kitchen.report.downloadSuccess").replace("{type}", type));
       setTimeout(() => setToastMessage(null), 4000);
     }, 600);
   };
@@ -171,18 +173,18 @@ export default function KitchenReportsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold text-[#10B981] uppercase tracking-wider bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-100">
-              Kitchen Audit & Compliance
+              {t("kitchen.report.badge")}
             </span>
             <span className="text-gray-300">•</span>
             <span className="text-xs text-gray-500 font-medium">
-              IIT Delhi Central Mess — Facility Code: DL-KIT-001
+              {t("kitchen.report.facilityInfo")}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
-            Kitchen Waste & Food Audit Reports
+            {t("kitchen.report.pageTitle")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-            Daily mess preparation logs, diner plate audits, overproduction variance, and FSSAI thermal safety logs.
+            {t("kitchen.report.pageSubtitle")}
           </p>
         </div>
 
@@ -199,7 +201,7 @@ export default function KitchenReportsPage() {
                     : "hover:bg-gray-100 text-[#6B7280]"
                 }`}
               >
-                {range}
+                {range === "This Week" ? t("kitchen.report.thisWeek") : range === "This Month" ? t("kitchen.report.thisMonth") : t("kitchen.report.last30Days")}
               </button>
             ))}
           </div>
@@ -210,7 +212,7 @@ export default function KitchenReportsPage() {
             className="px-3.5 py-2 rounded-xl bg-white hover:bg-gray-50 text-[#111827] text-xs font-semibold border border-[#E5E7EB] shadow-sm transition-all flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5 text-[#10B981]" />
-            {downloading ? "Exporting..." : "Audit PDF"}
+            {downloading ? t("kitchen.report.exporting") : t("kitchen.report.auditPdf")}
           </button>
 
           <button
@@ -218,7 +220,7 @@ export default function KitchenReportsPage() {
             className="px-3.5 py-2 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            Export CSV
+            {t("kitchen.report.exportCsv")}
           </button>
         </div>
       </div>
@@ -229,21 +231,21 @@ export default function KitchenReportsPage() {
         <div className="stat-card stat-card-emerald p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Total Kitchen Waste
+              {t("kitchen.report.totalKitchenWaste")}
             </span>
             <div className="icon-container icon-container-emerald">
               <Scale className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data text-[#111827] mb-1">
-            254 <span className="text-base font-normal text-gray-500">kg</span>
+            254 <span className="text-base font-normal text-gray-500">{t("kitchen.report.kg")}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs">
             <span className="trend-down flex items-center gap-0.5 text-emerald-600 font-semibold">
               <ArrowDownRight className="w-3.5 h-3.5" />
-              -18.4% vs last week
+              {t("kitchen.report.vsLastWeek")}
             </span>
-            <span className="text-gray-400">• Goal: &lt;300 kg</span>
+            <span className="text-gray-400">• {t("kitchen.report.goalKg")}</span>
           </div>
         </div>
 
@@ -251,7 +253,7 @@ export default function KitchenReportsPage() {
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              AI Forecast Accuracy
+              {t("kitchen.report.aiForecastAccuracy")}
             </span>
             <div className="icon-container icon-container-indigo">
               <Sparkles className="w-5 h-5" />
@@ -263,9 +265,9 @@ export default function KitchenReportsPage() {
           <div className="flex items-center gap-1.5 text-xs">
             <span className="trend-up flex items-center gap-0.5 text-indigo-600 font-semibold">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +2.1% improvement
+              {t("kitchen.report.improvement")}
             </span>
-            <span className="text-gray-400">• Variance &lt; 2.6%</span>
+            <span className="text-gray-400">• {t("kitchen.report.varianceThreshold")}</span>
           </div>
         </div>
 
@@ -273,20 +275,20 @@ export default function KitchenReportsPage() {
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Meals Donated to NGOs
+              {t("kitchen.report.mealsDonated")}
             </span>
             <div className="icon-container icon-container-amber">
               <HeartHandshake className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data text-[#111827] mb-1">
-            1,480 <span className="text-base font-normal text-gray-500">meals</span>
+            1,480 <span className="text-base font-normal text-gray-500">{t("kitchen.report.meals")}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs">
             <span className="text-amber-700 font-semibold">
-              340 kg edible food saved
+              {t("kitchen.report.edibleFoodSaved")}
             </span>
-            <span className="text-gray-400">• Zero Landfill</span>
+            <span className="text-gray-400">• {t("kitchen.report.zeroLandfill")}</span>
           </div>
         </div>
 
@@ -294,7 +296,7 @@ export default function KitchenReportsPage() {
         <div className="stat-card stat-card-cyan p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Monthly Cost Avoidance
+              {t("kitchen.report.monthlyCostAvoidance")}
             </span>
             <div className="icon-container icon-container-cyan">
               <DollarSign className="w-5 h-5" />
@@ -306,9 +308,9 @@ export default function KitchenReportsPage() {
           <div className="flex items-center gap-1.5 text-xs">
             <span className="trend-up flex items-center gap-0.5 text-emerald-600 font-semibold">
               <TrendingUp className="w-3.5 h-3.5" />
-              +₹12,400 vs budget
+              {t("kitchen.report.vsBudget")}
             </span>
-            <span className="text-gray-400">• Ration optimization</span>
+            <span className="text-gray-400">• {t("kitchen.report.rationOptimization")}</span>
           </div>
         </div>
       </div>
@@ -319,20 +321,20 @@ export default function KitchenReportsPage() {
         <div className="lg:col-span-8 card p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
-              <h3 className="section-title">Daily Kitchen Waste Audit: Prep vs Plate Waste</h3>
+              <h3 className="section-title">{t("kitchen.report.dailyWasteAuditTitle")}</h3>
               <p className="section-subtitle">
-                Separated kitchen preparation waste (peels, trimmings) vs diner dining plate scraps (kg)
+                {t("kitchen.report.dailyWasteAuditSubtitle")}
               </p>
             </div>
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1.5 font-medium text-gray-700">
-                <span className="w-3 h-3 rounded-sm bg-[#10B981]" /> Prep Waste
+                <span className="w-3 h-3 rounded-sm bg-[#10B981]" /> {t("kitchen.report.prepWaste")}
               </span>
               <span className="flex items-center gap-1.5 font-medium text-gray-700">
-                <span className="w-3 h-3 rounded-sm bg-[#F59E0B]" /> Plate Scraps
+                <span className="w-3 h-3 rounded-sm bg-[#F59E0B]" /> {t("kitchen.report.plateScraps")}
               </span>
               <span className="flex items-center gap-1.5 font-medium text-gray-700">
-                <span className="w-3 h-1 bg-[#EF4444]" /> Threshold Target
+                <span className="w-3 h-1 bg-[#EF4444]" /> {t("kitchen.report.thresholdTarget")}
               </span>
             </div>
           </div>
@@ -353,8 +355,8 @@ export default function KitchenReportsPage() {
                     boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
                   }}
                 />
-                <Bar dataKey="prepWaste" name="Prep Waste (kg)" stackId="a" fill="#10B981" radius={[0, 0, 4, 4]} />
-                <Bar dataKey="plateWaste" name="Plate Scraps (kg)" stackId="a" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="prepWaste" name={t("kitchen.report.prepWasteKg")} stackId="a" fill="#10B981" radius={[0, 0, 4, 4]} />
+                <Bar dataKey="plateWaste" name={t("kitchen.report.plateScrapsKg")} stackId="a" fill="#F59E0B" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -362,17 +364,17 @@ export default function KitchenReportsPage() {
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>All daily totals maintained below the 45 kg mess committee limit.</span>
+              <span>{t("kitchen.report.belowLimit")}</span>
             </div>
-            <span className="font-semibold text-emerald-700">Weekly Total: 254 kg (avg 36.2 kg/day)</span>
+            <span className="font-semibold text-emerald-700">{t("kitchen.report.weeklyTotal")}</span>
           </div>
         </div>
 
         {/* Waste Category Breakdown (4 cols) */}
         <div className="lg:col-span-4 card p-6 flex flex-col justify-between">
           <div>
-            <h3 className="section-title">Wasted Food Composition</h3>
-            <p className="section-subtitle">Categorical mass breakdown across the mess</p>
+            <h3 className="section-title">{t("kitchen.report.wastedFoodComposition")}</h3>
+            <p className="section-subtitle">{t("kitchen.report.categoricalBreakdown")}</p>
 
             <div className="h-[180px] w-full mt-2">
               <ResponsiveContainer width="100%" height="100%">
@@ -411,7 +413,7 @@ export default function KitchenReportsPage() {
           <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
-              <strong>Insight:</strong> Cooked Rice constitutes 34% of leftover volume. Recommend switching Friday lunch to half-portion batching.
+              <strong>{t("kitchen.report.insight")}</strong> {t("kitchen.report.insightText")}
             </span>
           </div>
         </div>
@@ -421,23 +423,23 @@ export default function KitchenReportsPage() {
       <div className="card p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h3 className="section-title">Official Kitchen Service Logbook</h3>
+            <h3 className="section-title">{t("kitchen.report.officialLogbook")}</h3>
             <p className="section-subtitle">
-              Verified records captured via IoT smart bins, prep counter telemetry, and warden sign-offs
+              {t("kitchen.report.logbookSubtitle")}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">Filter Meal:</span>
+            <span className="text-xs text-gray-500 font-medium">{t("kitchen.report.filterMeal")}</span>
             <select
               value={selectedMeal}
               onChange={(e) => setSelectedMeal(e.target.value as any)}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-800 focus:outline-none"
             >
-              <option value="ALL">All Meals</option>
-              <option value="Breakfast">Breakfast</option>
-              <option value="Lunch">Lunch</option>
-              <option value="Dinner">Dinner</option>
+              <option value="ALL">{t("kitchen.report.allMeals")}</option>
+              <option value="Breakfast">{t("kitchen.report.breakfast")}</option>
+              <option value="Lunch">{t("kitchen.report.lunch")}</option>
+              <option value="Dinner">{t("kitchen.report.dinner")}</option>
             </select>
           </div>
         </div>
@@ -446,15 +448,15 @@ export default function KitchenReportsPage() {
           <table className="data-table w-full">
             <thead>
               <tr>
-                <th>Service Date & Time</th>
-                <th>Diners Served</th>
-                <th>AI Planned</th>
-                <th>Variance</th>
-                <th>Prep Waste</th>
-                <th>Plate Waste</th>
-                <th>Donated Surplus</th>
-                <th>FSSAI Safe Temp</th>
-                <th>Compliance Status</th>
+                <th>{t("kitchen.report.serviceDatetime")}</th>
+                <th>{t("kitchen.report.dinersServed")}</th>
+                <th>{t("kitchen.report.aiPlanned")}</th>
+                <th>{t("kitchen.report.variance")}</th>
+                <th>{t("kitchen.report.prepWaste")}</th>
+                <th>{t("kitchen.report.plateWaste")}</th>
+                <th>{t("kitchen.report.donatedSurplus")}</th>
+                <th>{t("kitchen.report.fssaiSafeTemp")}</th>
+                <th>{t("kitchen.report.complianceStatus")}</th>
               </tr>
             </thead>
             <tbody>
@@ -477,18 +479,18 @@ export default function KitchenReportsPage() {
                         {log.variance}
                       </span>
                     </td>
-                    <td className="font-mono-data text-gray-700">{log.prepWasteKg} kg</td>
-                    <td className="font-mono-data text-gray-700">{log.plateWasteKg} kg</td>
+                    <td className="font-mono-data text-gray-700">{log.prepWasteKg} {t("kitchen.report.kg")}</td>
+                    <td className="font-mono-data text-gray-700">{log.plateWasteKg} {t("kitchen.report.kg")}</td>
                     <td>
                       <span className="badge badge-success font-mono-data">
-                        +{log.surplusDonatedKg} kg
+                        +{log.surplusDonatedKg} {t("kitchen.report.kg")}
                       </span>
                     </td>
                     <td className="font-mono-data font-semibold text-emerald-700">{log.fssaiTemp}</td>
                     <td>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        {log.status}
+                        {t("kitchen.report.compliant")}
                       </span>
                     </td>
                   </tr>
@@ -499,13 +501,13 @@ export default function KitchenReportsPage() {
 
         <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-500">
           <div>
-            FSSAI Inspection License: <strong>10020011002341</strong> • Certified safe thermal holding (&gt;65°C) verified by Kitchen Thermocouple Array KTA-4.
+            {t("kitchen.report.fssaiLicense")}
           </div>
           <button
             onClick={() => handleExport("PDF")}
             className="text-emerald-700 hover:text-emerald-800 font-semibold underline underline-offset-2"
           >
-            Download Signed Monthly Warden Report (PDF)
+            {t("kitchen.report.downloadWardenReport")}
           </button>
         </div>
       </div>

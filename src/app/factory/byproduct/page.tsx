@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useLang } from "@/context/LanguageContext";
 import {
   RefreshCw,
   Zap,
@@ -72,6 +73,8 @@ const MONTHLY_VALORIZATION = [
 ];
 
 export default function ByproductRecoveryPage() {
+  const { t } = useLang();
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -79,16 +82,16 @@ export default function ByproductRecoveryPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600">
-              Circular Economy & Waste Valorization
+              {t("factory.byproduct.subtitle_label")}
             </span>
             <span className="text-[#D1D5DB]">•</span>
-            <span className="text-xs text-[#9CA3AF]">Zero Landfill Operations</span>
+            <span className="text-xs text-[#9CA3AF]">{t("factory.byproduct.zero_landfill")}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827]">
-            Byproduct Recovery & Valorization
+            {t("factory.byproduct.title")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
-            Converting factory organic side-streams into renewable biogas, cattle feed, and industrial starch
+            {t("factory.byproduct.description")}
           </p>
         </div>
 
@@ -98,7 +101,7 @@ export default function ByproductRecoveryPage() {
             className="px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center gap-1.5"
           >
             <BarChart3 className="w-3.5 h-3.5 text-emerald-600" />
-            View Factory Reports →
+            {t("factory.byproduct.view_reports")}
           </Link>
         </div>
       </div>
@@ -107,37 +110,37 @@ export default function ByproductRecoveryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="stat-card stat-card-green p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Daily Waste Diverted</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.byproduct.kpi_waste_diverted")}</span>
             <div className="icon-container icon-container-green">
               <RefreshCw className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-[#111827]">
-            1,840 <span className="text-sm font-bold text-[#6B7280]">kg</span>
+            1,840 <span className="text-sm font-bold text-[#6B7280]">{t("common.kg")}</span>
           </div>
           <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-            100% Landfill diversion rate
+            {t("factory.byproduct.landfill_diversion_rate")}
           </div>
         </div>
 
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Renewable Energy Generated</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.byproduct.kpi_energy_generated")}</span>
             <div className="icon-container icon-container-amber">
               <Zap className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-amber-600">
-            480 <span className="text-sm font-bold text-[#6B7280]">kWh / day</span>
+            480 <span className="text-sm font-bold text-[#6B7280]">{t("factory.byproduct.kwh_per_day")}</span>
           </div>
           <div className="text-[11px] text-[#6B7280] mt-1">
-            Powers plant auxiliary lighting
+            {t("factory.byproduct.powers_lighting")}
           </div>
         </div>
 
         <div className="stat-card stat-card-emerald p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Circular Revenue (Monthly)</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.byproduct.kpi_circular_revenue")}</span>
             <div className="icon-container" style={{ background: "#ECFDF5", color: "#059669" }}>
               <TrendingUp className="w-4 h-4" />
             </div>
@@ -146,22 +149,22 @@ export default function ByproductRecoveryPage() {
             ₹1,87,650
           </div>
           <div className="text-[11px] text-[#6B7280] mt-1">
-            Biogas savings + pellet/starch sales
+            {t("factory.byproduct.biogas_pellet_starch")}
           </div>
         </div>
 
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Carbon Offset (Monthly)</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.byproduct.kpi_carbon_offset")}</span>
             <div className="icon-container icon-container-indigo">
               <Leaf className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-[#111827]">
-            69.0 <span className="text-sm font-bold text-[#6B7280]">Tons CO₂e</span>
+            69.0 <span className="text-sm font-bold text-[#6B7280]">{t("factory.byproduct.tons_co2e")}</span>
           </div>
           <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-            Equivalent to 15 passenger cars/yr
+            {t("factory.byproduct.equivalent_cars")}
           </div>
         </div>
       </div>
@@ -172,9 +175,9 @@ export default function ByproductRecoveryPage() {
           <div>
             <h3 className="section-title flex items-center gap-2">
               <RefreshCw className="w-4 h-4 text-emerald-600" />
-              Active Valorization Conversion Streams
+              {t("factory.byproduct.streams_title")}
             </h3>
-            <p className="section-subtitle">Real-time status of secondary processing units converting side-streams into valuable assets</p>
+            <p className="section-subtitle">{t("factory.byproduct.streams_subtitle")}</p>
           </div>
         </div>
 
@@ -195,20 +198,20 @@ export default function ByproductRecoveryPage() {
               </div>
 
               <div className="text-xs text-[#6B7280]">
-                <strong>Feedstock:</strong> {st.inputFeedstock}
+                <strong>{t("factory.byproduct.feedstock")}:</strong> {st.inputFeedstock}
               </div>
 
               <div className="p-3 rounded-xl bg-white border border-[#E5E7EB] space-y-1.5 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Daily Intake</span>
-                  <span className="font-bold font-mono-data text-[#111827]">{st.dailyFeedKg} kg</span>
+                  <span className="text-[#6B7280]">{t("factory.byproduct.daily_intake")}</span>
+                  <span className="font-bold font-mono-data text-[#111827]">{st.dailyFeedKg} {t("common.kg")}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Output Yield</span>
+                  <span className="text-[#6B7280]">{t("factory.byproduct.output_yield")}</span>
                   <span className="font-bold font-mono-data text-emerald-600">{st.dailyYield}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Monthly Value</span>
+                  <span className="text-[#6B7280]">{t("factory.byproduct.monthly_value")}</span>
                   <span className="font-bold font-mono-data text-[#111827]">{st.monthlyRevenue}</span>
                 </div>
               </div>
@@ -221,10 +224,10 @@ export default function ByproductRecoveryPage() {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="section-title">Monthly Valorized Feedstock Growth (kg)</h3>
-            <p className="section-subtitle">Consistent upward scale in organic fraction recovery across all plant units</p>
+            <h3 className="section-title">{t("factory.byproduct.monthly_chart_title")}</h3>
+            <p className="section-subtitle">{t("factory.byproduct.monthly_chart_subtitle")}</p>
           </div>
-          <span className="text-xs font-bold text-emerald-600 font-mono-data">↑ 26% Yield Growth</span>
+          <span className="text-xs font-bold text-emerald-600 font-mono-data">{t("factory.byproduct.yield_growth")}</span>
         </div>
 
         <div className="h-64 w-full">
@@ -243,9 +246,9 @@ export default function ByproductRecoveryPage() {
                 }}
               />
               <Legend />
-              <Bar dataKey="biogasKg" name="Biogas Digester Slurry (kg)" fill="#10B981" stackId="a" />
-              <Bar dataKey="feedPelletsKg" name="Cattle Feed Pellets (kg)" fill="#F59E0B" stackId="a" />
-              <Bar dataKey="starchKg" name="Industrial Starch (kg)" fill="#3B82F6" stackId="a" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="biogasKg" name={t("factory.byproduct.legend_biogas")} fill="#10B981" stackId="a" />
+              <Bar dataKey="feedPelletsKg" name={t("factory.byproduct.legend_feed")} fill="#F59E0B" stackId="a" />
+              <Bar dataKey="starchKg" name={t("factory.byproduct.legend_starch")} fill="#3B82F6" stackId="a" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

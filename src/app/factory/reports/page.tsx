@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useLang } from "@/context/LanguageContext";
 import { downloadFactoryAuditPdf } from "@/lib/pdfGenerator";
 import {
   Factory,
@@ -34,10 +35,26 @@ import {
 } from "recharts";
 
 export default function FactoryReportsPage() {
+  const { t } = useLang();
   const [selectedLine, setSelectedLine] = useState<"ALL" | "Line 1" | "Line 2" | "Line 3">("ALL");
   const [timePeriod, setTimePeriod] = useState<"Weekly Mass Balance" | "Monthly Audit" | "Annual ESG">("Weekly Mass Balance");
   const [downloading, setDownloading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Time period display labels
+  const timePeriodLabels: Record<string, string> = {
+    "Weekly Mass Balance": t("factory.report.weekly_mass_balance"),
+    "Monthly Audit": t("factory.report.monthly_audit"),
+    "Annual ESG": t("factory.report.annual_esg"),
+  };
+
+  // Line filter display labels
+  const lineLabels: Record<string, string> = {
+    "ALL": t("factory.report.all_lines"),
+    "Line 1": t("factory.report.line1_label"),
+    "Line 2": t("factory.report.line2_label"),
+    "Line 3": t("factory.report.line3_label"),
+  };
 
   // Mass Balance Waterfall Stages
   const massBalanceStages = [
@@ -108,7 +125,7 @@ export default function FactoryReportsPage() {
         plantCode: "PB-IND-004",
       });
     } else {
-      const csvContent = "data:text/csv;charset=utf-8," + 
+      const csvContent = "data:text/csv;charset=utf-8," +
         "MachineId,Line,OEE,Vibration,SpoilageRisk,PreventiveAction,Status\n" +
         machineAuditLogs.map(m => `"${m.machineId}","${m.line}","${m.oee}","${m.vibrationMmS}","${m.spoilageRisk}","${m.preventiveAction}","${m.status}"`).join("\n");
       const encodedUri = encodeURI(csvContent);
@@ -121,7 +138,7 @@ export default function FactoryReportsPage() {
     }
     setTimeout(() => {
       setDownloading(false);
-      setToastMessage(`${type} successfully compiled and downloaded!`);
+      setToastMessage(`${type} ${t("factory.report.compiled_downloaded")}`);
       setTimeout(() => setToastMessage(null), 4000);
     }, 600);
   };
@@ -141,18 +158,18 @@ export default function FactoryReportsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-100">
-              Industrial Plant Engineering
+              {t("factory.report.badge")}
             </span>
             <span className="text-gray-300">•</span>
             <span className="text-xs text-gray-500 font-medium">
-              Mother Dairy Fruit & Vegetable Unit — Plant ID: DL-FAC-409
+              Mother Dairy Fruit & Vegetable Unit — {t("factory.report.plant_id")}: DL-FAC-409
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
-            Factory Mass Balance & Yield Audits
+            {t("factory.report.title")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-            Batch-level mass balance accountability, IoT machine vibration diagnostics, and zero-landfill valorization reports.
+            {t("factory.report.subtitle")}
           </p>
         </div>
 
@@ -169,7 +186,7 @@ export default function FactoryReportsPage() {
                     : "hover:bg-gray-100 text-[#6B7280]"
                 }`}
               >
-                {period}
+                {timePeriodLabels[period]}
               </button>
             ))}
           </div>
@@ -180,7 +197,7 @@ export default function FactoryReportsPage() {
             className="px-3.5 py-2 rounded-xl bg-white hover:bg-gray-50 text-[#111827] text-xs font-semibold border border-[#E5E7EB] shadow-sm transition-all flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5 text-[#10B981]" />
-            {downloading ? "Exporting..." : "ISO Audit"}
+            {downloading ? t("factory.report.exporting") : t("factory.report.iso_audit")}
           </button>
 
           <button
@@ -199,7 +216,7 @@ export default function FactoryReportsPage() {
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Overall Conversion Yield
+              {t("factory.report.overall_conversion_yield")}
             </span>
             <div className="icon-container icon-container-indigo">
               <Factory className="w-5 h-5" />
@@ -211,9 +228,9 @@ export default function FactoryReportsPage() {
           <div className="flex items-center gap-1.5 text-xs">
             <span className="trend-up flex items-center gap-0.5 text-emerald-600 font-semibold">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +5.4% vs industry baseline
+              {t("factory.report.vs_industry_baseline")}
             </span>
-            <span className="text-gray-400">• High conversion</span>
+            <span className="text-gray-400">• {t("factory.report.high_conversion")}</span>
           </div>
         </div>
 
@@ -221,7 +238,7 @@ export default function FactoryReportsPage() {
         <div className="stat-card stat-card-emerald p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Biomass Processed (Week)
+              {t("factory.report.biomass_processed_week")}
             </span>
             <div className="icon-container icon-container-emerald">
               <Boxes className="w-5 h-5" />
@@ -232,9 +249,9 @@ export default function FactoryReportsPage() {
           </div>
           <div className="flex items-center gap-1.5 text-xs">
             <span className="text-emerald-700 font-semibold">
-              126.2 MT Finished Goods
+              126.2 MT {t("factory.report.finished_goods")}
             </span>
-            <span className="text-gray-400">• 0 landfill</span>
+            <span className="text-gray-400">• 0 {t("factory.report.landfill")}</span>
           </div>
         </div>
 
@@ -242,7 +259,7 @@ export default function FactoryReportsPage() {
         <div className="stat-card stat-card-cyan p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Byproduct Valorization
+              {t("factory.report.byproduct_valorization")}
             </span>
             <div className="icon-container icon-container-cyan">
               <RefreshCw className="w-5 h-5" />
@@ -253,9 +270,9 @@ export default function FactoryReportsPage() {
           </div>
           <div className="flex items-center gap-1.5 text-xs">
             <span className="text-cyan-700 font-semibold">
-              22.2 MT diverted
+              22.2 MT {t("factory.report.diverted")}
             </span>
-            <span className="text-gray-400">• Animal feed & Biogas</span>
+            <span className="text-gray-400">• {t("factory.report.animal_feed_biogas")}</span>
           </div>
         </div>
 
@@ -263,7 +280,7 @@ export default function FactoryReportsPage() {
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Prevented Downtime Cost
+              {t("factory.report.prevented_downtime_cost")}
             </span>
             <div className="icon-container icon-container-amber">
               <Zap className="w-5 h-5" />
@@ -275,7 +292,7 @@ export default function FactoryReportsPage() {
           <div className="flex items-center gap-1.5 text-xs">
             <span className="trend-up flex items-center gap-0.5 text-amber-700 font-semibold">
               <TrendingUp className="w-3.5 h-3.5" />
-              14 hrs unplanned downtime avoided
+              {t("factory.report.downtime_avoided")}
             </span>
           </div>
         </div>
@@ -287,23 +304,23 @@ export default function FactoryReportsPage() {
         <div className="lg:col-span-6 card p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="section-title">Stage-Wise Mass Balance Accounting</h3>
+              <h3 className="section-title">{t("factory.report.stage_wise_title")}</h3>
               <p className="section-subtitle">
-                Material flow tracking from weighbridge gate intake to packaged pallets
+                {t("factory.report.material_flow_desc")}
               </p>
             </div>
-            <span className="badge badge-success font-mono-data">Batch #TOM-2024-0234</span>
+            <span className="badge badge-success font-mono-data">{t("factory.report.batch")} #TOM-2024-0234</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="data-table w-full">
               <thead>
                 <tr>
-                  <th>Processing Stage</th>
-                  <th>Inflow (MT)</th>
-                  <th>Outflow (MT)</th>
-                  <th>Loss / Scrap</th>
-                  <th>Efficiency</th>
+                  <th>{t("factory.report.processing_stage")}</th>
+                  <th>{t("factory.report.inflow_mt")}</th>
+                  <th>{t("factory.report.outflow_mt")}</th>
+                  <th>{t("factory.report.loss_scrap")}</th>
+                  <th>{t("factory.report.efficiency")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -327,8 +344,8 @@ export default function FactoryReportsPage() {
           </div>
 
           <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500 flex items-center justify-between">
-            <span>Overall Process Shrinkage: <strong>15.0%</strong></span>
-            <span className="text-emerald-700 font-semibold">97.8% of recovered scrap redirected to Byproducts</span>
+            <span>{t("factory.report.overall_shrinkage")} <strong>15.0%</strong></span>
+            <span className="text-emerald-700 font-semibold">{t("factory.report.scrap_redirected")}</span>
           </div>
         </div>
 
@@ -336,15 +353,15 @@ export default function FactoryReportsPage() {
         <div className="lg:col-span-6 card p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="section-title">Weekly Processing Yield vs Baseline Target</h3>
-              <p className="section-subtitle">Daily plant recovery efficiency (%) and thermal energy consumption</p>
+              <h3 className="section-title">{t("factory.report.weekly_yield_title")}</h3>
+              <p className="section-subtitle">{t("factory.report.yield_subtitle")}</p>
             </div>
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1.5 text-gray-700">
-                <span className="w-3 h-3 rounded-sm bg-[#10B981]" /> Daily Yield %
+                <span className="w-3 h-3 rounded-sm bg-[#10B981]" /> {t("factory.report.daily_yield_pct")}
               </span>
               <span className="flex items-center gap-1.5 text-gray-700">
-                <span className="w-3 h-1 bg-[#6366F1]" /> Target (90%)
+                <span className="w-3 h-1 bg-[#6366F1]" /> {t("factory.report.target_label")} (90%)
               </span>
             </div>
           </div>
@@ -370,14 +387,14 @@ export default function FactoryReportsPage() {
                     fontSize: "12px",
                   }}
                 />
-                <Area type="monotone" dataKey="yieldPct" name="Yield %" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#factoryYieldGrad)" />
+                <Area type="monotone" dataKey="yieldPct" name={t("factory.report.yield_pct")} stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#factoryYieldGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
           <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500 flex items-center justify-between">
-            <span>Peak Yield Achieved: <strong>94.0% (Saturday)</strong></span>
-            <span className="text-emerald-700 font-semibold">Average Scrap Rate: 7.4%</span>
+            <span>{t("factory.report.peak_yield")} <strong>94.0% ({t("factory.report.saturday")})</strong></span>
+            <span className="text-emerald-700 font-semibold">{t("factory.report.avg_scrap_rate")}</span>
           </div>
         </div>
       </div>
@@ -386,22 +403,22 @@ export default function FactoryReportsPage() {
       <div className="card p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h3 className="section-title">Critical Production Machinery Audit</h3>
+            <h3 className="section-title">{t("factory.report.machinery_audit_title")}</h3>
             <p className="section-subtitle">
-              IoT vibration telemetry, overall equipment effectiveness (OEE), and scrap mitigation actions
+              {t("factory.report.machinery_audit_subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">Filter Line:</span>
+            <span className="text-xs text-gray-500 font-medium">{t("factory.report.filter_line")}</span>
             <select
               value={selectedLine}
               onChange={(e) => setSelectedLine(e.target.value as any)}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-800 focus:outline-none"
             >
-              <option value="ALL">All Lines</option>
-              <option value="Line 1">Line 1 (Puree & Pulp)</option>
-              <option value="Line 2">Line 2 (Canning)</option>
-              <option value="Line 3">Line 3 (Aseptic Tetra)</option>
+              <option value="ALL">{t("factory.report.all_lines")}</option>
+              <option value="Line 1">{t("factory.report.line1_label")}</option>
+              <option value="Line 2">{t("factory.report.line2_label")}</option>
+              <option value="Line 3">{t("factory.report.line3_label")}</option>
             </select>
           </div>
         </div>
@@ -410,13 +427,13 @@ export default function FactoryReportsPage() {
           <table className="data-table w-full">
             <thead>
               <tr>
-                <th>Machine Asset ID</th>
-                <th>Line</th>
-                <th>OEE Index</th>
-                <th>Vibration Telemetry</th>
-                <th>Spoilage Risk</th>
-                <th>Preventive Engineering Action</th>
-                <th>Status</th>
+                <th>{t("factory.report.machine_asset_id")}</th>
+                <th>{t("factory.report.line")}</th>
+                <th>{t("factory.report.oee_index")}</th>
+                <th>{t("factory.report.vibration_telemetry")}</th>
+                <th>{t("factory.report.spoilage_risk")}</th>
+                <th>{t("factory.report.preventive_action")}</th>
+                <th>{t("factory.report.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -434,7 +451,7 @@ export default function FactoryReportsPage() {
                           m.spoilageRisk === "Low" ? "text-emerald-600" : "text-amber-600"
                         }`}
                       >
-                        {m.spoilageRisk} Risk
+                        {m.spoilageRisk} {t("factory.report.risk")}
                       </span>
                     </td>
                     <td className="text-xs text-gray-600 max-w-xs">{m.preventiveAction}</td>
@@ -462,13 +479,13 @@ export default function FactoryReportsPage() {
 
         <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-500">
           <div>
-            ISO 22000 & HACCP Certification: <strong>IND-FS-884920</strong> • Next annual recertification scheduled for December 2026.
+            {t("factory.report.certification_label")} <strong>IND-FS-884920</strong> • {t("factory.report.recertification")}
           </div>
           <button
             onClick={() => handleExport("Preventive Maintenance & Loss Log (PDF)")}
             className="text-indigo-600 hover:text-indigo-800 font-semibold underline underline-offset-2"
           >
-            Download Machine Vibration Audit Log (PDF)
+            {t("factory.report.download_vibration_log")}
           </button>
         </div>
       </div>

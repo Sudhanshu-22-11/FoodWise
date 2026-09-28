@@ -3,6 +3,7 @@
 import React, { useState, Suspense, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
 import { INSTITUTIONS } from "@/lib/mockData";
 import {
   HeartHandshake,
@@ -236,6 +237,7 @@ function NgoDashboardContent() {
   const activeTabFromUrl = searchParams.get("tab") || "overview";
 
   const { acceptedPickups, acceptNgoPickup } = useApp();
+  const { t } = useLang();
   const [filterType, setFilterType] = useState<string>("All");
   const [selectedPickup, setSelectedPickup] = useState<SurplusFeedItem | null>(null);
   const [mapMode, setMapMode] = useState<"google" | "corridor">("google");
@@ -389,10 +391,10 @@ function NgoDashboardContent() {
 
   const getTrafficLabel = (status: string) => {
     switch (status) {
-      case "low": return "Clear Roads";
-      case "moderate": return "Moderate Congestion";
-      case "heavy": return "Heavy Delays";
-      default: return "Unknown";
+      case "low": return t("ngo.dash.clear_roads");
+      case "moderate": return t("ngo.dash.moderate_congestion");
+      case "heavy": return t("ngo.dash.heavy_delays");
+      default: return t("ngo.dash.unknown_traffic");
     }
   };
 
@@ -419,32 +421,67 @@ function NgoDashboardContent() {
     }
   };
 
+  // Translate status strings at display time (stored values remain English)
+  const tStatus = (s: string) => {
+    const m: Record<string, string> = {
+      "En Route to Kitchen": t("ngo.dash.status_en_route"),
+      "Delivering to Shelter": t("ngo.dash.status_delivering"),
+      "Delivered & Verified": t("ngo.dash.status_delivered"),
+    };
+    return m[s] || s;
+  };
+
+  // Translate ETA strings at display time
+  const tEta = (s: string) => {
+    const matchKitchen = s.match(/^Arriving at Kitchen in (\d+) mins$/);
+    if (matchKitchen) return `${t("ngo.dash.arriving_kitchen_in")} ${matchKitchen[1]} ${t("ngo.dash.mins")}`;
+    const matchArriving = s.match(/^Arriving in (\d+) mins$/);
+    if (matchArriving) return `${t("ngo.dash.arriving_in")} ${matchArriving[1]} ${t("ngo.dash.mins")}`;
+    if (s === "Loaded & In Transit to Shelter") return t("ngo.dash.in_transit_shelter");
+    return s;
+  };
+
+  // Translate date display values
+  const tDate = (s: string) => {
+    if (s === "Just now") return t("common.just_now");
+    return s;
+  };
+
+  // Filter options with translated labels
+  const filterOptions = [
+    { value: "All", label: t("ngo.dash.filter_all") },
+    { value: "< 5 km", label: t("ngo.dash.filter_5km") },
+    { value: "> 40 kg", label: t("ngo.dash.filter_40kg") },
+    { value: "Urgent (< 4 hrs)", label: t("ngo.dash.filter_urgent") },
+    { value: "Low Traffic", label: t("ngo.dash.filter_low_traffic") },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* ═══ TOP HEADER ═══ */}
+      {/* TOP HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#E8ECF3]">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
               <HeartHandshake className="w-3.5 h-3.5" />
-              NGO Food Relief Network
+              {t("ngo.dash.food_relief_network")}
             </span>
             <span className="text-gray-300">•</span>
             <span className="text-xs text-gray-500 font-semibold">{INSTITUTIONS.ngo.name}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
             {activeTabFromUrl === "claims"
-              ? "Live Food Claims & Donor Matches"
+              ? t("ngo.dash.claims_title")
               : activeTabFromUrl === "routing"
-              ? "Traffic & Safe Route Command Center"
+              ? t("ngo.dash.routing_title")
               : activeTabFromUrl === "scheduled"
-              ? "Scheduled Pickups & Active Dispatches"
+              ? t("ngo.dash.scheduled_title")
               : activeTabFromUrl === "history"
-              ? "Completed Delivery History & Receipts"
-              : "NGO Surplus Logistics & Traffic Intelligence"}
+              ? t("ngo.dash.history_title")
+              : t("ngo.dash.overview_title")}
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            Real-time surplus claims, traffic congestion margins, vehicle dispatch OTPs, and relief verification.
+            {t("ngo.dash.subtitle")}
           </p>
         </div>
 
@@ -456,14 +493,14 @@ function NgoDashboardContent() {
         </div>
       </div>
 
-      {/* ═══ SECTION NAVIGATION TABS ═══ */}
+      {/* SECTION NAVIGATION TABS */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-gray-200 text-xs font-bold">
         {[
-          { id: "overview", label: "Overview", icon: Layers },
-          { id: "claims", label: `Live Claims (${initialFeed.length})`, icon: PackageCheck, badge: "Live" },
-          { id: "routing", label: "Traffic & Safe Routing", icon: Route },
-          { id: "scheduled", label: `Scheduled Pickups (${scheduledPickups.length})`, icon: Truck },
-          { id: "history", label: `Pickup History (${pickupHistory.length})`, icon: Clock },
+          { id: "overview", label: t("ngo.dash.tab_overview"), icon: Layers },
+          { id: "claims", label: `${t("ngo.dash.tab_live_claims")} (${initialFeed.length})`, icon: PackageCheck, badge: t("ngo.dash.badge_live") },
+          { id: "routing", label: t("ngo.dash.tab_traffic_routing"), icon: Route },
+          { id: "scheduled", label: `${t("ngo.dash.tab_scheduled_pickups")} (${scheduledPickups.length})`, icon: Truck },
+          { id: "history", label: `${t("ngo.dash.tab_pickup_history")} (${pickupHistory.length})`, icon: Clock },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTabFromUrl === tab.id;
@@ -495,10 +532,10 @@ function NgoDashboardContent() {
             <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
             <div>
               <span>
-                Pickup successfully scheduled for <strong>{scheduleSuccess.foodType}</strong> ({scheduleSuccess.institution})!
+                {t("ngo.dash.pickup_success_for")} <strong>{scheduleSuccess.foodType}</strong> ({scheduleSuccess.institution})!
               </span>
               <p className="text-[11px] font-normal text-emerald-700 mt-0.5">
-                Driver <strong>{scheduleSuccess.driver}</strong> dispatched. Handoff Verification OTP:{" "}
+                {t("ngo.driver")} <strong>{scheduleSuccess.driver}</strong> {t("ngo.dash.dispatched_otp")}{" "}
                 <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-300 text-emerald-800">
                   {scheduleSuccess.otp}
                 </span>
@@ -509,57 +546,57 @@ function NgoDashboardContent() {
             onClick={() => setTab("scheduled")}
             className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-all shrink-0 flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
           >
-            <span>View in Scheduled Pickups</span>
+            <span>{t("ngo.dash.view_in_scheduled")}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* ═══ TAB 1: OVERVIEW ═══ */}
+      {/* TAB 1: OVERVIEW */}
       {activeTabFromUrl === "overview" && (
         <div className="space-y-6">
           {/* KPI Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <div className="stat-card stat-card-green p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] font-medium text-gray-500">Available Surplus</span>
+                <span className="text-[13px] font-medium text-gray-500">{t("ngo.available_surplus")}</span>
                 <div className="icon-container icon-container-green"><Utensils className="w-5 h-5" /></div>
               </div>
-              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">{initialFeed.length} Batches</div>
-              <div className="text-[12px] font-medium text-emerald-600">173 kg verified nutritious food</div>
+              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">{initialFeed.length} {t("ngo.dash.batches")}</div>
+              <div className="text-[12px] font-medium text-emerald-600">173 {t("ngo.dash.verified_food_desc")}</div>
             </div>
 
             <div className="stat-card stat-card-amber p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] font-medium text-gray-500">Urgent (&lt; 4 hrs)</span>
+                <span className="text-[13px] font-medium text-gray-500">{t("ngo.dash.urgent_label")}</span>
                 <div className="icon-container icon-container-amber"><Timer className="w-5 h-5" /></div>
               </div>
               <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
-                {initialFeed.filter((i) => i.hoursLeft <= 4).length} Batches
+                {initialFeed.filter((i) => i.hoursLeft <= 4).length} {t("ngo.dash.batches")}
               </div>
-              <div className="text-[12px] font-medium text-amber-600">Requires rapid dispatch</div>
+              <div className="text-[12px] font-medium text-amber-600">{t("ngo.dash.rapid_dispatch")}</div>
             </div>
 
             <div className="stat-card stat-card-emerald p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] font-medium text-gray-500">Clear Traffic Routes</span>
+                <span className="text-[13px] font-medium text-gray-500">{t("ngo.dash.clear_routes")}</span>
                 <div className="icon-container icon-container-green"><Navigation className="w-5 h-5" /></div>
               </div>
               <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
-                {initialFeed.filter((i) => i.trafficStatus === "low").length} Routes
+                {initialFeed.filter((i) => i.trafficStatus === "low").length} {t("ngo.dash.routes")}
               </div>
-              <div className="text-[12px] font-medium text-emerald-600">Fast safe transit guaranteed</div>
+              <div className="text-[12px] font-medium text-emerald-600">{t("ngo.dash.fast_transit")}</div>
             </div>
 
             <div className="stat-card stat-card-red p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] font-medium text-gray-500">Traffic Risk Flag</span>
+                <span className="text-[13px] font-medium text-gray-500">{t("ngo.dash.traffic_risk_flag")}</span>
                 <div className="icon-container icon-container-red"><AlertTriangle className="w-5 h-5" /></div>
               </div>
               <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
-                {initialFeed.filter((i) => !canDeliverInTime(i)).length} High-Risk
+                {initialFeed.filter((i) => !canDeliverInTime(i)).length} {t("ngo.dash.high_risk")}
               </div>
-              <div className="text-[12px] font-medium text-rose-600">Heavy congestion alert</div>
+              <div className="text-[12px] font-medium text-rose-600">{t("ngo.dash.heavy_congestion")}</div>
             </div>
           </div>
 
@@ -571,11 +608,11 @@ function NgoDashboardContent() {
                   <div>
                     <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2">
                       <Navigation className="w-4 h-4 text-emerald-600" />
-                      Live Traffic & Routing Map
+                      {t("ngo.dash.traffic_map_title")}
                     </h3>
-                    <p className="text-xs text-gray-500">Real-time corridor conditions for pickup routes</p>
+                    <p className="text-xs text-gray-500">{t("ngo.dash.traffic_map_desc")}</p>
                   </div>
-                  {/* Merged 2-mode selector (No duplicate views!) */}
+                  {/* Merged 2-mode selector */}
                   <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
                     <button
                       onClick={() => setMapMode("google")}
@@ -583,7 +620,7 @@ function NgoDashboardContent() {
                         mapMode === "google" ? "bg-white text-emerald-700 shadow-xs" : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      Google Maps (Live)
+                      {t("ngo.dash.google_maps_live")}
                     </button>
                     <button
                       onClick={() => setMapMode("corridor")}
@@ -591,7 +628,7 @@ function NgoDashboardContent() {
                         mapMode === "corridor" ? "bg-white text-emerald-700 shadow-xs" : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      Interactive Route Network
+                      {t("ngo.dash.interactive_route")}
                     </button>
                   </div>
                 </div>
@@ -612,7 +649,7 @@ function NgoDashboardContent() {
                     />
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-xl border border-gray-200 text-xs font-bold text-gray-900 shadow-sm flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      {selectedPickup ? `Route to: ${selectedPickup.institution}` : "Google Maps Traffic Active"}
+                      {selectedPickup ? `${t("ngo.dash.route_to")} ${selectedPickup.institution}` : t("ngo.dash.google_traffic_active")}
                     </div>
                   </div>
                 ) : (
@@ -639,13 +676,13 @@ function NgoDashboardContent() {
                       <div className="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-lg">
                         <HeartHandshake className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-[9px] font-black text-white bg-black/70 px-1.5 py-0.5 rounded mt-0.5">NGO HUB</span>
+                      <span className="text-[9px] font-black text-white bg-black/70 px-1.5 py-0.5 rounded mt-0.5">{t("ngo.dash.ngo_hub")}</span>
                     </div>
 
                     <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm p-2 rounded-xl text-[10px] text-white space-y-1">
-                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-emerald-400" /> Hauz Khas: 12 min (Clear)</div>
-                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-amber-400" /> AIIMS: 22 min (Moderate)</div>
-                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-rose-500" /> Oberoi / Okhla: 38-45 min (Heavy)</div>
+                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-emerald-400" /> Hauz Khas: 12 {t("ngo.dash.mins")} ({t("ngo.dash.clear_label")})</div>
+                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-amber-400" /> AIIMS: 22 {t("ngo.dash.mins")} ({t("ngo.dash.moderate_label")})</div>
+                      <div className="flex items-center gap-1.5"><span className="w-2.5 h-1.5 rounded-full bg-rose-500" /> Oberoi / Okhla: 38-45 {t("ngo.dash.mins")} ({t("ngo.dash.heavy_traffic_label")})</div>
                     </div>
                   </div>
                 )}
@@ -655,9 +692,9 @@ function NgoDashboardContent() {
             {/* Quick Claims Feed (Right 5 cols) */}
             <div className="lg:col-span-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-sm text-gray-900">Urgent Food Available for Pickup</h3>
+                <h3 className="font-bold text-sm text-gray-900">{t("ngo.dash.urgent_food_title")}</h3>
                 <button onClick={() => setTab("claims")} className="text-xs font-bold text-emerald-600 hover:underline">
-                  View All ({initialFeed.length}) →
+                  {t("ngo.dash.view_all")} ({initialFeed.length}) →
                 </button>
               </div>
 
@@ -680,10 +717,10 @@ function NgoDashboardContent() {
                         <p className="text-[11px] text-gray-500 truncate mt-0.5">{item.foodType}</p>
                         <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-1">
                           <span style={{ color: getTrafficColor(item.trafficStatus) }}>
-                            ● {item.etaMinutes}m ETA ({getTrafficLabel(item.trafficStatus)})
+                            ● {item.etaMinutes}{t("ngo.dash.m_eta")} ({getTrafficLabel(item.trafficStatus)})
                           </span>
                           <span>•</span>
-                          <span>Safe until: {item.safeUntil}</span>
+                          <span>{t("ngo.dash.safe_until_colon")} {item.safeUntil}</span>
                         </div>
                       </div>
 
@@ -691,13 +728,13 @@ function NgoDashboardContent() {
                         {isAccepted ? (
                           <div className="flex items-center gap-1.5">
                             <span className="text-[11px] font-bold text-emerald-700 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-1">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Dispatched
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> {t("ngo.dash.dispatched")}
                             </span>
                             <button
                               onClick={() => setTab("scheduled")}
                               className="text-xs font-bold text-emerald-600 hover:underline cursor-pointer"
                             >
-                              View →
+                              {t("ngo.dash.view_arrow")}
                             </button>
                           </div>
                         ) : safe ? (
@@ -705,11 +742,11 @@ function NgoDashboardContent() {
                             onClick={() => handleOpenScheduleModal(item)}
                             className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95 transition-all flex items-center gap-1"
                           >
-                            <Truck className="w-3.5 h-3.5" /> Claim
+                            <Truck className="w-3.5 h-3.5" /> {t("ngo.dash.claim")}
                           </button>
                         ) : (
                           <span className="text-[10px] font-bold text-rose-600 px-2 py-1 rounded bg-rose-50 border border-rose-200">
-                            Traffic Risk
+                            {t("ngo.dash.traffic_risk")}
                           </span>
                         )}
                       </div>
@@ -722,29 +759,29 @@ function NgoDashboardContent() {
         </div>
       )}
 
-      {/* ═══ TAB 2: DEDICATED LIVE FOOD CLAIMS ═══ */}
+      {/* TAB 2: DEDICATED LIVE FOOD CLAIMS */}
       {activeTabFromUrl === "claims" && (
         <div className="space-y-5">
           {/* Filters Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white border border-gray-200 rounded-2xl">
             <div className="flex items-center gap-2 flex-wrap">
               <Filter className="w-4 h-4 text-gray-400" />
-              {["All", "< 5 km", "> 40 kg", "Urgent (< 4 hrs)", "Low Traffic"].map((f) => (
+              {filterOptions.map((f) => (
                 <button
-                  key={f}
-                  onClick={() => setFilterType(f)}
+                  key={f.value}
+                  onClick={() => setFilterType(f.value)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    filterType === f
+                    filterType === f.value
                       ? "bg-emerald-600 text-white shadow-xs"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  {f}
+                  {f.label}
                 </button>
               ))}
             </div>
             <div className="text-xs font-semibold text-gray-500">
-              Showing {filteredFeed.length} verified donor surplus items
+              {t("ngo.dash.showing")} {filteredFeed.length} {t("ngo.dash.verified_items")}
             </div>
           </div>
 
@@ -769,7 +806,7 @@ function NgoDashboardContent() {
                       </div>
                       <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                         <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                        {item.location} ({item.distanceKm} km away)
+                        {item.location} ({item.distanceKm} {t("ngo.dash.km_away")})
                       </p>
                     </div>
 
@@ -777,30 +814,30 @@ function NgoDashboardContent() {
                       <span className="text-xl font-black font-mono-data text-emerald-700 block">
                         {item.quantityKg} kg
                       </span>
-                      <span className="text-[10px] text-gray-400">~{Math.round(item.quantityKg * 3.2)} Meals</span>
+                      <span className="text-[10px] text-gray-400">~{Math.round(item.quantityKg * 3.2)} {t("ngo.dash.meals")}</span>
                     </span>
                   </div>
 
                   <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 text-xs">
-                    <span className="text-gray-400 block text-[11px] mb-0.5">Prepared Food Description:</span>
+                    <span className="text-gray-400 block text-[11px] mb-0.5">{t("ngo.dash.food_desc_label")}</span>
                     <strong className="text-gray-900 font-semibold">{item.foodType}</strong>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
                     <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
-                      <span className="text-gray-400 block text-[10px]">Safe Until</span>
+                      <span className="text-gray-400 block text-[10px]">{t("ngo.dash.safe_until")}</span>
                       <span className="font-bold text-gray-800">{item.safeUntil}</span>
                     </div>
                     <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
-                      <span className="text-gray-400 block text-[10px]">Traffic ETA</span>
+                      <span className="text-gray-400 block text-[10px]">{t("ngo.dash.traffic_eta")}</span>
                       <span className="font-bold font-mono-data" style={{ color: getTrafficColor(item.trafficStatus) }}>
-                        {item.etaMinutes} mins
+                        {item.etaMinutes} {t("ngo.dash.mins")}
                       </span>
                     </div>
                     <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
-                      <span className="text-gray-400 block text-[10px]">Transit Margin</span>
+                      <span className="text-gray-400 block text-[10px]">{t("ngo.dash.transit_margin")}</span>
                       <span className={`font-bold ${safe ? "text-emerald-600" : "text-rose-600"}`}>
-                        {safe ? "Safe Window" : "High Risk"}
+                        {safe ? t("ngo.dash.safe_window") : t("ngo.dash.high_risk_label")}
                       </span>
                     </div>
                   </div>
@@ -812,19 +849,19 @@ function NgoDashboardContent() {
                       rel="noopener noreferrer"
                       className="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" /> Google Directions
+                      <ExternalLink className="w-3.5 h-3.5" /> {t("ngo.dash.google_directions")}
                     </a>
 
                     {isAccepted ? (
                       <div className="flex items-center gap-2">
                         <span className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Claimed & Scheduled
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {t("ngo.dash.claimed_scheduled")}
                         </span>
                         <button
                           onClick={() => setTab("scheduled")}
                           className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-300 transition-all flex items-center gap-1 cursor-pointer"
                         >
-                          <span>View Pickup</span>
+                          <span>{t("ngo.dash.view_pickup")}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -833,14 +870,14 @@ function NgoDashboardContent() {
                         onClick={() => handleOpenScheduleModal(item)}
                         className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/30 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
                       >
-                        <Truck className="w-4 h-4" /> Claim Batch & Schedule
+                        <Truck className="w-4 h-4" /> {t("ngo.dash.claim_batch")}
                       </button>
                     ) : (
                       <button
                         disabled
                         className="px-4 py-2 rounded-xl text-xs font-bold bg-gray-200 text-gray-500 cursor-not-allowed"
                       >
-                        High Congestion Risk
+                        {t("ngo.dash.high_congestion_risk")}
                       </button>
                     )}
                   </div>
@@ -851,7 +888,7 @@ function NgoDashboardContent() {
         </div>
       )}
 
-      {/* ═══ TAB 3: DEDICATED TRAFFIC & SAFE ROUTING (MERGED MAP!) ═══ */}
+      {/* TAB 3: DEDICATED TRAFFIC & SAFE ROUTING */}
       {activeTabFromUrl === "routing" && (
         <div className="space-y-5">
           <div className="card p-6 bg-white border border-gray-200 rounded-2xl shadow-sm space-y-4">
@@ -859,10 +896,10 @@ function NgoDashboardContent() {
               <div>
                 <h3 className="font-extrabold text-base text-gray-900 flex items-center gap-2">
                   <Route className="w-5 h-5 text-emerald-600" />
-                  Live Corridor Traffic & Safety Margin Analyzer
+                  {t("ngo.dash.corridor_title")}
                 </h3>
                 <p className="text-xs text-gray-500">
-                  Combines Google Maps Live Traffic with FoodWise Shelf-Life Buffer Algorithm (30 min loading + transit time).
+                  {t("ngo.dash.corridor_desc")}
                 </p>
               </div>
 
@@ -874,7 +911,7 @@ function NgoDashboardContent() {
                     mapMode === "google" ? "bg-white text-emerald-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  Google Maps Live Satellite
+                  {t("ngo.dash.google_satellite")}
                 </button>
                 <button
                   onClick={() => setMapMode("corridor")}
@@ -882,7 +919,7 @@ function NgoDashboardContent() {
                     mapMode === "corridor" ? "bg-white text-emerald-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
-                  Interactive Corridor Network
+                  {t("ngo.dash.interactive_corridor")}
                 </button>
               </div>
             </div>
@@ -925,14 +962,14 @@ function NgoDashboardContent() {
                   <div className="w-10 h-10 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-xl">
                     <HeartHandshake className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-[10px] font-black text-white bg-black/70 px-2 py-0.5 rounded mt-1">NGO HUB</span>
+                  <span className="text-[10px] font-black text-white bg-black/70 px-2 py-0.5 rounded mt-1">{t("ngo.dash.ngo_hub")}</span>
                 </div>
 
                 <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md p-3 rounded-2xl text-xs text-white space-y-1.5 border border-white/10">
-                  <div className="font-bold text-emerald-400 mb-1">Live Congestion Feed</div>
-                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-emerald-400" /> Hauz Khas: 12 min (Margin: +150 min buffer)</div>
-                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-amber-400" /> AIIMS Flyover: 22 min (Margin: +230 min buffer)</div>
-                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-rose-500" /> Mathura Road / Okhla: 45 min (Deficit risk)</div>
+                  <div className="font-bold text-emerald-400 mb-1">{t("ngo.dash.congestion_feed")}</div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-emerald-400" /> Hauz Khas: 12 {t("ngo.dash.mins")} {t("ngo.dash.margin_prefix")} +150 {t("ngo.dash.min_buffer")}</div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-amber-400" /> AIIMS Flyover: 22 {t("ngo.dash.mins")} {t("ngo.dash.margin_prefix")} +230 {t("ngo.dash.min_buffer")}</div>
+                  <div className="flex items-center gap-2"><span className="w-3 h-2 rounded-full bg-rose-500" /> Mathura Road / Okhla: 45 {t("ngo.dash.mins")} ({t("ngo.dash.deficit_risk")})</div>
                 </div>
               </div>
             )}
@@ -949,17 +986,17 @@ function NgoDashboardContent() {
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-xs text-gray-900 truncate">{item.institution.split(" ")[0]}</span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: getTrafficBg(item.trafficStatus), color: getTrafficColor(item.trafficStatus) }}>
-                        {item.etaMinutes}m ETA
+                        {item.etaMinutes}{t("ngo.dash.m_eta")}
                       </span>
                     </div>
                     <div className="text-[11px] text-gray-500">
                       {safe ? (
                         <span className="text-emerald-700 font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Safe to dispatch
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {t("ngo.dash.safe_dispatch")}
                         </span>
                       ) : (
                         <span className="text-rose-700 font-bold flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5" /> Delay risk
+                          <AlertTriangle className="w-3.5 h-3.5" /> {t("ngo.dash.delay_risk")}
                         </span>
                       )}
                     </div>
@@ -971,7 +1008,7 @@ function NgoDashboardContent() {
         </div>
       )}
 
-      {/* ═══ TAB 4: DEDICATED SCHEDULED PICKUPS ═══ */}
+      {/* TAB 4: DEDICATED SCHEDULED PICKUPS */}
       {activeTabFromUrl === "scheduled" && (
         <div className="space-y-4">
           <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
@@ -979,10 +1016,10 @@ function NgoDashboardContent() {
               <div>
                 <h3 className="font-bold text-base text-gray-900 flex items-center gap-2">
                   <Truck className="w-5 h-5 text-emerald-600" />
-                  Active Pickups in Transit ({scheduledPickups.length})
+                  {t("ngo.dash.active_transit")} ({scheduledPickups.length})
                 </h3>
                 <p className="text-xs text-gray-500">
-                  Authorized volunteer drivers, destination relief homes, and handover verification OTP codes.
+                  {t("ngo.dash.active_transit_desc")}
                 </p>
               </div>
 
@@ -991,7 +1028,7 @@ function NgoDashboardContent() {
                 className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <PackageCheck className="w-4 h-4" />
-                <span>+ Claim More Food</span>
+                <span>{t("ngo.dash.claim_more")}</span>
               </button>
             </div>
 
@@ -1000,15 +1037,15 @@ function NgoDashboardContent() {
                 <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
                   <Truck className="w-6 h-6" />
                 </div>
-                <h4 className="font-bold text-sm text-gray-900">No Active Pickups Scheduled</h4>
+                <h4 className="font-bold text-sm text-gray-900">{t("ngo.dash.no_pickups")}</h4>
                 <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                  All claimed surplus batches have been delivered or none are currently scheduled. Claim available food from partner kitchens to dispatch relief.
+                  {t("ngo.dash.no_pickups_desc")}
                 </p>
                 <button
                   onClick={() => setTab("claims")}
                   className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer transition-all"
                 >
-                  Browse Available Food Claims
+                  {t("ngo.dash.browse_claims")}
                 </button>
               </div>
             ) : (
@@ -1023,9 +1060,9 @@ function NgoDashboardContent() {
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            {pickup.status}
+                            {tStatus(pickup.status)}
                           </span>
-                          <span className="text-xs text-gray-400 font-mono-data">• {pickup.eta}</span>
+                          <span className="text-xs text-gray-400 font-mono-data">• {tEta(pickup.eta)}</span>
                         </div>
                         <h4 className="font-extrabold text-base text-gray-900 mt-1">{pickup.institution}</h4>
                       </div>
@@ -1033,7 +1070,7 @@ function NgoDashboardContent() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-mono-data bg-gray-900 text-white px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-xs">
                           <Key className="w-3.5 h-3.5 text-amber-400" />
-                          Handover OTP: <strong className="text-amber-400 text-sm">{pickup.otp}</strong>
+                          {t("ngo.dash.handover_otp")} <strong className="text-amber-400 text-sm">{pickup.otp}</strong>
                         </span>
 
                         <button
@@ -1041,29 +1078,29 @@ function NgoDashboardContent() {
                           className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95 transition-all flex items-center gap-1.5"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Mark Delivered</span>
+                          <span>{t("ngo.dash.mark_delivered")}</span>
                         </button>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                       <div className="p-2.5 rounded-xl bg-white border border-gray-100">
-                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">Food Batch</span>
+                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">{t("ngo.dash.food_batch")}</span>
                         <span className="font-semibold text-gray-900">{pickup.food}</span>
                       </div>
                       <div className="p-2.5 rounded-xl bg-white border border-gray-100">
-                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">Destination Shelter</span>
+                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">{t("ngo.dash.dest_shelter")}</span>
                         <span className="font-semibold text-gray-900">{pickup.destination}</span>
                       </div>
                       <div className="p-2.5 rounded-xl bg-white border border-gray-100">
-                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">Assigned Volunteer Driver</span>
+                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">{t("ngo.dash.volunteer_driver")}</span>
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-gray-900">{pickup.driver}</span>
                           <a
                             href={`tel:${pickup.phone}`}
                             className="text-[11px] font-bold text-emerald-600 hover:underline flex items-center gap-1 ml-1"
                           >
-                            <Phone className="w-3 h-3" /> Call
+                            <Phone className="w-3 h-3" /> {t("ngo.dash.call")}
                           </a>
                         </div>
                       </div>
@@ -1076,10 +1113,10 @@ function NgoDashboardContent() {
                         rel="noopener noreferrer"
                         className="text-emerald-600 font-bold hover:underline flex items-center gap-1"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" /> Open Google Live Directions
+                        <ExternalLink className="w-3.5 h-3.5" /> {t("ngo.dash.open_directions")}
                       </a>
                       <span className="text-gray-400 text-[11px]">
-                        Driver ID Verified • Handover receipt logged with FSSAI audit trail
+                        {t("ngo.dash.driver_verified")}
                       </span>
                     </div>
                   </div>
@@ -1090,23 +1127,23 @@ function NgoDashboardContent() {
         </div>
       )}
 
-      {/* ═══ TAB 5: DEDICATED PICKUP HISTORY & RECEIPTS ═══ */}
+      {/* TAB 5: DEDICATED PICKUP HISTORY & RECEIPTS */}
       {activeTabFromUrl === "history" && (
         <div className="space-y-4">
           <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <div>
                 <h3 className="font-bold text-sm text-gray-900">
-                  Completed Surplus Food Distributions ({pickupHistory.length})
+                  {t("ngo.dash.completed_title")} ({pickupHistory.length})
                 </h3>
-                <p className="text-xs text-gray-500">Official digital delivery logs, shelter acknowledgments, and relief audit receipts</p>
+                <p className="text-xs text-gray-500">{t("ngo.dash.completed_desc")}</p>
               </div>
 
               <div className="relative w-full sm:w-64">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search receipt, mess, shelter..."
+                  placeholder={t("ngo.dash.search_placeholder")}
                   value={historySearch}
                   onChange={(e) => setHistorySearch(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500/20"
@@ -1136,13 +1173,13 @@ function NgoDashboardContent() {
                       </div>
                       <div className="text-xs text-gray-600 mt-0.5">{item.food} ➔ {item.recipient}</div>
                       <div className="text-[11px] text-gray-400 mt-1">
-                        Delivered on {item.date} by {item.driver}
+                        {t("ngo.dash.delivered_on")} {tDate(item.date)} {t("ngo.dash.by")} {item.driver}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified Delivered
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {t("ngo.dash.verified_delivered")}
                       </span>
                     </div>
                   </div>
@@ -1152,7 +1189,7 @@ function NgoDashboardContent() {
         </div>
       )}
 
-      {/* ═══ SCHEDULE PICKUP MODAL ═══ */}
+      {/* SCHEDULE PICKUP MODAL */}
       {scheduleModalItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 space-y-5 animate-in zoom-in-95 duration-150">
@@ -1160,10 +1197,10 @@ function NgoDashboardContent() {
               <div>
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                   <Truck className="w-5 h-5 text-emerald-600" />
-                  Schedule Food Pickup & Dispatch
+                  {t("ngo.dash.modal_title")}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Confirm volunteer driver, relief shelter destination, and verification OTP.
+                  {t("ngo.dash.modal_desc")}
                 </p>
               </div>
               <button
@@ -1179,22 +1216,22 @@ function NgoDashboardContent() {
               <div className="flex items-center justify-between">
                 <span className="font-extrabold text-xs text-gray-900">{scheduleModalItem.institution}</span>
                 <span className="text-xs font-black font-mono-data text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200">
-                  {scheduleModalItem.quantityKg} kg (~{Math.round(scheduleModalItem.quantityKg * 3.2)} Meals)
+                  {scheduleModalItem.quantityKg} kg (~{Math.round(scheduleModalItem.quantityKg * 3.2)} {t("ngo.dash.meals")})
                 </span>
               </div>
               <p className="text-xs font-semibold text-emerald-950">{scheduleModalItem.foodType}</p>
               <div className="flex items-center gap-3 text-[11px] text-gray-500 pt-1">
                 <span>📍 {scheduleModalItem.location}</span>
                 <span>•</span>
-                <span>⏳ Safe until: {scheduleModalItem.safeUntil}</span>
+                <span>⏳ {t("ngo.dash.safe_until_colon")} {scheduleModalItem.safeUntil}</span>
               </div>
             </div>
 
             {/* Driver Assignment */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-700 flex items-center justify-between">
-                <span>Assign Volunteer Driver & Vehicle:</span>
-                <span className="text-[11px] font-normal text-emerald-600">Active Fleet</span>
+                <span>{t("ngo.dash.assign_driver")}</span>
+                <span className="text-[11px] font-normal text-emerald-600">{t("ngo.dash.active_fleet")}</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {VOLUNTEER_DRIVERS.map((driver, idx) => (
@@ -1219,7 +1256,7 @@ function NgoDashboardContent() {
             {/* Destination Shelter */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-700">
-                Destination Relief Shelter:
+                {t("ngo.dash.dest_label")}
               </label>
               <select
                 value={selectedDestination}
@@ -1228,7 +1265,7 @@ function NgoDashboardContent() {
               >
                 {RELIEF_DESTINATIONS.map((dest) => (
                   <option key={dest.name} value={dest.name}>
-                    {dest.name} (Capacity: {dest.capacity})
+                    {dest.name} ({t("ngo.dash.capacity_label")} {dest.capacity})
                   </option>
                 ))}
               </select>
@@ -1237,8 +1274,8 @@ function NgoDashboardContent() {
             {/* OTP & Summary Note */}
             <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-between">
               <div>
-                <span className="text-[10px] uppercase font-bold text-gray-500 block">Auto-Generated Handover OTP</span>
-                <span className="text-xs text-gray-600">Give to Kitchen Warden at pickup</span>
+                <span className="text-[10px] uppercase font-bold text-gray-500 block">{t("ngo.dash.auto_otp")}</span>
+                <span className="text-xs text-gray-600">{t("ngo.dash.otp_instruction")}</span>
               </div>
               <span className="text-base font-black font-mono-data bg-gray-900 text-amber-400 px-3 py-1 rounded-xl tracking-wider">
                 {generatedModalOtp}
@@ -1252,7 +1289,7 @@ function NgoDashboardContent() {
                 onClick={() => setScheduleModalItem(null)}
                 className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="button"
@@ -1262,7 +1299,7 @@ function NgoDashboardContent() {
                 className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/30 flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
               >
                 <Truck className="w-4 h-4" />
-                <span>Confirm & Dispatch Pickup</span>
+                <span>{t("ngo.dash.confirm_dispatch")}</span>
               </button>
             </div>
           </div>
@@ -1273,8 +1310,9 @@ function NgoDashboardContent() {
 }
 
 export default function NgoDashboardPage() {
+  const { t } = useLang();
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading NGO Command Desk...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">{t("ngo.dash.loading")}</div>}>
       <NgoDashboardContent />
     </Suspense>
   );

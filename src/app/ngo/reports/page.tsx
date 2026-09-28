@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { downloadNgoImpactCertificatePdf } from "@/lib/pdfGenerator";
+import { useLang } from "@/context/LanguageContext";
 import {
   HeartHandshake,
   Users,
@@ -35,8 +36,15 @@ import {
 } from "recharts";
 import { useApp } from "@/context/AppContext";
 
+const TIME_RANGE_KEYS: Record<string, string> = {
+  "This Month": "ngo.report.this_month",
+  "Last Quarter": "ngo.report.last_quarter",
+  "Year to Date": "ngo.report.year_to_date",
+};
+
 export default function NgoReportsPage() {
   const { rankedHotels } = useApp();
+  const { t } = useLang();
   const [timeRange, setTimeRange] = useState<"This Month" | "Last Quarter" | "Year to Date">("This Month");
   const [selectedHub, setSelectedHub] = useState<string>("ALL");
   const [downloading, setDownloading] = useState(false);
@@ -52,10 +60,10 @@ export default function NgoReportsPage() {
 
   // Nutritional breakdown
   const nutritionData = [
-    { name: "Wholesome Rice & Roti (Carbs)", value: 42, color: "#10B981" },
-    { name: "Lentils, Dal & Paneer (Protein)", value: 31, color: "#6366F1" },
-    { name: "Cooked Vegetables & Salads", value: 18, color: "#F59E0B" },
-    { name: "Dairy, Curd & Bakery", value: 9, color: "#EC4899" },
+    { name: t("ngo.report.nutrition_carbs"), value: 42, color: "#10B981" },
+    { name: t("ngo.report.nutrition_protein"), value: 31, color: "#6366F1" },
+    { name: t("ngo.report.nutrition_veggies"), value: 18, color: "#F59E0B" },
+    { name: t("ngo.report.nutrition_dairy"), value: 9, color: "#EC4899" },
   ];
 
   // Daily distribution timeline
@@ -79,7 +87,7 @@ export default function NgoReportsPage() {
         co2SavedKg: 12400,
       });
     } else {
-      const csvContent = "data:text/csv;charset=utf-8," + 
+      const csvContent = "data:text/csv;charset=utf-8," +
         "Day,MealsDistributed,AvgDeliveryMin\n" +
         dailyDistributionTrend.map(d => `${d.day},${d.meals},${d.avgDeliveryMin}`).join("\n");
       const encodedUri = encodeURI(csvContent);
@@ -92,7 +100,7 @@ export default function NgoReportsPage() {
     }
     setTimeout(() => {
       setDownloading(false);
-      setToastMessage(`${type} downloaded successfully!`);
+      setToastMessage(`${type} ${t("ngo.report.downloaded_success")}`);
       setTimeout(() => setToastMessage(null), 4000);
     }, 600);
   };
@@ -112,18 +120,18 @@ export default function NgoReportsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold text-amber-600 uppercase tracking-wider bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-100">
-              Community Food Security & Relief
+              {t("ngo.report.community_relief")}
             </span>
-            <span className="text-gray-300">•</span>
+            <span className="text-gray-300">&bull;</span>
             <span className="text-xs text-gray-500 font-medium">
-              Robin Hood Army — South Delhi Chapter (NGO-DL-04)
+              {t("ngo.report.chapter_info")}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
-            Hunger Relief & Community Distribution Impact
+            {t("ngo.report.title")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-            Verified recipient demographics, cold-chain turnaround latency, and donor hotel hygiene audit scorecards.
+            {t("ngo.report.subtitle")}
           </p>
         </div>
 
@@ -140,7 +148,7 @@ export default function NgoReportsPage() {
                     : "hover:bg-gray-100 text-[#6B7280]"
                 }`}
               >
-                {period}
+                {t(TIME_RANGE_KEYS[period])}
               </button>
             ))}
           </div>
@@ -151,7 +159,7 @@ export default function NgoReportsPage() {
             className="px-3.5 py-2 rounded-xl bg-white hover:bg-gray-50 text-[#111827] text-xs font-semibold border border-[#E5E7EB] shadow-sm transition-all flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5 text-[#10B981]" />
-            {downloading ? "Exporting..." : "80G Certificate"}
+            {downloading ? t("ngo.report.exporting") : t("ngo.report.certificate_80g")}
           </button>
 
           <button
@@ -159,7 +167,7 @@ export default function NgoReportsPage() {
             className="px-3.5 py-2 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            Export CSV
+            {t("ngo.report.export_csv")}
           </button>
         </div>
       </div>
@@ -170,7 +178,7 @@ export default function NgoReportsPage() {
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Total Meals Distributed
+              {t("ngo.report.total_meals")}
             </span>
             <div className="icon-container icon-container-amber">
               <HeartHandshake className="w-5 h-5" />
@@ -182,9 +190,9 @@ export default function NgoReportsPage() {
           <div className="flex items-center gap-1.5 text-xs">
             <span className="trend-up flex items-center gap-0.5 text-emerald-600 font-semibold">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +24.8% vs last month
+              {t("ngo.report.vs_last_month")}
             </span>
-            <span className="text-gray-400">• 4 Shelter Hubs</span>
+            <span className="text-gray-400">&bull; {t("ngo.report.shelter_hubs")}</span>
           </div>
         </div>
 
@@ -192,18 +200,18 @@ export default function NgoReportsPage() {
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Active Beneficiaries
+              {t("ngo.report.active_beneficiaries")}
             </span>
             <div className="icon-container icon-container-indigo">
               <Users className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data text-[#111827] mb-1">
-            9,600 <span className="text-base font-normal text-gray-500">people</span>
+            9,600 <span className="text-base font-normal text-gray-500">{t("ngo.report.people")}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs">
             <span className="text-indigo-700 font-semibold">
-              38% Children • 26% Elderly
+              {t("ngo.report.demographics")}
             </span>
           </div>
         </div>
@@ -212,20 +220,20 @@ export default function NgoReportsPage() {
         <div className="stat-card stat-card-emerald p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Avg Delivery Turnaround
+              {t("ngo.report.avg_delivery")}
             </span>
             <div className="icon-container icon-container-emerald">
               <Clock className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data text-[#111827] mb-1">
-            33.8 <span className="text-base font-normal text-gray-500">mins</span>
+            33.8 <span className="text-base font-normal text-gray-500">{t("ngo.report.mins")}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs">
             <span className="text-emerald-700 font-semibold">
-              Safe Window: 2.8 hrs buffer
+              {t("ngo.report.safe_window")}
             </span>
-            <span className="text-gray-400">• Zero spoil</span>
+            <span className="text-gray-400">&bull; {t("ngo.report.zero_spoil")}</span>
           </div>
         </div>
 
@@ -233,7 +241,7 @@ export default function NgoReportsPage() {
         <div className="stat-card stat-card-cyan p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium text-[#6B7280]">
-              Equivalent Meal Value
+              {t("ngo.report.meal_value")}
             </span>
             <div className="icon-container icon-container-cyan">
               <Award className="w-5 h-5" />
@@ -245,7 +253,7 @@ export default function NgoReportsPage() {
           <div className="flex items-center gap-1.5 text-xs">
             <span className="trend-up flex items-center gap-0.5 text-emerald-600 font-semibold">
               <TrendingUp className="w-3.5 h-3.5" />
-              Direct social impact
+              {t("ngo.report.social_impact")}
             </span>
           </div>
         </div>
@@ -257,17 +265,17 @@ export default function NgoReportsPage() {
         <div className="lg:col-span-8 card p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
-              <h3 className="section-title">Distribution by Community Shelter</h3>
+              <h3 className="section-title">{t("ngo.report.distribution_title")}</h3>
               <p className="section-subtitle">
-                Total hot meals served across verified relief locations in South & Central Delhi
+                {t("ngo.report.distribution_subtitle")}
               </p>
             </div>
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1.5 font-medium text-gray-700">
-                <span className="w-3 h-3 rounded-sm bg-[#10B981]" /> Total Meals
+                <span className="w-3 h-3 rounded-sm bg-[#10B981]" /> {t("ngo.report.total_meals_legend")}
               </span>
               <span className="flex items-center gap-1.5 font-medium text-gray-700">
-                <span className="w-3 h-3 rounded-sm bg-[#6366F1]" /> Children
+                <span className="w-3 h-3 rounded-sm bg-[#6366F1]" /> {t("ngo.report.children_legend")}
               </span>
             </div>
           </div>
@@ -287,8 +295,8 @@ export default function NgoReportsPage() {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="meals" name="Total Meals" fill="#10B981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="children" name="Children Reached" fill="#6366F1" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="meals" name={t("ngo.report.total_meals_legend")} fill="#10B981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="children" name={t("ngo.report.children_legend")} fill="#6366F1" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -296,17 +304,17 @@ export default function NgoReportsPage() {
           <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>100% verified Aadhaar / NGO ration registry distribution protocol.</span>
+              <span>{t("ngo.report.aadhaar_protocol")}</span>
             </div>
-            <span className="font-semibold text-emerald-700">Peak Volume: Okhla Slums (8,450 meals)</span>
+            <span className="font-semibold text-emerald-700">{t("ngo.report.peak_volume")}</span>
           </div>
         </div>
 
         {/* Nutrition Distribution (4 cols) */}
         <div className="lg:col-span-4 card p-6 flex flex-col justify-between">
           <div>
-            <h3 className="section-title">Nutritional Composition</h3>
-            <p className="section-subtitle">Balanced macro-nutrient breakdown</p>
+            <h3 className="section-title">{t("ngo.report.nutrition_title")}</h3>
+            <p className="section-subtitle">{t("ngo.report.nutrition_subtitle")}</p>
 
             <div className="h-[180px] w-full mt-2">
               <ResponsiveContainer width="100%" height="100%">
@@ -345,7 +353,7 @@ export default function NgoReportsPage() {
           <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 flex items-start gap-2">
             <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <span>
-              <strong>Nutrition Standard:</strong> Meals meet National Food Security Act (NFSA) daily caloric benchmark of 650 kcal per adult.
+              <strong>{t("ngo.report.nutrition_standard")}</strong> {t("ngo.report.nutrition_standard_desc")}
             </span>
           </div>
         </div>
@@ -355,13 +363,13 @@ export default function NgoReportsPage() {
       <div className="card p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h3 className="section-title">Donor Integrity & Food Quality Audit</h3>
+            <h3 className="section-title">{t("ngo.report.donor_audit_title")}</h3>
             <p className="section-subtitle">
-              Transparency scorecard for connected hotels, cafeterias, and institutional kitchens
+              {t("ngo.report.donor_audit_subtitle")}
             </p>
           </div>
           <span className="badge badge-success font-mono-data">
-            {rankedHotels.length} Verified Food Donors
+            {rankedHotels.length} {t("ngo.report.verified_donors")}
           </span>
         </div>
 
@@ -369,13 +377,13 @@ export default function NgoReportsPage() {
           <table className="data-table w-full">
             <thead>
               <tr>
-                <th>Donor Institution</th>
-                <th>Location</th>
-                <th>Donation Trips</th>
-                <th>Quality Rating</th>
-                <th>Points & Tier</th>
-                <th>FSSAI Verified</th>
-                <th>Last Food Contribution</th>
+                <th>{t("ngo.report.th_donor")}</th>
+                <th>{t("ngo.report.th_location")}</th>
+                <th>{t("ngo.report.th_trips")}</th>
+                <th>{t("ngo.report.th_quality")}</th>
+                <th>{t("ngo.report.th_points")}</th>
+                <th>{t("ngo.report.th_fssai")}</th>
+                <th>{t("ngo.report.th_last")}</th>
               </tr>
             </thead>
             <tbody>
@@ -388,7 +396,7 @@ export default function NgoReportsPage() {
                     </div>
                   </td>
                   <td className="text-xs text-gray-500">{hotel.location}</td>
-                  <td className="font-mono-data font-semibold text-gray-900">{hotel.totalDonations} pickups</td>
+                  <td className="font-mono-data font-semibold text-gray-900">{hotel.totalDonations} {t("ngo.report.pickups")}</td>
                   <td>
                     <div className="flex items-center gap-1 text-xs font-bold text-amber-600">
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -404,10 +412,10 @@ export default function NgoReportsPage() {
                     {hotel.fssaiVerified ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        Verified
+                        {t("ngo.report.verified")}
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400">Pending</span>
+                      <span className="text-xs text-gray-400">{t("ngo.report.pending")}</span>
                     )}
                   </td>
                   <td className="text-xs text-gray-500">{hotel.lastDonation}</td>
@@ -419,13 +427,13 @@ export default function NgoReportsPage() {
 
         <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-500">
           <div>
-            Donations monitored under the <strong>Indian Food Safety and Standards (Recovery & Distribution of Surplus Food) Regulations, 2019</strong>.
+            {t("ngo.report.regulations_text")}
           </div>
           <button
             onClick={() => handleExport("Donor ESG Impact Certificate (PDF)")}
             className="text-emerald-700 hover:text-emerald-800 font-semibold underline underline-offset-2"
           >
-            Download Donor Appreciation Certificates (PDF)
+            {t("ngo.report.download_certificates")}
           </button>
         </div>
       </div>

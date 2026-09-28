@@ -364,7 +364,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     loadFromDb();
   }, []);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
   const markNotificationAsRead = useCallback((id: string) => {
     setNotifications((prev) =>
@@ -416,6 +416,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         category: enrichedNotif.category,
         actionLabel: enrichedNotif.actionLabel,
         actionUrl: enrichedNotif.actionUrl,
+      }),
+    });
+
+    // Send browser push notification
+    apiCall("/api/push/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: `FoodWise — ${enrichedNotif.category || "Alert"}`,
+        body: enrichedNotif.title,
+        url: enrichedNotif.actionUrl || "/",
+        tag: enrichedNotif.id,
       }),
     });
   }, []);

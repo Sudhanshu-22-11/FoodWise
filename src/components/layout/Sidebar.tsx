@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 import { INSTITUTIONS } from "@/lib/mockData";
 import { useApp } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
+import LanguageToggle from "@/components/common/LanguageToggle";
 
 interface SidebarProps {
   type: "kitchen" | "factory" | "ngo";
@@ -56,6 +58,7 @@ function SidebarContent({ type }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { unreadCount, setIsNotificationOpen, setIsSettingsOpen } = useApp();
+  const { t } = useLang();
 
   const institution =
     type === "kitchen"
@@ -65,41 +68,42 @@ function SidebarContent({ type }: SidebarProps) {
       : INSTITUTIONS.ngo;
 
   const kitchenNav: NavItem[] = [
-    { label: "Overview", href: "/kitchen/dashboard", icon: LayoutDashboard },
-    { label: "Demand Prediction", href: "/kitchen/prediction", icon: BrainCircuit, badge: "AI" },
-    { label: "Waste Tracking", href: "/kitchen/waste", icon: Trash2 },
-    { label: "Surplus & NGO Matching", href: "/kitchen/surplus", icon: HeartHandshake, badge: "Action" },
-    { label: "Route Optimization", href: "/kitchen/routes", icon: Route },
-    { label: "Reports", href: "/kitchen/reports", icon: BarChart3 },
-    { label: "Donor Rankings", href: "/kitchen/ranking", icon: Trophy, badge: "Live" },
+    { label: t("common.overview"), href: "/kitchen/dashboard", icon: LayoutDashboard },
+    { label: t("nav.demand_prediction"), href: "/kitchen/prediction", icon: BrainCircuit, badge: "AI" },
+    { label: t("nav.waste_tracking"), href: "/kitchen/waste", icon: Trash2 },
+    { label: t("nav.surplus_ngo"), href: "/kitchen/surplus", icon: HeartHandshake, badge: "Action" },
+    { label: t("nav.route_optimization"), href: "/kitchen/routes", icon: Route },
+    { label: t("common.reports"), href: "/kitchen/reports", icon: BarChart3 },
+    { label: t("nav.donor_rankings"), href: "/kitchen/ranking", icon: Trophy, badge: "Live" },
   ];
 
   const factoryNav: NavItem[] = [
-    { label: "Overview", href: "/factory/dashboard", icon: LayoutDashboard },
-    { label: "Raw Material Intake", href: "/factory/intake", icon: Boxes },
-    { label: "Storage Monitor", href: "/factory/storage", icon: ThermometerSnowflake },
+    { label: t("common.overview"), href: "/factory/dashboard", icon: LayoutDashboard },
+    { label: t("nav.raw_material"), href: "/factory/intake", icon: Boxes },
+    { label: t("nav.storage_monitor"), href: "/factory/storage", icon: ThermometerSnowflake },
     {
-      label: "Predictive Spoilage",
+      label: t("nav.predictive_spoilage"),
       href: "/factory/spoilage",
       icon: Flame,
       highlight: true,
       badge: "Urgent",
     },
-    { label: "Processing Analytics", href: "/factory/analytics", icon: Layers },
-    { label: "Machine Health", href: "/factory/machines", icon: Cpu, badge: "Anomaly" },
-    { label: "Byproduct Recovery", href: "/factory/byproduct", icon: RefreshCw },
-    { label: "Reports", href: "/factory/reports", icon: BarChart3 },
+    { label: t("nav.processing_analytics"), href: "/factory/analytics", icon: Layers },
+    { label: t("nav.machine_health"), href: "/factory/machines", icon: Cpu, badge: "Anomaly" },
+    { label: t("nav.byproduct_recovery"), href: "/factory/byproduct", icon: RefreshCw },
+    { label: t("Factory Notification Status"), href: "/factory/dashboard#factory-notifications", icon: Bell, badge: "Push" },
+    { label: t("common.reports"), href: "/factory/reports", icon: BarChart3 },
   ];
 
   const ngoNav: NavItem[] = [
-    { label: "Overview", href: "/ngo/dashboard", icon: LayoutDashboard },
-    { label: "Live Food Claims", href: "/ngo/dashboard?tab=claims", icon: PackageCheck, badge: "Live" },
-    { label: "Traffic & Safe Routing", href: "/ngo/dashboard?tab=routing", icon: Route },
-    { label: "Scheduled Pickups", href: "/ngo/dashboard?tab=scheduled", icon: Truck },
-    { label: "Pickup History", href: "/ngo/dashboard?tab=history", icon: Clock },
-    { label: "Report Issue", href: "/ngo/complaints", icon: ShieldAlert, badge: "Admin Desk", highlight: true },
-    { label: "Feedback & Donor Rankings", href: "/ngo/feedback", icon: Star, badge: "Rankings" },
-    { label: "Impact & Reports", href: "/ngo/reports", icon: BarChart3 },
+    { label: t("common.overview"), href: "/ngo/dashboard", icon: LayoutDashboard },
+    { label: t("nav.live_food_claims"), href: "/ngo/dashboard?tab=claims", icon: PackageCheck, badge: "Live" },
+    { label: t("nav.safe_routing"), href: "/ngo/dashboard?tab=routing", icon: Route },
+    { label: t("nav.scheduled_pickups"), href: "/ngo/dashboard?tab=scheduled", icon: Truck },
+    { label: t("nav.pickup_history"), href: "/ngo/dashboard?tab=history", icon: Clock },
+    { label: t("nav.report_issue"), href: "/ngo/complaints", icon: ShieldAlert, badge: "Admin Desk", highlight: true },
+    { label: t("nav.feedback_rankings"), href: "/ngo/feedback", icon: Star, badge: "Rankings" },
+    { label: t("nav.impact_reports"), href: "/ngo/reports", icon: BarChart3 },
   ];
 
   const navItems =
@@ -107,19 +111,19 @@ function SidebarContent({ type }: SidebarProps) {
   const accentColor = "#10B981";
 
   const getInstitutionCategory = () => {
-    if (type === "kitchen") return "Institutional Mess";
-    if (type === "factory") return "Processing Plant";
-    return "Food Relief NGO";
+    if (type === "kitchen") return t("inst.mess");
+    if (type === "factory") return t("inst.plant");
+    return t("inst.ngo_hub");
   };
 
   const getUserProfile = () => {
     if (type === "kitchen") {
-      return { initials: "SR", name: "Dr. S.R. Sharma", role: "Mess Warden" };
+      return { initials: "SR", name: "Dr. S.R. Sharma", role: t("inst.warden") };
     }
     if (type === "factory") {
-      return { initials: "AK", name: "Amit Kumar", role: "Plant Manager" };
+      return { initials: "AK", name: "Amit Kumar", role: t("inst.plant_manager") };
     }
-    return { initials: "PV", name: "Pooja Verma", role: "NGO Logistics Lead" };
+    return { initials: "PV", name: "Pooja Verma", role: t("inst.ngo_lead") };
   };
 
   const profile = getUserProfile();
@@ -146,6 +150,10 @@ function SidebarContent({ type }: SidebarProps) {
         </div>
 
         <div className="flex items-center gap-1.5">
+          <LanguageToggle
+            compact
+            className="bg-emerald-900/50 text-emerald-300 border-emerald-500/30 hover:bg-emerald-800/60"
+          />
           <button
             onClick={() => setIsNotificationOpen(true)}
             aria-label="Notifications"
@@ -187,7 +195,7 @@ function SidebarContent({ type }: SidebarProps) {
                 <img src="/logo.png" alt="FoodWise Logo" className="w-8 h-8 object-contain shrink-0" />
                 <div>
                   <div className="text-sm font-extrabold text-white">FoodWise</div>
-                  <div className="text-[10px] text-emerald-300 font-medium">Making every meal count</div>
+                  <div className="text-[10px] text-emerald-300 font-medium">{t("app.slogan")}</div>
                 </div>
               </div>
               <button
@@ -209,7 +217,7 @@ function SidebarContent({ type }: SidebarProps) {
                   }`}
                 >
                   <Utensils className="w-3 h-3" />
-                  <span>Kitchen</span>
+                  <span>{t("nav.kitchen")}</span>
                 </Link>
                 <Link
                   href="/factory/dashboard"
@@ -219,7 +227,7 @@ function SidebarContent({ type }: SidebarProps) {
                   }`}
                 >
                   <Factory className="w-3 h-3" />
-                  <span>Factory</span>
+                  <span>{t("nav.factory")}</span>
                 </Link>
                 <Link
                   href="/ngo/dashboard"
@@ -229,7 +237,7 @@ function SidebarContent({ type }: SidebarProps) {
                   }`}
                 >
                   <HeartHandshake className="w-3 h-3" />
-                  <span>NGO</span>
+                  <span>{t("nav.ngo")}</span>
                 </Link>
               </div>
             </div>
@@ -276,15 +284,21 @@ function SidebarContent({ type }: SidebarProps) {
                 className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-200 hover:bg-emerald-500/20 hover:text-white transition-colors cursor-pointer"
               >
                 <Settings className="w-4 h-4 text-emerald-400" />
-                <span>Settings</span>
+                <span>{t("common.settings")}</span>
               </button>
+              <div className="pt-0.5">
+                <LanguageToggle
+                  compact
+                  className="bg-emerald-900/50 text-emerald-300 border-emerald-500/30 hover:bg-emerald-800/60 hover:text-white w-full justify-center"
+                />
+              </div>
               <Link
                 href="/"
                 onClick={() => setMobileOpen(false)}
                 className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:bg-rose-500/20 transition-colors"
               >
                 <LogOut className="w-4 h-4 text-rose-400" />
-                <span>Log Out</span>
+                <span>{t("common.logout")}</span>
               </Link>
             </div>
           </div>
@@ -320,7 +334,7 @@ function SidebarContent({ type }: SidebarProps) {
                 className="text-[10px] font-medium whitespace-nowrap"
                 style={{ color: "#A7F3D0" }}
               >
-                Smart Food Waste Platform
+                {t("app.tagline")}
               </div>
             </div>
           )}
@@ -347,10 +361,10 @@ function SidebarContent({ type }: SidebarProps) {
               style={{
                 color: type === "kitchen" ? "#FFFFFF" : "#A7F3D0",
               }}
-              title="Kitchen Dashboard"
+              title={t("nav.kitchen")}
             >
               <Utensils className="w-3.5 h-3.5" />
-              <span>Kitchen</span>
+              <span>{t("nav.kitchen")}</span>
             </Link>
 
             <Link
@@ -363,10 +377,10 @@ function SidebarContent({ type }: SidebarProps) {
               style={{
                 color: type === "factory" ? "#FFFFFF" : "#A7F3D0",
               }}
-              title="Factory Dashboard"
+              title={t("nav.factory")}
             >
               <Factory className="w-3.5 h-3.5" />
-              <span>Factory</span>
+              <span>{t("nav.factory")}</span>
             </Link>
 
             <Link
@@ -379,10 +393,10 @@ function SidebarContent({ type }: SidebarProps) {
               style={{
                 color: type === "ngo" ? "#FFFFFF" : "#A7F3D0",
               }}
-              title="NGO Dashboard"
+              title={t("nav.ngo")}
             >
               <HeartHandshake className="w-3.5 h-3.5" />
-              <span>NGO</span>
+              <span>{t("nav.ngo")}</span>
             </Link>
           </div>
         </div>
@@ -451,7 +465,7 @@ function SidebarContent({ type }: SidebarProps) {
               style={{ color: "#A7F3D0" }}
             >
               <ShieldCheck className="w-3 h-3" style={{ color: "#10B981" }} />
-              <span>FSSAI Verified</span>
+              <span>{t("inst.fssai_verified")}</span>
               <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
               <span
                 className="font-mono-data"
@@ -489,7 +503,7 @@ function SidebarContent({ type }: SidebarProps) {
             className="text-[10px] font-bold uppercase tracking-widest mb-2 px-3"
             style={{ color: "#6EE7B7" }}
           >
-            Navigation
+            {t("nav.navigation")}
           </div>
         )}
         {navItems.map((item) => {
@@ -606,7 +620,7 @@ function SidebarContent({ type }: SidebarProps) {
           </div>
           {!collapsed && (
             <div className="flex-1 flex items-center justify-between">
-              <span>Notifications</span>
+              <span>{t("common.notifications")}</span>
               {unreadCount > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-500 text-white">
                   {unreadCount}
@@ -630,11 +644,16 @@ function SidebarContent({ type }: SidebarProps) {
             (e.currentTarget as HTMLElement).style.background = "transparent";
             (e.currentTarget as HTMLElement).style.color = "#A7F3D0";
           }}
-          title={collapsed ? "Settings" : undefined}
+          title={collapsed ? t("common.settings") : undefined}
         >
           <Settings className="w-[18px] h-[18px] text-emerald-400" />
-          {!collapsed && <span>Settings</span>}
+          {!collapsed && <span>{t("common.settings")}</span>}
         </button>
+        {!collapsed && (
+          <div className="pt-1">
+            <LanguageToggle compact className="bg-emerald-900/50 text-emerald-300 border-emerald-500/30 hover:bg-emerald-800/60 hover:text-white w-full justify-center" />
+          </div>
+        )}
       </div>
 
       {/* User Profile + Collapse Toggle */}

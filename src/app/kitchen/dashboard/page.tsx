@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useApp, getDonorTier } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
 import { downloadKitchenAuditPdf } from "@/lib/pdfGenerator";
 import {
   INSTITUTIONS,
@@ -79,6 +80,7 @@ const NGO_COORDS: Record<string, { lat: number; lng: number; traffic: "low" | "m
 
 export default function KitchenDashboardPage() {
   const { setIsNotificationOpen, managerOverride, isOverrideActive, saveManagerOverride, unreadCount, rankedHotels, donorFeedback, getHotelRank } = useApp();
+  const { t } = useLang();
   const [selectedShift, setSelectedShift] = useState<"Morning" | "Afternoon" | "Evening">("Afternoon");
   const [appliedSuggestion, setAppliedSuggestion] = useState<string | null>(null);
   const [selectedNgoDirection, setSelectedNgoDirection] = useState<NgoDirectionData | null>(null);
@@ -105,10 +107,10 @@ export default function KitchenDashboardPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#111827" }}>
-            Dashboard
+            {t("common.dashboard")}
           </h1>
           <p className="text-sm" style={{ color: "#6B7280" }}>
-            Welcome back, Dr. Sharma. Overview for {timePeriod.toLowerCase()}.
+            {t("dash.welcome_sharma")} {timePeriod.toLowerCase()}.
           </p>
         </div>
 
@@ -126,7 +128,7 @@ export default function KitchenDashboardPage() {
               }}
             >
               <Calendar className="w-4 h-4 text-emerald-600" />
-              <span>{timePeriod}</span>
+              <span>{timePeriod === "Today" ? t("dash.today") : timePeriod === "This Week" ? t("dash.this_week") : t("dash.this_month")}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-[#9CA3AF] transition-transform ${isPeriodDropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
@@ -145,7 +147,7 @@ export default function KitchenDashboardPage() {
                       timePeriod === period ? "text-emerald-600 bg-emerald-50/50 font-bold" : "text-[#4B5563]"
                     }`}
                   >
-                    <span>{period}</span>
+                    <span>{period === "Today" ? t("dash.today") : period === "This Week" ? t("dash.this_week") : t("dash.this_month")}</span>
                     {timePeriod === period && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
                 ))}
@@ -159,7 +161,7 @@ export default function KitchenDashboardPage() {
             className="btn-primary cursor-pointer active:scale-95 transition-all"
           >
             <FileText className="w-4 h-4" />
-            Export Report (PDF)
+            {t("dash.export_report")}
           </button>
         </div>
       </div>
@@ -170,7 +172,7 @@ export default function KitchenDashboardPage() {
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              {timePeriod === "Today" ? "Today's Prediction" : timePeriod === "This Week" ? "Weekly Target" : "Monthly Target"}
+              {timePeriod === "Today" ? t("dash.today_prediction") : timePeriod === "This Week" ? t("dash.weekly_target") : t("dash.monthly_target")}
             </span>
             <div className="icon-container icon-container-indigo">
               <Sparkles className="w-5 h-5" />
@@ -186,7 +188,7 @@ export default function KitchenDashboardPage() {
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +8.1% vs last period
+              +8.1% {t("dash.vs_last_period")}
             </span>
           </div>
         </div>
@@ -195,7 +197,7 @@ export default function KitchenDashboardPage() {
         <div className="stat-card stat-card-emerald p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              Waste Prevented
+              {t("dash.waste_prevented")}
             </span>
             <div className="icon-container icon-container-green">
               <TrendingDown className="w-5 h-5" />
@@ -203,12 +205,12 @@ export default function KitchenDashboardPage() {
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
             {timePeriod === "Today" ? "73" : timePeriod === "This Week" ? "511" : "2,190"}{" "}
-            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +14.2% vs last period
+              +14.2% {t("dash.vs_last_period")}
             </span>
           </div>
         </div>
@@ -217,7 +219,7 @@ export default function KitchenDashboardPage() {
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              {timePeriod === "Today" ? "Active Surplus" : "Total Surplus Routed"}
+              {timePeriod === "Today" ? t("dash.active_surplus") : t("dash.total_surplus_routed")}
             </span>
             <div className="icon-container icon-container-amber">
               <Package className="w-5 h-5" />
@@ -225,12 +227,12 @@ export default function KitchenDashboardPage() {
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
             {timePeriod === "Today" ? "12" : timePeriod === "This Week" ? "84" : "365"}{" "}
-            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +3.2% vs last period
+              +3.2% {t("dash.vs_last_period")}
             </span>
           </div>
         </div>
@@ -239,7 +241,7 @@ export default function KitchenDashboardPage() {
         <div className="stat-card stat-card-green p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              CO₂ Prevented
+              {t("dash.co2_prevented")}
             </span>
             <div className="icon-container" style={{ background: "#ECFDF5", color: "#059669" }}>
               <Leaf className="w-5 h-5" />
@@ -247,12 +249,12 @@ export default function KitchenDashboardPage() {
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
             {timePeriod === "Today" ? "0.47" : timePeriod === "This Week" ? "3.29" : "14.1"}{" "}
-            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>tons</span>
+            <span className="text-[18px] font-bold" style={{ color: "#6B7280" }}>{t("common.tons")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
-              +22.7% vs last period
+              +22.7% {t("dash.vs_last_period")}
             </span>
           </div>
         </div>
@@ -274,7 +276,7 @@ export default function KitchenDashboardPage() {
             className="px-3 py-1.5 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors"
             style={{ background: "#FDE68A", color: "#92400E" }}
           >
-            Review Prediction →
+            {t("dash.review_prediction")} →
           </Link>
         </div>
 
@@ -291,7 +293,7 @@ export default function KitchenDashboardPage() {
             className="px-3 py-1.5 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors"
             style={{ background: "#FECACA", color: "#991B1B" }}
           >
-            Action Surplus →
+            {t("dash.action_surplus")} →
           </Link>
         </div>
       </div>
@@ -301,10 +303,10 @@ export default function KitchenDashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Lightbulb className="w-5 h-5" style={{ color: "#F59E0B" }} />
-            <h2 className="section-title">AI Operational Insights</h2>
+            <h2 className="section-title">{t("dash.ai_insights")}</h2>
           </div>
           <span className="text-[12px] font-medium font-mono-data" style={{ color: "#9CA3AF" }}>
-            2 High-Impact Recommendations
+            2 {t("dash.high_impact")}
           </span>
         </div>
 
@@ -364,7 +366,7 @@ export default function KitchenDashboardPage() {
               style={{ borderTop: "1px solid #F3F4F6" }}
             >
               <span className="text-[12px]" style={{ color: "#9CA3AF" }}>
-                Est. Monthly Savings: ₹5,680
+                {t("dash.est_monthly_savings")}: ₹5,680
               </span>
               <button
                 onClick={() => {
@@ -377,7 +379,7 @@ export default function KitchenDashboardPage() {
                 className="btn-primary"
                 style={{ padding: "6px 14px", fontSize: "12px" }}
               >
-                Apply Suggestion
+                {t("dash.apply_suggestion")}
               </button>
             </div>
           </div>
@@ -428,7 +430,7 @@ export default function KitchenDashboardPage() {
               style={{ borderTop: "1px solid #F3F4F6" }}
             >
               <span className="text-[12px]" style={{ color: "#9CA3AF" }}>
-                Est. Food Rescued: 45 kg
+                {t("dash.est_food_rescued")}: 45 {t("common.kg")}
               </span>
               <button
                 onClick={() => {
@@ -441,7 +443,7 @@ export default function KitchenDashboardPage() {
                 className="btn-primary"
                 style={{ padding: "6px 14px", fontSize: "12px" }}
               >
-                Apply Suggestion
+                {t("dash.apply_suggestion")}
               </button>
             </div>
           </div>
@@ -457,7 +459,7 @@ export default function KitchenDashboardPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-5">
               <div>
                 <h3 className="section-title flex items-center gap-2">
-                  Prediction vs Actual
+                  {t("dash.prediction_vs_actual")}
                   <span
                     className="badge badge-success"
                     style={{ fontSize: "11px" }}
@@ -475,14 +477,14 @@ export default function KitchenDashboardPage() {
                     className="w-3 h-1 rounded-full"
                     style={{ background: "#3B82F6" }}
                   />
-                  AI Predicted
+                  {t("dash.ai_predicted")}
                 </span>
                 <span className="flex items-center gap-1.5" style={{ color: "#10B981" }}>
                   <span
                     className="w-3 h-1 rounded-full"
                     style={{ background: "#10B981" }}
                   />
-                  Actual Consumed
+                  {t("dash.actual_consumed")}
                 </span>
               </div>
             </div>
@@ -546,7 +548,7 @@ export default function KitchenDashboardPage() {
                 className="font-semibold"
                 style={{ color: "#10B981" }}
               >
-                Explore Factors →
+                {t("dash.explore_factors")} →
               </Link>
             </div>
           </div>
@@ -555,7 +557,7 @@ export default function KitchenDashboardPage() {
           <div id="waste-chart" className="card p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="section-title">Daily Waste by Category</h3>
+                <h3 className="section-title">{t("dash.daily_waste")}</h3>
                 <p className="section-subtitle">
                   Stacked breakdown (kg) across 7 days. Notice Friday rice spike.
                 </p>
@@ -607,10 +609,10 @@ export default function KitchenDashboardPage() {
           <div className="card p-5">
             <div className="mb-3">
               <h3 className="text-[16px] font-bold" style={{ color: "#111827" }}>
-                Waste Sources
+                {t("dash.waste_sources")}
               </h3>
               <p className="text-[12px]" style={{ color: "#9CA3AF" }}>
-                By food category
+                {t("dash.by_food_category")}
               </p>
             </div>
 
@@ -668,10 +670,10 @@ export default function KitchenDashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-[16px] font-bold" style={{ color: "#111827" }}>
-                  Today&apos;s Meal Plan
+                  {t("dash.today_meal_plan")}
                 </h3>
                 <p className="text-[12px]" style={{ color: "#9CA3AF" }}>
-                  Target vs Prepared portions
+                  {t("dash.target_vs_prepared")}
                 </p>
               </div>
               <Link
@@ -679,7 +681,7 @@ export default function KitchenDashboardPage() {
                 className="text-[12px] font-semibold"
                 style={{ color: "#10B981" }}
               >
-                Plan Tomorrow →
+                {t("dash.plan_tomorrow")} →
               </Link>
             </div>
 
@@ -687,11 +689,11 @@ export default function KitchenDashboardPage() {
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="border-b border-[#E8ECF3] text-[11px] uppercase tracking-wider text-[#6B7280]">
-                    <th className="py-2.5 px-3 font-bold w-1/3">Meal</th>
-                    <th className="py-2.5 px-2 font-bold text-center">Pred</th>
-                    <th className="py-2.5 px-2 font-bold text-center">Prep</th>
-                    <th className="py-2.5 px-2 font-bold text-center">Rem</th>
-                    <th className="py-2.5 px-3 font-bold text-right">Action</th>
+                    <th className="py-2.5 px-3 font-bold w-1/3">{t("dash.meal")}</th>
+                    <th className="py-2.5 px-2 font-bold text-center">{t("dash.pred")}</th>
+                    <th className="py-2.5 px-2 font-bold text-center">{t("dash.prep")}</th>
+                    <th className="py-2.5 px-2 font-bold text-center">{t("dash.rem")}</th>
+                    <th className="py-2.5 px-3 font-bold text-right">{t("dash.action")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F3F4F6]">
@@ -732,7 +734,7 @@ export default function KitchenDashboardPage() {
                           href="/kitchen/prediction"
                           className="inline-block px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#059669]"
                         >
-                          Adjust
+                          {t("dash.adjust")}
                         </Link>
                       </td>
                     </tr>
@@ -746,7 +748,7 @@ export default function KitchenDashboardPage() {
           <div className="card p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[16px] font-bold flex items-center gap-2" style={{ color: "#111827" }}>
-                Active Alerts
+                {t("dash.active_alerts")}
                 <span
                   className="w-2 h-2 rounded-full animate-pulse"
                   style={{ background: "#EF4444" }}
@@ -757,7 +759,7 @@ export default function KitchenDashboardPage() {
                 className="text-[12px] font-semibold"
                 style={{ color: "#10B981" }}
               >
-                View all
+                {t("dash.view_all")}
               </button>
             </div>
 
@@ -821,7 +823,7 @@ export default function KitchenDashboardPage() {
               <div className="flex items-center gap-2">
                 <Trophy className="w-5 h-5" style={{ color: "#F59E0B" }} />
                 <h3 className="text-[16px] font-bold" style={{ color: "#111827" }}>
-                  Green League
+                  {t("dash.green_league")}
                 </h3>
               </div>
               <span className="font-bold font-mono-data" style={{ color: "#10B981" }}>
@@ -835,7 +837,7 @@ export default function KitchenDashboardPage() {
             >
               <div>
                 <div className="text-[11px]" style={{ color: "#9CA3AF" }}>
-                  Inter-Hostel Standing
+                  {t("dash.inter_hostel")}
                 </div>
                 <div className="text-[15px] font-bold" style={{ color: "#111827" }}>
                   Rank <span style={{ color: "#10B981" }}>#3</span> of 47 Messes
@@ -874,11 +876,11 @@ export default function KitchenDashboardPage() {
             <div className="flex items-center gap-2 mb-1">
               <HeartHandshake className="w-5 h-5 text-rose-400" />
               <h2 className="text-[18px] font-bold text-[#111827]">
-                Verified NGO Partners — Click for Live Route & Traffic
+                {t("dash.ngo_partners_route")}
               </h2>
             </div>
             <p className="text-xs text-[#6B7280]">
-              Click any NGO to instantly see Google Maps directions, live traffic conditions, and exact delivery time for food redistribution.
+              {t("dash.ngo_partners_desc")}
             </p>
           </div>
           <Link
@@ -903,8 +905,8 @@ export default function KitchenDashboardPage() {
               coords.traffic === "low" ? "#A7F3D0" :
               coords.traffic === "moderate" ? "#FDE68A" : "#FECACA";
             const trafficLabel =
-              coords.traffic === "low" ? "Clear Roads" :
-              coords.traffic === "moderate" ? "Moderate Traffic" : "Heavy Traffic";
+              coords.traffic === "low" ? t("dash.clear_roads") :
+              coords.traffic === "moderate" ? t("dash.moderate_traffic") : t("dash.heavy_traffic");
 
             return (
               <div
@@ -951,20 +953,20 @@ export default function KitchenDashboardPage() {
                 {/* Metrics Row */}
                 <div className="grid grid-cols-3 gap-2 mb-3">
                   <div className="p-2 rounded-lg bg-[#F9FAFB] border border-[#F3F4F6] text-center">
-                    <div className="text-[10px] text-[#9CA3AF]">Distance</div>
+                    <div className="text-[10px] text-[#9CA3AF]">{t("dash.distance")}</div>
                     <div className="text-[15px] font-extrabold text-[#111827] font-mono-data">{ngo.distanceKm} <span className="text-[10px] font-normal text-[#6B7280]">km</span></div>
                   </div>
                   <div
                     className="p-2 rounded-lg border text-center"
                     style={{ background: trafficBg, borderColor: trafficBorder }}
                   >
-                    <div className="text-[10px] text-[#9CA3AF]">Delivery Time</div>
+                    <div className="text-[10px] text-[#9CA3AF]">{t("dash.delivery_time")}</div>
                     <div className="text-[15px] font-extrabold font-mono-data" style={{ color: trafficColor }}>
                       {ngo.etaMinutes} <span className="text-[10px] font-normal">min</span>
                     </div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F9FAFB] border border-[#F3F4F6] text-center">
-                    <div className="text-[10px] text-[#9CA3AF]">Capacity</div>
+                    <div className="text-[10px] text-[#9CA3AF]">{t("dash.capacity")}</div>
                     <div className="text-[15px] font-extrabold text-[#111827] font-mono-data">{ngo.capacityKg} <span className="text-[10px] font-normal text-[#6B7280]">kg</span></div>
                   </div>
                 </div>
@@ -974,11 +976,11 @@ export default function KitchenDashboardPage() {
                   <div className="flex items-center gap-1 text-xs text-amber-500">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     <span className="font-bold">{ngo.rating}</span>
-                    <span className="text-[#9CA3AF] text-[11px]">rating</span>
+                    <span className="text-[#9CA3AF] text-[11px]">{t("dash.rating")}</span>
                   </div>
                   <span className="text-[11px] font-bold text-[#10B981] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Navigation className="w-3.5 h-3.5" />
-                    View Directions →
+                    {t("dash.view_directions")} →
                   </span>
                 </div>
               </div>
@@ -993,7 +995,7 @@ export default function KitchenDashboardPage() {
             Click any NGO card above — Google Maps directions & live traffic opens instantly.
           </span>
           <Link href="/kitchen/routes" className="text-[#10B981] font-semibold hover:underline flex items-center gap-1">
-            Route Optimizer Map →
+            {t("dash.route_optimizer")} →
           </Link>
         </div>
       </div>

@@ -12,8 +12,10 @@ import {
   Sliders,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useLang } from "@/context/LanguageContext";
 
 export default function KitchenPredictionPage() {
+  const { t } = useLang();
   const {
     managerOverride,
     isOverrideActive,
@@ -67,8 +69,8 @@ export default function KitchenPredictionPage() {
       const tomorrowMatch = selectedDate === tomorrowStr;
 
       let title = fDate;
-      if (todayMatch) title = `Today (${fDate})`;
-      else if (tomorrowMatch) title = `Tomorrow (${fDate})`;
+      if (todayMatch) title = `${t("kitchen.pred.today")} (${fDate})`;
+      else if (tomorrowMatch) title = `${t("kitchen.pred.tomorrow")} (${fDate})`;
 
       return {
         dayOfWeek: dow,
@@ -83,10 +85,10 @@ export default function KitchenPredictionPage() {
         formattedDate: "Sep 25, 2026",
         isToday: true,
         isTomorrow: false,
-        dateTitle: "Today (Sep 25, 2026)",
+        dateTitle: `${t("kitchen.pred.today")} (Sep 25, 2026)`,
       };
     }
-  }, [selectedDate]);
+  }, [selectedDate, t]);
 
   // Dynamic forecast calculations based on day of week
   const dayForecast = useMemo(() => {
@@ -245,18 +247,18 @@ export default function KitchenPredictionPage() {
               className="text-xs font-semibold uppercase tracking-wider"
               style={{ color: "#10B981" }}
             >
-              AI Demand Forecasting Engine
+              {t("kitchen.pred.ai_demand_engine")}
             </span>
             <span style={{ color: "#D1D5DB" }}>•</span>
             <span className="text-xs" style={{ color: "#9CA3AF" }}>
-              IIT Delhi Central Mess
+              {t("kitchen.pred.iit_delhi_mess")}
             </span>
           </div>
           <h1
             className="text-2xl sm:text-3xl font-bold tracking-tight"
             style={{ color: "#111827" }}
           >
-            Daily Demand & Portions Forecaster
+            {t("kitchen.pred.daily_forecaster")}
           </h1>
         </div>
 
@@ -270,7 +272,7 @@ export default function KitchenPredictionPage() {
           }}
         >
           <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span className="text-xs font-bold text-[#6B7280]">Forecast Date:</span>
+          <span className="text-xs font-bold text-[#6B7280]">{t("kitchen.pred.forecast_date")}</span>
           <input
             type="date"
             value={selectedDate}
@@ -297,10 +299,10 @@ export default function KitchenPredictionPage() {
                 style={{ padding: "4px 12px" }}
               >
                 <BrainCircuit className="w-3.5 h-3.5" />
-                Deep Learning Demand Model v4.2
+                {t("kitchen.pred.dl_model")}
               </span>
               <span className="text-xs" style={{ color: "#9CA3AF" }}>
-                Live Model Telemetry • {formattedDate}
+                {t("kitchen.pred.live_telemetry")} • {formattedDate}
               </span>
             </div>
 
@@ -311,20 +313,20 @@ export default function KitchenPredictionPage() {
               >
                 {dateTitle}:{" "}
                 <span className="font-mono-data" style={{ color: "#10B981" }}>
-                  {displayedLunchMeals} lunch meals
+                  {displayedLunchMeals} {t("kitchen.pred.lunch_meals")}
                 </span>{" "}
                 {isOverrideActive && managerOverride ? (
                   <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 ml-2 uppercase tracking-wider align-middle">
-                    Manager Override
+                    {t("kitchen.pred.manager_override_badge")}
                   </span>
                 ) : (
                   <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 ml-2 uppercase tracking-wider align-middle">
-                    AI Forecast
+                    {t("kitchen.pred.ai_forecast_badge")}
                   </span>
                 )}
               </h2>
               <p className="text-sm mt-1" style={{ color: "#6B7280" }}>
-                Calculated dynamically based on real-time historical demand, hostel occupancy, weather, and day-of-week attendance habits.
+                {t("kitchen.pred.calculated_desc")}
               </p>
             </div>
 
@@ -334,7 +336,7 @@ export default function KitchenPredictionPage() {
                 className="text-xs font-semibold mb-2 uppercase tracking-wider"
                 style={{ color: "#9CA3AF" }}
               >
-                Influencing Context Factors for {dayOfWeek}
+                {t("kitchen.pred.influencing_factors")} {dayOfWeek}
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 {dayForecast.factors.map((factor, idx) => (
@@ -360,7 +362,7 @@ export default function KitchenPredictionPage() {
             style={{ background: "#F9FAFB", border: "1px solid #E8ECF3" }}
           >
             <div className="text-xs font-semibold" style={{ color: "#9CA3AF" }}>
-              Model Confidence Score
+              {t("kitchen.pred.confidence_score")}
             </div>
             <div
               className="text-4xl font-black font-mono-data"
@@ -384,9 +386,9 @@ export default function KitchenPredictionPage() {
               className="text-[11px] flex items-center justify-between"
               style={{ color: "#9CA3AF" }}
             >
-              <span>Low Variance Risk</span>
+              <span>{t("kitchen.pred.low_variance")}</span>
               <span className="font-semibold" style={{ color: "#059669" }}>
-                High Precision
+                {t("kitchen.pred.high_precision")}
               </span>
             </div>
           </div>
@@ -397,24 +399,24 @@ export default function KitchenPredictionPage() {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="section-title">Meal-by-Meal Prediction Breakdown</h3>
+            <h3 className="section-title">{t("kitchen.pred.meal_breakdown")}</h3>
             <p className="section-subtitle">
-              Granular AI forecast for {dayOfWeek}, {formattedDate} compared with previous baseline
+              {t("kitchen.pred.granular_forecast")} {dayOfWeek}, {formattedDate} {t("kitchen.pred.compared_baseline")}
             </p>
           </div>
           <span className="badge badge-success font-mono-data">
-            Total Target: {dayForecast.totalTarget.toLocaleString()} meals
+            {t("kitchen.pred.total_target")} {dayForecast.totalTarget.toLocaleString()} {t("kitchen.pred.meals")}
           </span>
         </div>
 
         <table className="data-table">
           <thead>
             <tr>
-              <th>Meal Service</th>
-              <th>Predicted Diners</th>
-              <th>Last Week (Same Day)</th>
-              <th>AI Chef Suggestion</th>
-              <th style={{ textAlign: "right" }}>Variance</th>
+              <th>{t("kitchen.pred.meal_service")}</th>
+              <th>{t("kitchen.pred.predicted_diners")}</th>
+              <th>{t("kitchen.pred.last_week_same_day")}</th>
+              <th>{t("kitchen.pred.ai_chef_suggestion")}</th>
+              <th style={{ textAlign: "right" }}>{t("kitchen.pred.variance")}</th>
             </tr>
           </thead>
           <tbody>
@@ -440,8 +442,8 @@ export default function KitchenPredictionPage() {
                   style={{ color: row.predicted >= row.lastWeek ? "#059669" : "#D97706" }}
                 >
                   {row.predicted >= row.lastWeek
-                    ? `+${row.predicted - row.lastWeek} meals`
-                    : `${row.predicted - row.lastWeek} meals`}
+                    ? `+${row.predicted - row.lastWeek} ${t("kitchen.pred.meals")}`
+                    : `${row.predicted - row.lastWeek} ${t("kitchen.pred.meals")}`}
                 </td>
               </tr>
             ))}
@@ -456,13 +458,13 @@ export default function KitchenPredictionPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="section-title flex items-center gap-2">
-                Manager Manual Override
+                {t("kitchen.pred.manager_manual_override")}
                 {isOverrideActive && (
-                  <span className="badge badge-warning">Active Override</span>
+                  <span className="badge badge-warning">{t("kitchen.pred.active_override")}</span>
                 )}
               </h3>
               <p className="section-subtitle">
-                Empower human judgment when you have special local knowledge not yet in the data.
+                {t("kitchen.pred.empower_human")}
               </p>
             </div>
 
@@ -488,7 +490,7 @@ export default function KitchenPredictionPage() {
                     className="block text-xs font-semibold mb-1.5"
                     style={{ color: "#6B7280" }}
                   >
-                    Adjusted Lunch Meals ({dayOfWeek})
+                    {t("kitchen.pred.adjusted_lunch")} ({dayOfWeek})
                   </label>
                   <input
                     type="number"
@@ -508,7 +510,7 @@ export default function KitchenPredictionPage() {
                     className="block text-xs font-semibold mb-1.5"
                     style={{ color: "#6B7280" }}
                   >
-                    Override Justification
+                    {t("kitchen.pred.override_justification")}
                   </label>
                   <select
                     value={overrideReason}
@@ -520,17 +522,17 @@ export default function KitchenPredictionPage() {
                       color: "#111827",
                     }}
                   >
-                    <option value="Known attendance change">Known attendance change</option>
-                    <option value="Special event">Special event (Campus Fest / Guest Visit)</option>
-                    <option value="Holiday">Holiday / Weekend travel</option>
-                    <option value="Other">Other departmental schedule</option>
+                    <option value="Known attendance change">{t("kitchen.pred.reason_attendance")}</option>
+                    <option value="Special event">{t("kitchen.pred.reason_event")}</option>
+                    <option value="Holiday">{t("kitchen.pred.reason_holiday")}</option>
+                    <option value="Other">{t("kitchen.pred.reason_other")}</option>
                   </select>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2">
                 <p className="text-[11px] max-w-sm" style={{ color: "#9CA3AF" }}>
-                  ℹ️ Your override will be recorded and used to retrain the neural network model weights for next week.
+                  ℹ️ {t("kitchen.pred.retrain_note")}
                 </p>
                 <div className="flex items-center gap-2">
                   <button
@@ -538,11 +540,11 @@ export default function KitchenPredictionPage() {
                     onClick={() => clearManagerOverride()}
                     className="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors"
                   >
-                    Turn Off Override
+                    {t("kitchen.pred.turn_off_override")}
                   </button>
                   <button type="submit" className="btn-primary">
                     <Save className="w-3.5 h-3.5" />
-                    Save Override
+                    {t("kitchen.pred.save_override")}
                   </button>
                 </div>
               </div>
@@ -555,7 +557,7 @@ export default function KitchenPredictionPage() {
                       style={{ color: "#059669" }}
                     />
                     <span>
-                      Override successfully recorded! Model adjusted to {overrideMeals} meals. Kitchen preparation sheets refreshed.
+                      {t("kitchen.pred.override_success_prefix")} {overrideMeals} {t("kitchen.pred.override_success_suffix")}
                     </span>
                   </div>
                 </div>
@@ -574,13 +576,13 @@ export default function KitchenPredictionPage() {
                 className="text-xs font-semibold"
                 style={{ color: "#111827" }}
               >
-                Autonomous AI Planning Active
+                {t("kitchen.pred.autonomous_active")}
               </div>
               <p
                 className="text-[11px] max-w-md mx-auto"
                 style={{ color: "#9CA3AF" }}
               >
-                Toggle the switch above if warden or mess staff have specific knowledge of hostel events, symposiums, or sports meets to manually override the AI portion recommendation.
+                {t("kitchen.pred.toggle_hint")}
               </p>
             </div>
           )}
@@ -597,7 +599,7 @@ export default function KitchenPredictionPage() {
           <div className="flex items-center gap-2 mb-3">
             <Lightbulb className="w-5 h-5" style={{ color: "#F59E0B" }} />
             <h3 className="text-sm font-bold" style={{ color: "#111827" }}>
-              Pattern Recognition Engine
+              {t("kitchen.pred.pattern_engine")}
             </h3>
           </div>
 
@@ -613,15 +615,15 @@ export default function KitchenPredictionPage() {
                 className="w-2 h-2 rounded-full"
                 style={{ background: "#F59E0B" }}
               />
-              Pattern detected: Friday Rice Waste Spike
+              {t("kitchen.pred.pattern_detected")}
             </div>
             <p className="text-xs leading-relaxed" style={{ color: "#6B7280" }}>
-              Every Friday, basmati rice leftover increases by{" "}
-              <strong style={{ color: "#D97706" }}>~15% to 18%</strong> because
-              students skip dinner for off-campus outings.
+              {t("kitchen.pred.friday_rice_desc")}{" "}
+              <strong style={{ color: "#D97706" }}>{t("kitchen.pred.friday_rice_pct")}</strong>{" "}
+              {t("kitchen.pred.friday_rice_reason")}
             </p>
             <div className="pt-1 text-xs font-semibold" style={{ color: "#10B981" }}>
-              💡 Suggestion: Reduce rice batch preparation by 10% on Fridays.
+              💡 {t("kitchen.pred.suggestion_reduce")}
             </div>
           </div>
 
@@ -629,7 +631,7 @@ export default function KitchenPredictionPage() {
             className="text-xs font-semibold mb-2"
             style={{ color: "#9CA3AF" }}
           >
-            Last 4 Fridays Waste Rate (% of prep):
+            {t("kitchen.pred.last_4_fridays")}
           </div>
           <div className="h-32 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -661,7 +663,7 @@ export default function KitchenPredictionPage() {
                   dataKey="wastePct"
                   fill="#F59E0B"
                   radius={[4, 4, 0, 0]}
-                  name="Rice Waste %"
+                  name={t("kitchen.pred.rice_waste_pct")}
                 />
               </BarChart>
             </ResponsiveContainer>

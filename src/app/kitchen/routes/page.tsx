@@ -3,6 +3,7 @@
 import React, { useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useLang } from "@/context/LanguageContext";
 import {
   Route,
   Navigation,
@@ -106,6 +107,7 @@ const NGO_HUB = {
 };
 
 function RoutesContent() {
+  const { t } = useLang();
   const searchParams = useSearchParams();
   const initialNgoParam = searchParams ? searchParams.get("ngo") : null;
   const initialStopParam = searchParams ? searchParams.get("stop") : null;
@@ -153,13 +155,13 @@ function RoutesContent() {
   const getTrafficLabel = (status: string) => {
     switch (status) {
       case "low":
-        return "Clear Roads (Fast Flow)";
+        return t("kitchen.route.traffic_clear");
       case "moderate":
-        return "Moderate Congestion";
+        return t("kitchen.route.traffic_moderate");
       case "heavy":
-        return "Heavy Traffic Delay";
+        return t("kitchen.route.traffic_heavy");
       default:
-        return "Normal Traffic";
+        return t("kitchen.route.traffic_normal");
     }
   };
 
@@ -179,13 +181,13 @@ function RoutesContent() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "delivered":
-        return "Delivered";
+        return t("kitchen.route.delivered");
       case "en-route":
-        return "En Route";
+        return t("kitchen.route.en_route");
       case "pending":
-        return "Pending";
+        return t("kitchen.route.pending");
       default:
-        return "Pending";
+        return t("kitchen.route.pending");
     }
   };
 
@@ -210,7 +212,7 @@ function RoutesContent() {
 
   const handleDispatch = () => {
     setIsDispatched(true);
-    setDispatchAlert(`Live route & Google Maps navigation dispatched to Driver for ${selectedPoint.name}!`);
+    setDispatchAlert(`${t("kitchen.route.dispatch_alert_prefix")} ${selectedPoint.name}!`);
     setTimeout(() => {
       setIsDispatched(false);
       setDispatchAlert(null);
@@ -236,18 +238,18 @@ function RoutesContent() {
             <span
               className="text-xs font-semibold uppercase tracking-wider text-[#10B981] bg-[#ECFDF5] px-2.5 py-0.5 rounded-full border border-[#A7F3D0]"
             >
-              Smart Dispatch & Route Optimization
+              {t("kitchen.route.badge")}
             </span>
             <span style={{ color: "#D1D5DB" }}>•</span>
             <span className="text-xs text-[#6B7280]">
-              Google Maps Live Traffic & Directions
+              {t("kitchen.route.sub_badge")}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827]">
-            Delivery Route Map & Live Traffic Monitor
+            {t("kitchen.route.title")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-            Click any NGO below to automatically calculate directions on Google Maps, analyze live traffic congestion, and review delivery duration.
+            {t("kitchen.route.subtitle")}
           </p>
         </div>
 
@@ -259,7 +261,7 @@ function RoutesContent() {
             className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-[#111827] border border-[#E8ECF3] shadow-sm hover:shadow transition-all flex items-center gap-1.5"
           >
             <ExternalLink className="w-3.5 h-3.5 text-[#10B981]" />
-            Open in Google Maps
+            {t("kitchen.route.open_gmaps")}
           </a>
 
           <button
@@ -272,7 +274,7 @@ function RoutesContent() {
             }}
           >
             <Layers className="w-4 h-4" />
-            {showTraffic ? "Traffic ON" : "Traffic OFF"}
+            {showTraffic ? t("kitchen.route.traffic_on") : t("kitchen.route.traffic_off")}
           </button>
         </div>
       </div>
@@ -280,8 +282,8 @@ function RoutesContent() {
       {/* QUICK NGO SELECTOR STRIP */}
       <div className="p-3 bg-white rounded-2xl border border-[#E8ECF3] shadow-sm">
         <div className="text-[11px] font-bold text-[#6B7280] mb-2 px-1 flex items-center justify-between">
-          <span>SELECT NGO FOR INSTANT GOOGLE MAPS DIRECTION & TRAFFIC ANALYSIS:</span>
-          <span className="text-[#10B981] font-semibold">4 Verified Delivery Hubs</span>
+          <span>{t("kitchen.route.select_ngo")}</span>
+          <span className="text-[#10B981] font-semibold">{t("kitchen.route.verified_hubs")}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
           {DELIVERY_POINTS.map((point) => {
@@ -314,7 +316,7 @@ function RoutesContent() {
                     </span>
                   </div>
                   <div className="text-[10px] text-[#6B7280] ml-6 truncate">
-                    {point.distance} km • {point.eta}m ETA
+                    {point.distance} {t("kitchen.route.km")} • {point.eta}{t("kitchen.route.min_eta")}
                   </div>
                 </div>
 
@@ -337,7 +339,7 @@ function RoutesContent() {
             <span>{dispatchAlert}</span>
           </div>
           <span className="text-[10px] bg-[#10B981] text-white px-2 py-0.5 rounded font-mono-data">
-            DISPATCHED
+            {t("kitchen.route.dispatched")}
           </span>
         </div>
       )}
@@ -348,7 +350,7 @@ function RoutesContent() {
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-bold uppercase tracking-wider bg-[#10B981] text-white px-2.5 py-0.5 rounded-md">
-                ACTIVE DESTINATION
+                {t("kitchen.route.active_dest")}
               </span>
               <span className="text-xs font-bold text-[#111827]">{selectedPoint.name}</span>
               <span className="text-xs text-[#6B7280]">({selectedPoint.address})</span>
@@ -356,11 +358,11 @@ function RoutesContent() {
             <div className="text-xs text-[#6B7280] flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5 text-[#10B981]" />
               <span>
-                <strong>Origin:</strong> {NGO_HUB.name}
+                <strong>{t("kitchen.route.origin")}:</strong> {NGO_HUB.name}
               </span>
               <span className="text-[#9CA3AF]">➔</span>
               <span>
-                <strong>Corridor:</strong> {selectedPoint.corridor}
+                <strong>{t("kitchen.route.corridor")}:</strong> {selectedPoint.corridor}
               </span>
             </div>
           </div>
@@ -373,7 +375,7 @@ function RoutesContent() {
               className="h-11 px-4 rounded-xl bg-white hover:bg-emerald-50 text-[#059669] border border-[#A7F3D0] text-xs font-bold shadow-sm transition-colors flex items-center justify-center gap-2 whitespace-nowrap shrink-0"
             >
               <ExternalLink className="w-4 h-4 text-[#10B981] shrink-0" />
-              <span>Open Live Directions on Maps</span>
+              <span>{t("kitchen.route.open_live_directions")}</span>
             </a>
 
             <button
@@ -386,7 +388,7 @@ function RoutesContent() {
               }`}
             >
               <Truck className="w-4 h-4 shrink-0" />
-              <span>{isDispatched ? "Route Dispatched!" : "Dispatch Van & Share Route"}</span>
+              <span>{isDispatched ? t("kitchen.route.route_dispatched") : t("kitchen.route.dispatch_van")}</span>
             </button>
           </div>
         </div>
@@ -394,12 +396,12 @@ function RoutesContent() {
         {/* METRICS ROW FOR SELECTED NGO */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-center">
           <div className="p-3 rounded-xl bg-white border border-[#E8ECF3] shadow-sm">
-            <div className="text-[11px] font-medium text-[#6B7280]">Time to Deliver Food</div>
+            <div className="text-[11px] font-medium text-[#6B7280]">{t("kitchen.route.time_to_deliver")}</div>
             <div className="text-2xl font-extrabold text-[#111827] font-mono-data mt-0.5">
-              {selectedPoint.eta} <span className="text-xs font-normal text-[#6B7280]">mins</span>
+              {selectedPoint.eta} <span className="text-xs font-normal text-[#6B7280]">{t("kitchen.route.mins")}</span>
             </div>
             <div className="text-[10px] font-semibold text-[#10B981]">
-              Arrival at {selectedPoint.time}
+              {t("kitchen.route.arrival_at")} {selectedPoint.time}
             </div>
           </div>
 
@@ -420,7 +422,7 @@ function RoutesContent() {
                   : "#FECACA",
             }}
           >
-            <div className="text-[11px] font-medium text-[#6B7280]">Traffic Status</div>
+            <div className="text-[11px] font-medium text-[#6B7280]">{t("kitchen.route.traffic_status")}</div>
             <div
               className="text-sm sm:text-base font-bold mt-0.5 flex items-center justify-center gap-1.5"
               style={{ color: getTrafficColor(selectedPoint.trafficStatus) }}
@@ -434,20 +436,20 @@ function RoutesContent() {
           </div>
 
           <div className="p-3 rounded-xl bg-white border border-[#E8ECF3] shadow-sm">
-            <div className="text-[11px] font-medium text-[#6B7280]">Route Distance</div>
+            <div className="text-[11px] font-medium text-[#6B7280]">{t("kitchen.route.route_distance")}</div>
             <div className="text-2xl font-extrabold text-[#111827] font-mono-data mt-0.5">
-              {selectedPoint.distance} <span className="text-xs font-normal text-[#6B7280]">km</span>
+              {selectedPoint.distance} <span className="text-xs font-normal text-[#6B7280]">{t("kitchen.route.km")}</span>
             </div>
-            <div className="text-[10px] font-semibold text-[#6B7280]">Direct Road Transit</div>
+            <div className="text-[10px] font-semibold text-[#6B7280]">{t("kitchen.route.direct_transit")}</div>
           </div>
 
           <div className="p-3 rounded-xl bg-white border border-[#E8ECF3] shadow-sm">
-            <div className="text-[11px] font-medium text-[#6B7280]">Food Payload & Impact</div>
+            <div className="text-[11px] font-medium text-[#6B7280]">{t("kitchen.route.food_payload")}</div>
             <div className="text-sm font-bold text-[#111827] mt-1 truncate" title={selectedPoint.food}>
               {selectedPoint.food}
             </div>
             <div className="text-[10px] font-bold text-[#059669]">
-              {selectedPoint.beneficiaries} People Fed
+              {selectedPoint.beneficiaries} {t("kitchen.route.people_fed")}
             </div>
           </div>
         </div>
@@ -463,7 +465,7 @@ function RoutesContent() {
               <div className="absolute inset-0 z-20 bg-white/70 backdrop-blur-sm flex items-center justify-center">
                 <div className="flex items-center gap-3 text-[#10B981] font-semibold text-sm">
                   <span className="w-5 h-5 border-2 border-[#10B981] border-t-transparent rounded-full animate-spin" />
-                  Setting directions to {selectedPoint.name}...
+                  {t("kitchen.route.setting_directions")} {selectedPoint.name}...
                 </div>
               </div>
             )}
@@ -473,7 +475,7 @@ function RoutesContent() {
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse" />
                 <span className="text-xs font-bold text-[#111827]">
-                  📍 Google Maps Driving Directions → {selectedPoint.name}
+                  {t("kitchen.route.maps_driving_directions")} {selectedPoint.name}
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -489,7 +491,7 @@ function RoutesContent() {
                   {getTrafficLabel(selectedPoint.trafficStatus)}
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-mono-data">
-                  {selectedPoint.eta} min • {selectedPoint.distance} km
+                  {selectedPoint.eta} {t("kitchen.route.min")} • {selectedPoint.distance} {t("kitchen.route.km")}
                 </span>
               </div>
             </div>
@@ -516,7 +518,7 @@ function RoutesContent() {
               <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
                 <span className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-white/95 border border-[#E8ECF3] shadow-lg text-[#111827] flex items-center gap-1.5">
                   <Navigation className="w-3.5 h-3.5 text-[#10B981]" />
-                  Driving Route Auto-Set ✓
+                  {t("kitchen.route.driving_route_set")}
                 </span>
               </div>
 
@@ -528,7 +530,7 @@ function RoutesContent() {
                   className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#10B981] hover:bg-[#059669] text-white shadow-lg flex items-center gap-1.5 transition-all hover:scale-105"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  Open in Google Maps
+                  {t("kitchen.route.open_gmaps")}
                 </a>
               </div>
 
@@ -536,11 +538,11 @@ function RoutesContent() {
               <div className="absolute bottom-3 left-3 right-3 z-10">
                 <div className="px-3 py-2 rounded-xl bg-white/95 border border-[#E8ECF3] shadow-lg backdrop-blur-sm flex items-center gap-2 text-[11px]">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#3B82F6] shrink-0" />
-                  <span className="font-bold text-[#3B82F6]">From:</span>
+                  <span className="font-bold text-[#3B82F6]">{t("kitchen.route.from")}:</span>
                   <span className="text-[#6B7280] truncate">IIT Delhi Hauz Khas</span>
                   <ArrowRight className="w-3 h-3 text-[#9CA3AF] shrink-0" />
                   <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444] shrink-0" />
-                  <span className="font-bold text-[#EF4444]">To:</span>
+                  <span className="font-bold text-[#EF4444]">{t("kitchen.route.to")}:</span>
                   <span className="text-[#6B7280] truncate">{selectedPoint.name}</span>
                 </div>
               </div>
@@ -552,15 +554,15 @@ function RoutesContent() {
               style={{ borderTop: "1px solid #E8ECF3" }}
             >
               <div className="flex items-center gap-4 text-[11px]">
-                <span className="font-bold text-[#6B7280]">Traffic Legend:</span>
+                <span className="font-bold text-[#6B7280]">{t("kitchen.route.traffic_legend")}:</span>
                 <span className="flex items-center gap-1.5 font-semibold text-[#059669]">
-                  <span className="w-3 h-1.5 rounded-full bg-[#10B981]" /> Clear (&gt;40 km/h)
+                  <span className="w-3 h-1.5 rounded-full bg-[#10B981]" /> {t("kitchen.route.legend_clear")}
                 </span>
                 <span className="flex items-center gap-1.5 font-semibold text-[#D97706]">
-                  <span className="w-3 h-1.5 rounded-full bg-[#F59E0B]" /> Moderate (20-40 km/h)
+                  <span className="w-3 h-1.5 rounded-full bg-[#F59E0B]" /> {t("kitchen.route.legend_moderate")}
                 </span>
                 <span className="flex items-center gap-1.5 font-semibold text-[#DC2626]">
-                  <span className="w-3 h-1.5 rounded-full bg-[#EF4444]" /> Heavy (&lt;20 km/h)
+                  <span className="w-3 h-1.5 rounded-full bg-[#EF4444]" /> {t("kitchen.route.legend_heavy")}
                 </span>
               </div>
               <a
@@ -569,7 +571,7 @@ function RoutesContent() {
                 rel="noopener noreferrer"
                 className="text-[11px] font-bold text-[#10B981] hover:underline flex items-center gap-1"
               >
-                Open Full Navigation <ArrowRight className="w-3 h-3" />
+                {t("kitchen.route.open_full_nav")} <ArrowRight className="w-3 h-3" />
               </a>
             </div>
           </div>
@@ -585,7 +587,7 @@ function RoutesContent() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-[#111827]">
-                  Route Details — {selectedPoint.name}
+                  {t("kitchen.route.route_details")} — {selectedPoint.name}
                 </h4>
                 <p className="text-[11px] text-[#6B7280]">
                   {selectedPoint.corridor}
@@ -596,8 +598,8 @@ function RoutesContent() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
               <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E8ECF3] text-center">
                 <Clock className="w-4 h-4 mx-auto text-[#6B7280] mb-1" />
-                <div className="text-lg font-extrabold font-mono-data text-[#111827]">{selectedPoint.eta}<span className="text-[10px] font-normal text-[#6B7280]"> min</span></div>
-                <div className="text-[10px] text-[#9CA3AF]">Delivery Time</div>
+                <div className="text-lg font-extrabold font-mono-data text-[#111827]">{selectedPoint.eta}<span className="text-[10px] font-normal text-[#6B7280]"> {t("kitchen.route.min")}</span></div>
+                <div className="text-[10px] text-[#9CA3AF]">{t("kitchen.route.delivery_time")}</div>
               </div>
               <div
                 className="p-2.5 rounded-xl border text-center"
@@ -612,13 +614,13 @@ function RoutesContent() {
               </div>
               <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E8ECF3] text-center">
                 <MapPin className="w-4 h-4 mx-auto text-[#6B7280] mb-1" />
-                <div className="text-lg font-extrabold font-mono-data text-[#111827]">{selectedPoint.distance}<span className="text-[10px] font-normal text-[#6B7280]"> km</span></div>
-                <div className="text-[10px] text-[#9CA3AF]">Distance</div>
+                <div className="text-lg font-extrabold font-mono-data text-[#111827]">{selectedPoint.distance}<span className="text-[10px] font-normal text-[#6B7280]"> {t("kitchen.route.km")}</span></div>
+                <div className="text-[10px] text-[#9CA3AF]">{t("kitchen.route.distance")}</div>
               </div>
               <div className="p-2.5 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-center">
                 <Sparkles className="w-4 h-4 mx-auto text-[#10B981] mb-1" />
                 <div className="text-lg font-extrabold font-mono-data text-[#059669]">{selectedPoint.beneficiaries}</div>
-                <div className="text-[10px] text-[#059669]">People Fed</div>
+                <div className="text-[10px] text-[#059669]">{t("kitchen.route.people_fed")}</div>
               </div>
             </div>
 
@@ -641,7 +643,7 @@ function RoutesContent() {
                 rel="noopener noreferrer"
                 className="font-bold text-[#10B981] hover:underline flex items-center gap-1"
               >
-                Navigate Now <ExternalLink className="w-3 h-3" />
+                {t("kitchen.route.navigate_now")} <ExternalLink className="w-3 h-3" />
               </a>
             </div>
           </div>
@@ -652,11 +654,11 @@ function RoutesContent() {
           <div className="flex items-center justify-between">
             <h3 className="section-title flex items-center gap-2 text-base font-bold text-[#111827]">
               <Route className="w-5 h-5 text-[#10B981]" />
-              Redistribution NGOs & Stops
+              {t("kitchen.route.redistribution_stops")}
             </h3>
             <span className="badge badge-success font-mono-data">
               {DELIVERY_POINTS.filter((d) => d.status === "delivered").length}/
-              {DELIVERY_POINTS.length} Completed
+              {DELIVERY_POINTS.length} {t("kitchen.route.completed")}
             </span>
           </div>
 
@@ -672,10 +674,10 @@ function RoutesContent() {
               </div>
               <div className="min-w-0">
                 <div className="text-[13px] font-bold text-[#065F46] truncate">
-                  Origin: {NGO_HUB.name}
+                  {t("kitchen.route.origin")}: {NGO_HUB.name}
                 </div>
                 <div className="text-[11px] text-[#6B7280]">
-                  Central Cold Storage • Vehicle: DL-01-AB-1234
+                  {t("kitchen.route.cold_storage_vehicle")}
                 </div>
               </div>
             </div>
@@ -729,19 +731,19 @@ function RoutesContent() {
 
                     <div className="flex items-center gap-3 text-[11px] flex-wrap">
                       <span className="flex items-center gap-1 text-[#6B7280]">
-                        <MapPin className="w-3 h-3" /> {point.distance} km
+                        <MapPin className="w-3 h-3" /> {point.distance} {t("kitchen.route.km")}
                       </span>
                       <span
                         className="flex items-center gap-1 font-bold"
                         style={{ color: getTrafficColor(point.trafficStatus) }}
                       >
-                        <Navigation className="w-3 h-3" /> {point.eta} mins ETA
+                        <Navigation className="w-3 h-3" /> {point.eta} {t("kitchen.route.mins_eta")}
                       </span>
                       <span className="flex items-center gap-1 text-[#6B7280]">
                         <Clock className="w-3 h-3" /> {point.time}
                       </span>
                       <span className="font-mono-data font-bold text-[#111827]">
-                        {point.beneficiaries} people
+                        {point.beneficiaries} {t("kitchen.route.people")}
                       </span>
                     </div>
 
@@ -761,7 +763,7 @@ function RoutesContent() {
                       </div>
 
                       <span className="text-[10px] font-semibold text-[#10B981] group-hover:underline">
-                        {isCurrent ? "✓ Active Route" : "Click to Route →"}
+                        {isCurrent ? t("kitchen.route.active_route") : t("kitchen.route.click_to_route")}
                       </span>
                     </div>
                   </div>
@@ -774,19 +776,19 @@ function RoutesContent() {
           <div className="p-4 rounded-2xl bg-[#F9FAFB] border border-[#E8ECF3] shadow-sm">
             <div className="grid grid-cols-3 gap-3 text-center text-[12px]">
               <div>
-                <div className="text-[#9CA3AF]">Total Distance</div>
+                <div className="text-[#9CA3AF]">{t("kitchen.route.total_distance")}</div>
                 <div className="font-mono-data font-bold text-[16px] text-[#111827]">
-                  21.5 km
+                  21.5 {t("kitchen.route.km")}
                 </div>
               </div>
               <div>
-                <div className="text-[#9CA3AF]">Fleet Transit Time</div>
+                <div className="text-[#9CA3AF]">{t("kitchen.route.fleet_transit_time")}</div>
                 <div className="font-mono-data font-bold text-[16px] text-[#111827]">
                   1h 56m
                 </div>
               </div>
               <div>
-                <div className="text-[#9CA3AF]">AI Fuel Savings</div>
+                <div className="text-[#9CA3AF]">{t("kitchen.route.ai_fuel_savings")}</div>
                 <div className="font-mono-data font-bold text-[16px] text-[#059669]">
                   18%
                 </div>
@@ -800,13 +802,14 @@ function RoutesContent() {
 }
 
 export default function KitchenRoutesPage() {
+  const { t } = useLang();
   return (
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center p-8">
           <div className="flex items-center gap-3 text-[#10B981] font-semibold">
             <span className="w-5 h-5 border-2 border-[#10B981] border-t-transparent rounded-full animate-spin" />
-            Loading Google Maps Route & Traffic Optimizer...
+            {t("kitchen.route.loading")}
           </div>
         </div>
       }

@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useApp, getDonorTier, DonorHotel, DonorTier } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
 import { downloadDonorRankingPdf } from "@/lib/pdfGenerator";
 import {
   Trophy,
@@ -98,6 +99,7 @@ const BADGE_STYLES: Record<string, { emoji: string; color: string; bg: string }>
 
 export default function KitchenRankingPage() {
   const { rankedHotels, donorFeedback, getHotelRank } = useApp();
+  const { t } = useLang();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTier, setSelectedTier] = useState<string>("ALL");
@@ -163,22 +165,22 @@ export default function KitchenRankingPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold mb-1" style={{ color: "#059669" }}>
             <Link href="/kitchen/dashboard" className="hover:underline flex items-center gap-1">
-              Kitchen
+              {t("kitchen.rank.breadcrumb_kitchen")}
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-gray-600 font-bold">Donor Rankings</span>
+            <span className="text-gray-600 font-bold">{t("kitchen.rank.breadcrumb_rankings")}</span>
           </div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl lg:text-3xl font-extrabold" style={{ color: "#111827" }}>
-              Donor Rankings & Recognition
+              {t("kitchen.rank.page_title")}
             </h1>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Live City Standings
+              {t("kitchen.rank.live_badge")}
             </span>
           </div>
           <p className="text-sm mt-1" style={{ color: "#6B7280" }}>
-            Real-time reputation tiering, peer benchmarks, and verified NGO feedback scores for institutional donors.
+            {t("kitchen.rank.subtitle")}
           </p>
         </div>
 
@@ -190,12 +192,12 @@ export default function KitchenRankingPage() {
             {copiedLink ? (
               <>
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span className="text-emerald-700">Rank Copied!</span>
+                <span className="text-emerald-700">{t("kitchen.rank.rank_copied")}</span>
               </>
             ) : (
               <>
                 <Share2 className="w-4 h-4 text-gray-500" />
-                <span>Share Standing</span>
+                <span>{t("kitchen.rank.share_standing")}</span>
               </>
             )}
           </button>
@@ -204,7 +206,7 @@ export default function KitchenRankingPage() {
             className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm border border-emerald-500/30 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 active:scale-95 cursor-pointer"
           >
             <Eye className="w-4 h-4 text-emerald-600" />
-            <span>View Certificate</span>
+            <span>{t("kitchen.rank.view_certificate")}</span>
           </button>
           <button
             onClick={() =>
@@ -219,7 +221,7 @@ export default function KitchenRankingPage() {
             className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>Download Certificate (PDF)</span>
+            <span>{t("kitchen.rank.download_cert")}</span>
           </button>
         </div>
       </div>
@@ -241,19 +243,19 @@ export default function KitchenRankingPage() {
             <div className="space-y-3 max-w-xl">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-white/20 text-white backdrop-blur-sm border border-white/30">
-                  Your Institution
+                  {t("kitchen.rank.your_institution")}
                 </span>
                 <span
                   className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
                   style={{ background: myTierInfo.bg, color: myTierInfo.color, border: `1px solid ${myTierInfo.border}` }}
                 >
                   <myTierInfo.icon className="w-3.5 h-3.5" />
-                  {myTier} Tier Donor
+                  {myTier} {t("kitchen.rank.tier_donor")}
                 </span>
                 {myKitchen.fssaiVerified && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 bg-emerald-950/60 text-emerald-200 border border-emerald-400/30">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    FSSAI Verified
+                    {t("kitchen.rank.fssai_verified")}
                   </span>
                 )}
               </div>
@@ -264,7 +266,7 @@ export default function KitchenRankingPage() {
                 </h2>
                 <p className="text-emerald-100/90 text-xs sm:text-sm flex items-center gap-1.5 mt-1 font-medium">
                   <MapPin className="w-3.5 h-3.5 text-emerald-300" />
-                  {myKitchen.location} • Ranked #{myRank} across all {rankedHotels.length} certified regional donors
+                  {myKitchen.location} • {t("kitchen.rank.ranked")} #{myRank} {t("kitchen.rank.across_all")} {rankedHotels.length} {t("kitchen.rank.certified_donors")}
                 </p>
               </div>
 
@@ -274,10 +276,10 @@ export default function KitchenRankingPage() {
                   <div className="flex items-center justify-between text-xs text-emerald-100 font-semibold">
                     <span className="flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                      Target: Reach {myTierInfo.nextTier} Tier ({nextTierPoints.toLocaleString()} pts)
+                      {t("kitchen.rank.target_reach")} {myTierInfo.nextTier} {t("kitchen.rank.tier")} ({nextTierPoints.toLocaleString()} {t("kitchen.rank.pts")})
                     </span>
                     <span className="text-amber-300 font-bold font-mono-data">
-                      {pointsToNext.toLocaleString()} pts remaining
+                      {pointsToNext.toLocaleString()} {t("kitchen.rank.pts_remaining")}
                     </span>
                   </div>
                   <div className="w-full h-2.5 bg-emerald-950/80 rounded-full overflow-hidden border border-emerald-400/20">
@@ -287,9 +289,9 @@ export default function KitchenRankingPage() {
                     />
                   </div>
                   <div className="flex justify-between text-[11px] text-emerald-200/80">
-                    <span>{currentPoints.toLocaleString()} pts</span>
-                    <span>{progressPercent}% towards next milestone</span>
-                    <span>{nextTierPoints.toLocaleString()} pts</span>
+                    <span>{currentPoints.toLocaleString()} {t("kitchen.rank.pts")}</span>
+                    <span>{progressPercent}% {t("kitchen.rank.towards_next")}</span>
+                    <span>{nextTierPoints.toLocaleString()} {t("kitchen.rank.pts")}</span>
                   </div>
                 </div>
               )}
@@ -299,44 +301,44 @@ export default function KitchenRankingPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 w-full lg:w-auto">
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-center">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-200 mb-0.5">
-                  Current Rank
+                  {t("kitchen.rank.current_rank")}
                 </div>
                 <div className="text-3xl sm:text-4xl font-black text-white font-mono-data">
                   #{myRank}
                 </div>
-                <div className="text-[10px] text-emerald-200/80 mt-0.5">City Standing</div>
+                <div className="text-[10px] text-emerald-200/80 mt-0.5">{t("kitchen.rank.city_standing")}</div>
               </div>
 
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-center">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-200 mb-0.5">
-                  Total Points
+                  {t("kitchen.rank.total_points")}
                 </div>
                 <div className="text-3xl sm:text-4xl font-black text-amber-300 font-mono-data">
                   {currentPoints.toLocaleString()}
                 </div>
-                <div className="text-[10px] text-emerald-200/80 mt-0.5">Reputation pts</div>
+                <div className="text-[10px] text-emerald-200/80 mt-0.5">{t("kitchen.rank.reputation_pts")}</div>
               </div>
 
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-center">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-200 mb-0.5">
-                  Donation Streak
+                  {t("kitchen.rank.donation_streak")}
                 </div>
                 <div className="text-3xl sm:text-4xl font-black text-emerald-300 font-mono-data flex items-center justify-center gap-1">
                   <Flame className="w-6 h-6 text-amber-400 fill-amber-400" />
                   {myKitchen.streak}
                 </div>
-                <div className="text-[10px] text-emerald-200/80 mt-0.5">consecutive days</div>
+                <div className="text-[10px] text-emerald-200/80 mt-0.5">{t("kitchen.rank.consecutive_days")}</div>
               </div>
 
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-center">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-200 mb-0.5">
-                  NGO Rating
+                  {t("kitchen.rank.ngo_rating")}
                 </div>
                 <div className="text-3xl sm:text-4xl font-black text-white font-mono-data flex items-center justify-center gap-1">
                   <Star className="w-5 h-5 text-amber-300 fill-amber-300" />
                   {myKitchen.avgRating}
                 </div>
-                <div className="text-[10px] text-emerald-200/80 mt-0.5">({myKitchen.totalRatings} ratings)</div>
+                <div className="text-[10px] text-emerald-200/80 mt-0.5">({myKitchen.totalRatings} {t("kitchen.rank.ratings")})</div>
               </div>
             </div>
           </div>
@@ -345,7 +347,7 @@ export default function KitchenRankingPage() {
           <div className="mt-6 pt-5 border-t border-emerald-400/20 flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold text-emerald-200 mr-2 flex items-center gap-1">
               <Award className="w-4 h-4 text-amber-300" />
-              Verified Badges Earned:
+              {t("kitchen.rank.verified_badges_earned")}
             </span>
             {myKitchen.specialBadges.map((badge) => {
               const style = BADGE_STYLES[badge] || { emoji: "🎖️", color: "#065F46", bg: "#ECFDF5" };
@@ -369,9 +371,9 @@ export default function KitchenRankingPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold flex items-center gap-2" style={{ color: "#111827" }}>
             <Trophy className="w-5 h-5 text-amber-500" />
-            Top Recognized Food Donors Podium
+            {t("kitchen.rank.podium_title")}
           </h2>
-          <span className="text-xs text-gray-500">Updated in real-time</span>
+          <span className="text-xs text-gray-500">{t("kitchen.rank.updated_realtime")}</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -380,25 +382,25 @@ export default function KitchenRankingPage() {
             const isYou = hotel.id === kitchenHotelId;
             const rankConfig = [
               {
-                title: "1st Place • Gold Champion",
+                title: t("kitchen.rank.place_1st"),
                 crownColor: "#F59E0B",
                 gradient: "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)",
                 badgeBorder: "#F59E0B",
-                ribbon: "🥇 Gold Winner",
+                ribbon: `🥇 ${t("kitchen.rank.ribbon_gold")}`,
               },
               {
-                title: "2nd Place • Silver Runner-up",
+                title: t("kitchen.rank.place_2nd"),
                 crownColor: "#9CA3AF",
                 gradient: "linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)",
                 badgeBorder: "#9CA3AF",
-                ribbon: "🥈 Silver Leader",
+                ribbon: `🥈 ${t("kitchen.rank.ribbon_silver")}`,
               },
               {
-                title: "3rd Place • Bronze Contender",
+                title: t("kitchen.rank.place_3rd"),
                 crownColor: "#D97706",
                 gradient: "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)",
                 badgeBorder: "#D97706",
-                ribbon: "🥉 Bronze Leader",
+                ribbon: `🥉 ${t("kitchen.rank.ribbon_bronze")}`,
               },
             ][idx];
 
@@ -414,7 +416,7 @@ export default function KitchenRankingPage() {
               >
                 {isYou && (
                   <div className="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-600 text-white shadow-sm">
-                    Your Kitchen
+                    {t("kitchen.rank.your_kitchen")}
                   </div>
                 )}
 
@@ -454,19 +456,19 @@ export default function KitchenRankingPage() {
 
                 <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-gray-50/80 border border-gray-100 text-center">
                   <div>
-                    <div className="text-[10px] text-gray-400 uppercase font-semibold">Points</div>
+                    <div className="text-[10px] text-gray-400 uppercase font-semibold">{t("kitchen.rank.col_points")}</div>
                     <div className="text-sm font-black font-mono-data text-gray-900">
                       {hotel.totalPoints.toLocaleString()}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 uppercase font-semibold">Rating</div>
+                    <div className="text-[10px] text-gray-400 uppercase font-semibold">{t("kitchen.rank.col_rating")}</div>
                     <div className="text-sm font-black font-mono-data text-amber-600 flex items-center justify-center gap-0.5">
                       ⭐ {hotel.avgRating}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] text-gray-400 uppercase font-semibold">Streak</div>
+                    <div className="text-[10px] text-gray-400 uppercase font-semibold">{t("kitchen.rank.col_streak")}</div>
                     <div className="text-sm font-black font-mono-data text-emerald-600">
                       {hotel.streak}d
                     </div>
@@ -499,10 +501,10 @@ export default function KitchenRankingPage() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="text-lg font-bold" style={{ color: "#111827" }}>
-              All Institutional Donors Leaderboard
+              {t("kitchen.rank.leaderboard_title")}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              Showing {filteredHotels.length} of {rankedHotels.length} institutions in this evaluation cycle
+              {t("kitchen.rank.showing")} {filteredHotels.length} {t("kitchen.rank.of")} {rankedHotels.length} {t("kitchen.rank.institutions_cycle")}
             </p>
           </div>
 
@@ -512,7 +514,7 @@ export default function KitchenRankingPage() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search hotel, mess, campus..."
+                placeholder={t("kitchen.rank.search_placeholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-gray-50/50"
@@ -528,7 +530,7 @@ export default function KitchenRankingPage() {
                   : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
               }`}
             >
-              📍 My Kitchen Only
+              📍 {t("kitchen.rank.my_kitchen_only")}
             </button>
           </div>
         </div>
@@ -551,7 +553,7 @@ export default function KitchenRankingPage() {
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                <span>{tier === "ALL" ? "All Tiers" : tier}</span>
+                <span>{tier === "ALL" ? t("kitchen.rank.all_tiers") : tier}</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full ${
                     isSelected ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700"
@@ -569,21 +571,21 @@ export default function KitchenRankingPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-gray-200 text-[11px] font-bold uppercase tracking-wider text-gray-500 bg-gray-50/60">
-                <th className="py-3 px-3">Rank</th>
-                <th className="py-3 px-3">Donor Institution</th>
-                <th className="py-3 px-3">Tier</th>
-                <th className="py-3 px-3">Reputation Points</th>
-                <th className="py-3 px-3">NGO Rating</th>
-                <th className="py-3 px-3">Streak</th>
-                <th className="py-3 px-3">Total Donations</th>
-                <th className="py-3 px-3">Key Badges</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_rank")}</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_donor_institution")}</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_tier")}</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_reputation_points")}</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_ngo_rating")}</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_streak")}</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_total_donations")}</th>
+                <th className="py-3 px-3">{t("kitchen.rank.th_key_badges")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-xs">
               {filteredHotels.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-8 text-center text-gray-400">
-                    No donor institutions found matching your filter criteria.
+                    {t("kitchen.rank.no_results")}
                   </td>
                 </tr>
               ) : (
@@ -628,11 +630,11 @@ export default function KitchenRankingPage() {
                             {hotel.name}
                             {isYou && (
                               <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                                You
+                                {t("kitchen.rank.you")}
                               </span>
                             )}
                             {hotel.fssaiVerified && (
-                              <span title="FSSAI Verified">
+                              <span title={t("kitchen.rank.fssai_verified")}>
                                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                               </span>
                             )}
@@ -664,7 +666,7 @@ export default function KitchenRankingPage() {
                         <span className="font-black font-mono-data text-sm text-gray-900">
                           {hotel.totalPoints.toLocaleString()}
                         </span>
-                        <span className="text-[10px] text-gray-400 ml-1">pts</span>
+                        <span className="text-[10px] text-gray-400 ml-1">{t("kitchen.rank.pts")}</span>
                       </td>
 
                       {/* Rating */}
@@ -683,17 +685,17 @@ export default function KitchenRankingPage() {
                       <td className="py-3.5 px-3">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-bold text-emerald-700 bg-emerald-100/70">
                           <Flame className="w-3 h-3 text-amber-500 fill-amber-500" />
-                          {hotel.streak} days
+                          {hotel.streak} {t("kitchen.rank.days")}
                         </span>
                       </td>
 
                       {/* Donations count */}
                       <td className="py-3.5 px-3">
                         <div className="text-gray-800 font-medium">
-                          {hotel.totalDonations} dispatches
+                          {hotel.totalDonations} {t("kitchen.rank.dispatches")}
                         </div>
                         <div className="text-[10px] text-gray-400">
-                          Last: {hotel.lastDonation}
+                          {t("kitchen.rank.last_prefix")} {hotel.lastDonation}
                         </div>
                       </td>
 
@@ -726,37 +728,37 @@ export default function KitchenRankingPage() {
           <div className="card p-5" style={{ background: "#FFFFFF", border: "1px solid #E5E7EB" }}>
             <h3 className="text-sm font-bold flex items-center gap-2 mb-3" style={{ color: "#111827" }}>
               <TrendingUp className="w-4 h-4 text-emerald-600" />
-              How Points & Reputation Work
+              {t("kitchen.rank.how_points_work")}
             </h3>
             <div className="space-y-2.5 text-xs text-gray-600">
               <div className="p-2.5 rounded-xl bg-gray-50 flex items-center justify-between border border-gray-100">
-                <span>5★ Overall NGO Review</span>
-                <span className="font-extrabold text-emerald-700 font-mono-data">+85 pts</span>
+                <span>{t("kitchen.rank.score_5star")}</span>
+                <span className="font-extrabold text-emerald-700 font-mono-data">+85 {t("kitchen.rank.pts")}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-gray-50 flex items-center justify-between border border-gray-100">
-                <span>4★ Overall NGO Review</span>
-                <span className="font-extrabold text-amber-700 font-mono-data">+70 pts</span>
+                <span>{t("kitchen.rank.score_4star")}</span>
+                <span className="font-extrabold text-amber-700 font-mono-data">+70 {t("kitchen.rank.pts")}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-gray-50 flex items-center justify-between border border-gray-100">
-                <span>7-Day Continuous Donation Streak</span>
-                <span className="font-extrabold text-indigo-700 font-mono-data">+50 pts</span>
+                <span>{t("kitchen.rank.score_7day_streak")}</span>
+                <span className="font-extrabold text-indigo-700 font-mono-data">+50 {t("kitchen.rank.pts")}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-gray-50 flex items-center justify-between border border-gray-100">
-                <span>Fast Handover (&lt;30 mins)</span>
-                <span className="font-extrabold text-emerald-700 font-mono-data">+25 pts</span>
+                <span>{t("kitchen.rank.score_fast_handover")}</span>
+                <span className="font-extrabold text-emerald-700 font-mono-data">+25 {t("kitchen.rank.pts")}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-gray-50 flex items-center justify-between border border-gray-100">
-                <span>Zero Complaint Verification</span>
-                <span className="font-extrabold text-emerald-700 font-mono-data">+40 pts</span>
+                <span>{t("kitchen.rank.score_zero_complaint")}</span>
+                <span className="font-extrabold text-emerald-700 font-mono-data">+40 {t("kitchen.rank.pts")}</span>
               </div>
             </div>
 
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <h4 className="text-xs font-bold text-gray-900 mb-2">Tier Unlocks & Perks</h4>
+              <h4 className="text-xs font-bold text-gray-900 mb-2">{t("kitchen.rank.tier_unlocks")}</h4>
               <ul className="text-[11px] text-gray-600 space-y-1.5 list-disc pl-4">
-                <li><strong className="text-indigo-900">Platinum:</strong> Instant Priority AI Dispatch & State Sustainability Nomination.</li>
-                <li><strong className="text-amber-900">Gold:</strong> Green Kitchen Certification & Expedited NGO Matching.</li>
-                <li><strong className="text-gray-900">Silver:</strong> Automated Smart Routing & Weekly Waste Analytics.</li>
+                <li><strong className="text-indigo-900">{t("kitchen.rank.perk_platinum_label")}</strong> {t("kitchen.rank.perk_platinum_desc")}</li>
+                <li><strong className="text-amber-900">{t("kitchen.rank.perk_gold_label")}</strong> {t("kitchen.rank.perk_gold_desc")}</li>
+                <li><strong className="text-gray-900">{t("kitchen.rank.perk_silver_label")}</strong> {t("kitchen.rank.perk_silver_desc")}</li>
               </ul>
             </div>
           </div>
@@ -769,20 +771,20 @@ export default function KitchenRankingPage() {
               <div>
                 <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "#111827" }}>
                   <ThumbsUp className="w-4 h-4 text-emerald-600" />
-                  Recent NGO Feedback For Your Kitchen
+                  {t("kitchen.rank.recent_feedback_title")}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Verified reviews submitted by recipient NGO dispatch teams
+                  {t("kitchen.rank.recent_feedback_subtitle")}
                 </p>
               </div>
               <span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                {myKitchenFeedback.length} Verified Reviews
+                {myKitchenFeedback.length} {t("kitchen.rank.verified_reviews")}
               </span>
             </div>
 
             {myKitchenFeedback.length === 0 ? (
               <div className="p-6 text-center text-gray-400 bg-gray-50 rounded-2xl border border-gray-100 text-xs">
-                No NGO feedback received yet. Submit surplus batches to receive live ratings and points!
+                {t("kitchen.rank.no_feedback")}
               </div>
             ) : (
               <div className="space-y-3">
@@ -795,7 +797,7 @@ export default function KitchenRankingPage() {
                       <div>
                         <div className="font-bold text-xs text-gray-900 flex items-center gap-2">
                           <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-                          <span>Recipient NGO Feedback</span>
+                          <span>{t("kitchen.rank.recipient_ngo_feedback")}</span>
                           <span className="text-[10px] font-normal text-gray-400">
                             • {fb.date}
                           </span>
@@ -806,7 +808,7 @@ export default function KitchenRankingPage() {
                       </div>
                       <div className="text-right shrink-0">
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-100 text-emerald-800 font-mono-data">
-                          +{fb.pointsAwarded} pts
+                          +{fb.pointsAwarded} {t("kitchen.rank.pts")}
                         </span>
                         <div className="text-[11px] font-bold text-amber-600 mt-1">
                           ⭐ {fb.overallRating.toFixed(1)} / 5.0
@@ -817,19 +819,19 @@ export default function KitchenRankingPage() {
                     {/* Metric pills */}
                     <div className="grid grid-cols-4 gap-2 pt-2 border-t border-gray-200/60 text-center text-[10px]">
                       <div className="p-1.5 rounded-lg bg-white border border-gray-100">
-                        <span className="text-gray-400 block font-medium">Quality</span>
+                        <span className="text-gray-400 block font-medium">{t("kitchen.rank.fb_quality")}</span>
                         <span className="font-bold text-gray-900">{fb.foodQuality}★</span>
                       </div>
                       <div className="p-1.5 rounded-lg bg-white border border-gray-100">
-                        <span className="text-gray-400 block font-medium">Packaging</span>
+                        <span className="text-gray-400 block font-medium">{t("kitchen.rank.fb_packaging")}</span>
                         <span className="font-bold text-gray-900">{fb.packaging}★</span>
                       </div>
                       <div className="p-1.5 rounded-lg bg-white border border-gray-100">
-                        <span className="text-gray-400 block font-medium">Timeliness</span>
+                        <span className="text-gray-400 block font-medium">{t("kitchen.rank.fb_timeliness")}</span>
                         <span className="font-bold text-gray-900">{fb.timeliness}★</span>
                       </div>
                       <div className="p-1.5 rounded-lg bg-white border border-gray-100">
-                        <span className="text-gray-400 block font-medium">Quantity</span>
+                        <span className="text-gray-400 block font-medium">{t("kitchen.rank.fb_quantity")}</span>
                         <span className="font-bold text-gray-900">{fb.quantity}★</span>
                       </div>
                     </div>
@@ -864,26 +866,26 @@ export default function KitchenRankingPage() {
                     className="w-16 h-16 object-contain drop-shadow"
                   />
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">Official Credential</span>
-                    <h3 className="text-base sm:text-lg font-black text-slate-900">FoodWise Network</h3>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">{t("kitchen.rank.cert_official_credential")}</span>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900">{t("kitchen.rank.cert_foodwise_network")}</h3>
                   </div>
                 </div>
 
                 {/* Center Title */}
                 <div className="text-center order-3 sm:order-2 flex-1">
                   <h2 className="text-xs sm:text-sm font-black tracking-wider text-amber-800 uppercase">
-                    FoodWise Sustainable Institutional Donor Recognition
+                    {t("kitchen.rank.cert_title")}
                   </h2>
                   <p className="text-xs font-bold text-amber-600">
-                    Annual Green Donor Certificate of Excellence • {myTier.toUpperCase()} Tier
+                    {t("kitchen.rank.cert_subtitle")} • {myTier.toUpperCase()} {t("kitchen.rank.tier")}
                   </p>
                 </div>
 
                 {/* FSSAI Badge */}
                 <div className="flex items-center gap-3 order-2 sm:order-3">
                   <div className="text-right hidden sm:block">
-                    <span className="text-[10px] font-bold text-emerald-800 uppercase block">Govt of India</span>
-                    <span className="text-xs font-black text-emerald-900">FSSAI Certified</span>
+                    <span className="text-[10px] font-bold text-emerald-800 uppercase block">{t("kitchen.rank.cert_govt_india")}</span>
+                    <span className="text-xs font-black text-emerald-900">{t("kitchen.rank.cert_fssai_certified")}</span>
                   </div>
                   <img
                     src="/fssai-badge.jpg"
@@ -896,62 +898,61 @@ export default function KitchenRankingPage() {
               {/* Tagline Ribbon Banner */}
               <div className="my-3 py-2 px-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center">
                 <span className="text-xs sm:text-sm font-extrabold tracking-wide text-amber-900">
-                  ★ OFFICIAL TAGLINE: EVERY MEAL COUNTS • PREDICT LESS WASTE. FEED MORE LIVES. ★
+                  {t("kitchen.rank.cert_tagline")}
                 </span>
                 <p className="text-[11px] text-slate-600 mt-0.5">
-                  Certified Compliant With FSSAI Food Hygiene & Safe Food Share Standards (Surplus Regulations, 2019)
+                  {t("kitchen.rank.cert_compliance")}
                 </p>
               </div>
 
               {/* Recipient */}
               <div className="text-center my-6 space-y-2">
-                <p className="text-xs text-slate-500 font-medium">This prestigious credential is conferred upon:</p>
+                <p className="text-xs text-slate-500 font-medium">{t("kitchen.rank.cert_conferred_upon")}</p>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
                   {myKitchen?.name || "IIT Delhi Central Dining Mess"}
                 </h1>
                 <p className="text-xs font-semibold text-emerald-800">
-                  {myKitchen?.location || "Hauz Khas, New Delhi"} • FSSAI Food Safe Verified Kitchen Partner
+                  {myKitchen?.location || "Hauz Khas, New Delhi"} • {t("kitchen.rank.cert_kitchen_partner")}
                 </p>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed pt-1">
-                  In recognition of exceptional dedication to Zero Hunger and Food Waste Mitigation under the FoodWise motto{" "}
-                  <strong className="text-emerald-700">"Every Meal Counts"</strong>. Having maintained an uninterrupted daily donation streak, 99.8% FSSAI food quality safety score, and active redistribution coordination with certified NGO relief partners.
+                  {t("kitchen.rank.cert_recognition_text")}
                 </p>
               </div>
 
               {/* 4 Standing KPI Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
                 <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-center">
-                  <span className="text-[10px] font-bold text-amber-700 uppercase block">City Rank</span>
-                  <span className="text-lg font-black text-slate-900">#{myRank} in City</span>
+                  <span className="text-[10px] font-bold text-amber-700 uppercase block">{t("kitchen.rank.cert_city_rank")}</span>
+                  <span className="text-lg font-black text-slate-900">#{myRank} {t("kitchen.rank.cert_in_city")}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-center">
-                  <span className="text-[10px] font-bold text-amber-700 uppercase block">Reputation Points</span>
-                  <span className="text-lg font-black text-amber-700">{currentPoints.toLocaleString()} pts</span>
+                  <span className="text-[10px] font-bold text-amber-700 uppercase block">{t("kitchen.rank.th_reputation_points")}</span>
+                  <span className="text-lg font-black text-amber-700">{currentPoints.toLocaleString()} {t("kitchen.rank.pts")}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">Donor Tier</span>
-                  <span className="text-lg font-black text-emerald-800">{myTier} Tier</span>
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">{t("kitchen.rank.cert_donor_tier")}</span>
+                  <span className="text-lg font-black text-emerald-800">{myTier} {t("kitchen.rank.tier")}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">FSSAI Rating</span>
-                  <span className="text-lg font-black text-emerald-800">99.8% Safe</span>
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">{t("kitchen.rank.cert_fssai_rating")}</span>
+                  <span className="text-lg font-black text-emerald-800">{t("kitchen.rank.cert_safe_score")}</span>
                 </div>
               </div>
 
               {/* Verification & Signatures */}
               <div className="pt-6 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center items-center text-xs text-slate-600">
                 <div>
-                  <div className="font-bold text-slate-800">FoodWise Governing Council</div>
-                  <div className="text-[11px] text-slate-500">National Food Recovery Initiative</div>
+                  <div className="font-bold text-slate-800">{t("kitchen.rank.cert_governing_council")}</div>
+                  <div className="text-[11px] text-slate-500">{t("kitchen.rank.cert_recovery_initiative")}</div>
                 </div>
 
                 <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200">
-                  <div className="font-bold text-emerald-900 text-[11px]">FSSAI FOOD SAFETY ENDORSED</div>
-                  <div className="text-[10px] text-emerald-700 font-semibold">EVERY MEAL COUNTS • ZERO WASTE</div>
+                  <div className="font-bold text-emerald-900 text-[11px]">{t("kitchen.rank.cert_safety_endorsed")}</div>
+                  <div className="text-[10px] text-emerald-700 font-semibold">{t("kitchen.rank.cert_zero_waste")}</div>
                 </div>
 
                 <div>
-                  <div className="font-bold text-slate-800">Verified NGO Coalition</div>
+                  <div className="font-bold text-slate-800">{t("kitchen.rank.cert_ngo_coalition")}</div>
                   <div className="text-[11px] text-slate-500">Ref: FW-DONOR-{myRank}00{currentPoints}</div>
                 </div>
               </div>
@@ -963,7 +964,7 @@ export default function KitchenRankingPage() {
                 onClick={() => setShowCertModal(false)}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
               >
-                Close
+                {t("kitchen.rank.close")}
               </button>
               <button
                 onClick={() => {
@@ -978,7 +979,7 @@ export default function KitchenRankingPage() {
                 className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all cursor-pointer"
               >
                 <Download className="w-4 h-4" />
-                <span>Download Official Certificate (PDF)</span>
+                <span>{t("kitchen.rank.download_official_cert")}</span>
               </button>
             </div>
           </div>

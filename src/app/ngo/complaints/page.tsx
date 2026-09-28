@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useLang } from "@/context/LanguageContext";
 import {
   Camera,
   Upload,
@@ -41,20 +42,43 @@ interface Complaint {
 }
 
 const COMPLAINT_CATEGORIES = [
-  { label: "Spoiled / Sour / Smelling Food", icon: Bug, color: "#DC2626" },
-  { label: "Donor No-Show / Severe Delay", icon: Clock, color: "#EA580C" },
-  { label: "Unhygienic / Open Packaging", icon: Droplets, color: "#D97706" },
-  { label: "Temperature Abuse (Cold)", icon: ThermometerSun, color: "#F59E0B" },
-  { label: "Quantity Mismatch (Shortage)", icon: PackageX, color: "#9333EA" },
-  { label: "Diet Mismatch (Non-Veg Mix)", icon: Flame, color: "#DC2626" },
+  { label: "Spoiled / Sour / Smelling Food", tKey: "ngo.complaints.cat_spoiled", icon: Bug, color: "#DC2626" },
+  { label: "Donor No-Show / Severe Delay", tKey: "ngo.complaints.cat_noshow", icon: Clock, color: "#EA580C" },
+  { label: "Unhygienic / Open Packaging", tKey: "ngo.complaints.cat_unhygienic", icon: Droplets, color: "#D97706" },
+  { label: "Temperature Abuse (Cold)", tKey: "ngo.complaints.cat_temperature", icon: ThermometerSun, color: "#F59E0B" },
+  { label: "Quantity Mismatch (Shortage)", tKey: "ngo.complaints.cat_quantity", icon: PackageX, color: "#9333EA" },
+  { label: "Diet Mismatch (Non-Veg Mix)", tKey: "ngo.complaints.cat_diet", icon: Flame, color: "#DC2626" },
 ];
 
 const SEVERITY_LEVELS = [
-  { label: "Critical", color: "#DC2626", bg: "#FEF2F2", border: "#FECACA", desc: "Immediate health risk / completely inedible — Emergency replacement dispatched" },
-  { label: "High", color: "#EA580C", bg: "#FFF7ED", border: "#FED7AA", desc: "Serious quality defect — Donor reputation docked -50 pts" },
-  { label: "Medium", color: "#D97706", bg: "#FFF8EB", border: "#FDE68A", desc: "Packaging or delay concern — Official warning issued to kitchen" },
-  { label: "Low", color: "#059669", bg: "#ECFDF5", border: "#A7F3D0", desc: "Minor discrepancy — Documented in donor's monthly audit scorecard" },
+  { label: "Critical", tKey: "ngo.complaints.sev_critical", color: "#DC2626", bg: "#FEF2F2", border: "#FECACA", desc: "Immediate health risk / completely inedible — Emergency replacement dispatched", descKey: "ngo.complaints.sev_critical_desc" },
+  { label: "High", tKey: "ngo.complaints.sev_high", color: "#EA580C", bg: "#FFF7ED", border: "#FED7AA", desc: "Serious quality defect — Donor reputation docked -50 pts", descKey: "ngo.complaints.sev_high_desc" },
+  { label: "Medium", tKey: "ngo.complaints.sev_medium", color: "#D97706", bg: "#FFF8EB", border: "#FDE68A", desc: "Packaging or delay concern — Official warning issued to kitchen", descKey: "ngo.complaints.sev_medium_desc" },
+  { label: "Low", tKey: "ngo.complaints.sev_low", color: "#059669", bg: "#ECFDF5", border: "#A7F3D0", desc: "Minor discrepancy — Documented in donor's monthly audit scorecard", descKey: "ngo.complaints.sev_low_desc" },
 ];
+
+const STATUS_KEYS: Record<string, string> = {
+  "Under Review by Admin": "ngo.complaints.status_under_review",
+  "Investigating": "ngo.complaints.status_investigating",
+  "Donor Penalized": "ngo.complaints.status_penalized",
+  "Resolved & Replaced": "ngo.complaints.status_resolved",
+};
+
+const SEVERITY_DISPLAY_KEYS: Record<string, string> = {
+  "Critical": "ngo.complaints.sev_critical",
+  "High": "ngo.complaints.sev_high",
+  "Medium": "ngo.complaints.sev_medium",
+  "Low": "ngo.complaints.sev_low",
+};
+
+const CATEGORY_DISPLAY_KEYS: Record<string, string> = {
+  "Spoiled / Sour / Smelling Food": "ngo.complaints.cat_spoiled",
+  "Donor No-Show / Severe Delay": "ngo.complaints.cat_noshow",
+  "Unhygienic / Open Packaging": "ngo.complaints.cat_unhygienic",
+  "Temperature Abuse (Cold)": "ngo.complaints.cat_temperature",
+  "Quantity Mismatch (Shortage)": "ngo.complaints.cat_quantity",
+  "Diet Mismatch (Non-Veg Mix)": "ngo.complaints.cat_diet",
+};
 
 const FALLBACK_COMPLAINTS: Complaint[] = [
   {
@@ -99,6 +123,7 @@ const FALLBACK_COMPLAINTS: Complaint[] = [
 ];
 
 export default function NgoComplaintsPage() {
+  const { t } = useLang();
   const [activeTab, setActiveTab] = useState<"file" | "track">("file");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [severity, setSeverity] = useState<string>("High");
@@ -160,7 +185,7 @@ export default function NgoComplaintsPage() {
         }
       }, 100);
     } catch {
-      alert("Camera access denied. Please allow camera permissions or upload a photo instead.");
+      alert(t("ngo.complaints.camera_denied"));
     }
   };
 
@@ -283,39 +308,39 @@ export default function NgoComplaintsPage() {
 
   return (
     <div className="space-y-6">
-      {/* ═══ HEADER ═══ */}
+      {/* HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#E8ECF3]">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md border border-rose-200">
               <LifeBuoy className="w-3.5 h-3.5" />
-              FoodWise Platform Helpdesk
+              {t("ngo.complaints.helpdesk")}
             </span>
-            <span className="text-gray-300">•</span>
+            <span className="text-gray-300">&bull;</span>
             <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-              ⚡ 30-Min Admin Resolution SLA
+              ⚡ {t("ngo.complaints.sla_badge")}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
-            Report Quality & Delivery Issue
+            {t("ngo.complaints.title")}
           </h1>
           <p className="text-sm text-gray-600 mt-1">
-            Report spoiled food, packaging issues, or donor delay directly to FoodWise Admin for instant mediation and backup food relief.
+            {t("ngo.complaints.subtitle")}
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-indigo-50 border border-indigo-200 text-indigo-700">
             <Phone className="w-3.5 h-3.5" />
-            <span>Admin Helpline: +91 98765 43210</span>
+            <span>{t("ngo.complaints.admin_helpline")}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 border border-rose-200 text-rose-700">
-            <span>{pastComplaints.length} Open Incidents</span>
+            <span>{pastComplaints.length} {t("ngo.complaints.open_incidents")}</span>
           </div>
         </div>
       </div>
 
-      {/* ═══ TABS ═══ */}
+      {/* TABS */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => setActiveTab("file")}
@@ -326,7 +351,7 @@ export default function NgoComplaintsPage() {
           }`}
         >
           <LifeBuoy className="w-4 h-4" />
-          Raise Issue with Admin
+          {t("ngo.complaints.raise_issue")}
         </button>
         <button
           onClick={() => setActiveTab("track")}
@@ -337,42 +362,42 @@ export default function NgoComplaintsPage() {
           }`}
         >
           <Eye className="w-4 h-4" />
-          Live Admin Tickets ({pastComplaints.length})
+          {t("ngo.complaints.live_tickets")} ({pastComplaints.length})
         </button>
       </div>
 
-      {/* ═══ SUCCESS STATE (SWIGGY/ZOMATO STYLE RESOLUTION) ═══ */}
+      {/* SUCCESS STATE */}
       {submitSuccess && (
         <div className="card p-8 text-center bg-white border-2 border-emerald-300 shadow-xl rounded-3xl">
           <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-emerald-500 text-white shadow-lg shadow-emerald-500/30">
             <CheckCircle2 className="w-9 h-9" />
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-2">
-            Incident Ticket Logged with FoodWise Admin!
+            {t("ngo.complaints.success_title")}
           </h2>
           <p className="text-sm text-gray-600 max-w-lg mx-auto mb-4">
-            Your complaint has been assigned to the <strong>FoodWise Rapid Response Quality Desk</strong>. If food is inedible, our auto-matching engine is locating immediate backup surplus for your shelter.
+            {t("ngo.complaints.success_desc")}
           </p>
 
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl mb-4 bg-emerald-50 border border-emerald-200">
             <FileText className="w-4 h-4 text-emerald-700" />
             <span className="text-sm font-extrabold text-emerald-900 font-mono-data">
-              FoodWise Admin Ticket: {generatedRef}
+              {t("ngo.complaints.admin_ticket_label")} {generatedRef}
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-md mx-auto my-4 text-left text-xs bg-gray-50 p-3.5 rounded-2xl border border-gray-200">
             <div>
-              <span className="text-gray-400 block font-medium">Assigned Lead</span>
+              <span className="text-gray-400 block font-medium">{t("ngo.complaints.assigned_lead")}</span>
               <span className="font-bold text-gray-900">Priya Sharma (Ops)</span>
             </div>
             <div>
-              <span className="text-gray-400 block font-medium">Review ETA</span>
-              <span className="font-bold text-emerald-600">&lt; 30 Minutes</span>
+              <span className="text-gray-400 block font-medium">{t("ngo.complaints.review_eta")}</span>
+              <span className="font-bold text-emerald-600">{t("ngo.complaints.less_30_min")}</span>
             </div>
             <div>
-              <span className="text-gray-400 block font-medium">Donor Status</span>
-              <span className="font-bold text-amber-600">Points Frozen</span>
+              <span className="text-gray-400 block font-medium">{t("ngo.complaints.donor_status")}</span>
+              <span className="font-bold text-amber-600">{t("ngo.complaints.points_frozen")}</span>
             </div>
           </div>
 
@@ -380,12 +405,12 @@ export default function NgoComplaintsPage() {
             onClick={resetForm}
             className="mt-4 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md transition-all cursor-pointer active:scale-95"
           >
-            Report Another Issue
+            {t("ngo.complaints.report_another")}
           </button>
         </div>
       )}
 
-      {/* ═══ FILE COMPLAINT FORM ═══ */}
+      {/* FILE COMPLAINT FORM */}
       {activeTab === "file" && !submitSuccess && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column — Form */}
@@ -393,10 +418,10 @@ export default function NgoComplaintsPage() {
             {/* Category Selection */}
             <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
               <h3 className="text-[15px] font-bold text-gray-900 mb-1">
-                What issue are you facing with this donation?
+                {t("ngo.complaints.what_issue")}
               </h3>
               <p className="text-xs text-gray-500 mb-4">
-                Select the incident category to trigger the appropriate FoodWise Admin resolution workflow
+                {t("ngo.complaints.select_category")}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {COMPLAINT_CATEGORIES.map((cat) => {
@@ -414,7 +439,7 @@ export default function NgoComplaintsPage() {
                     >
                       <Icon className="w-5 h-5 mb-2" style={{ color: cat.color }} />
                       <div className="text-[12px] font-bold leading-tight" style={{ color: isSelected ? cat.color : "#374151" }}>
-                        {cat.label}
+                        {t(cat.tKey)}
                       </div>
                     </button>
                   );
@@ -426,44 +451,44 @@ export default function NgoComplaintsPage() {
             <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
               <h3 className="text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-gray-500" />
-                Donor Institution Details
+                {t("ngo.complaints.donor_details")}
               </h3>
               <div className="space-y-3">
                 <div>
                   <label className="text-[12px] font-bold block mb-1 text-gray-700">
-                    Donor Establishment / Mess / Caterer Name *
+                    {t("ngo.complaints.donor_name_label")}
                   </label>
                   <input
                     type="text"
                     value={establishment}
                     onChange={(e) => setEstablishment(e.target.value)}
-                    placeholder="e.g., IIT Delhi Central Dining, Hotel Grand Banquet, Bikanervala..."
+                    placeholder={t("ngo.complaints.donor_name_placeholder")}
                     className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-300 outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-gray-50/50"
                   />
                 </div>
                 <div>
                   <label className="text-[12px] font-bold block mb-1 text-gray-700">
                     <MapPin className="w-3.5 h-3.5 inline mr-1 text-gray-400" />
-                    Pickup Location / Mess Address
+                    {t("ngo.complaints.pickup_location")}
                   </label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g., Hauz Khas / Connaught Place, New Delhi"
+                    placeholder={t("ngo.complaints.pickup_placeholder")}
                     className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-300 outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-gray-50/50"
                   />
                 </div>
                 <div>
                   <label className="text-[12px] font-bold block mb-1 text-gray-700">
                     <Phone className="w-3.5 h-3.5 inline mr-1 text-gray-400" />
-                    NGO Volunteer Callback Number
+                    {t("ngo.complaints.callback_label")}
                   </label>
                   <input
                     type="tel"
                     value={contactPhone}
                     onChange={(e) => setContactPhone(e.target.value)}
-                    placeholder="+91 XXXXX XXXXX (For Admin to call immediately)"
+                    placeholder={t("ngo.complaints.callback_placeholder")}
                     className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-300 outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 bg-gray-50/50"
                   />
                 </div>
@@ -474,17 +499,17 @@ export default function NgoComplaintsPage() {
             <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
               <h3 className="text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-gray-500" />
-                Describe the Incident *
+                {t("ngo.complaints.describe_incident")}
               </h3>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="State clearly what happened. e.g. 'Food smelled sour when opened at the shelter', or 'Driver arrived 2 hours late and food was cold', or 'Claimed 50 kg but only 20 kg received'..."
+                placeholder={t("ngo.complaints.describe_placeholder")}
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl text-sm border border-gray-300 outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 resize-none bg-gray-50/50"
               />
               <div className="text-[11px] text-gray-400 mt-1">
-                {description.length}/500 characters • Be specific to help FoodWise Admin resolve quickly
+                {description.length}/500 {t("ngo.complaints.char_hint")}
               </div>
             </div>
 
@@ -492,7 +517,7 @@ export default function NgoComplaintsPage() {
             <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
               <h3 className="text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
-                Severity & Urgency
+                {t("ngo.complaints.severity_urgency")}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SEVERITY_LEVELS.map((s) => (
@@ -505,8 +530,8 @@ export default function NgoComplaintsPage() {
                       border: `2px solid ${severity === s.label ? s.color : "#E5E7EB"}`,
                     }}
                   >
-                    <div className="text-[13px] font-bold" style={{ color: s.color }}>{s.label}</div>
-                    <div className="text-[11px] mt-0.5 text-gray-600">{s.desc}</div>
+                    <div className="text-[13px] font-bold" style={{ color: s.color }}>{t(s.tKey)}</div>
+                    <div className="text-[11px] mt-0.5 text-gray-600">{t(s.descKey)}</div>
                   </button>
                 ))}
               </div>
@@ -519,10 +544,10 @@ export default function NgoComplaintsPage() {
             <div className="card p-5 bg-white border border-gray-200 rounded-2xl">
               <h3 className="text-[15px] font-bold text-gray-900 mb-1 flex items-center gap-2">
                 <Camera className="w-4 h-4 text-indigo-600" />
-                Upload Photo Evidence
+                {t("ngo.complaints.upload_photo")}
               </h3>
               <p className="text-xs text-gray-500 mb-4">
-                Take a quick photo of the packaging, temperature probe, or spoiled food for instant admin verification
+                {t("ngo.complaints.upload_photo_desc")}
               </p>
 
               {showCamera && (
@@ -566,7 +591,7 @@ export default function NgoComplaintsPage() {
                   </div>
                   <div className="absolute bottom-2 left-2 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-[11px] font-bold text-white">Photo Evidence Attached</span>
+                    <span className="text-[11px] font-bold text-white">{t("ngo.complaints.photo_attached")}</span>
                   </div>
                 </div>
               ) : !showCamera ? (
@@ -578,8 +603,8 @@ export default function NgoComplaintsPage() {
                     <div className="w-10 h-10 rounded-full flex items-center justify-center bg-indigo-600 text-white">
                       <Camera className="w-5 h-5" />
                     </div>
-                    <span className="text-xs font-bold text-indigo-700">Take Photo with Camera</span>
-                    <span className="text-[10px] text-gray-500">Live snap of food container / label</span>
+                    <span className="text-xs font-bold text-indigo-700">{t("ngo.complaints.take_photo")}</span>
+                    <span className="text-[10px] text-gray-500">{t("ngo.complaints.live_snap")}</span>
                   </button>
 
                   <button
@@ -587,7 +612,7 @@ export default function NgoComplaintsPage() {
                     className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:bg-gray-100 cursor-pointer bg-gray-50 border border-gray-300"
                   >
                     <Upload className="w-4 h-4 text-gray-600" />
-                    <span className="text-xs font-bold text-gray-700">Upload from Gallery / Files</span>
+                    <span className="text-xs font-bold text-gray-700">{t("ngo.complaints.upload_gallery")}</span>
                   </button>
                   <input
                     ref={fileInputRef}
@@ -600,19 +625,19 @@ export default function NgoComplaintsPage() {
               ) : null}
             </div>
 
-            {/* How FoodWise Admin Resolves (Swiggy/Zomato style) */}
+            {/* How FoodWise Admin Resolves */}
             <div className="card p-4 bg-amber-50/70 border border-amber-200 rounded-2xl">
               <div className="flex items-start gap-2.5">
                 <Zap className="w-5 h-5 shrink-0 mt-0.5 text-amber-600" />
                 <div>
                   <div className="text-xs font-extrabold text-amber-950 uppercase tracking-wide">
-                    FoodWise Admin Resolution Guarantee
+                    {t("ngo.complaints.resolution_guarantee")}
                   </div>
                   <ul className="text-[11px] mt-2 space-y-1.5 text-amber-900 font-medium">
-                    <li>• <strong>&lt; 30 Min Response:</strong> Admin directly calls donor warden to investigate.</li>
-                    <li>• <strong>Emergency Replacement:</strong> If food is rejected, backup surplus is auto-dispatched from nearest mess.</li>
-                    <li>• <strong>Donor Penalty:</strong> -50 to -100 reputation points deducted on confirmed defects.</li>
-                    <li>• <strong>No Blame on Volunteers:</strong> Complete shelter immunity for genuine rejections.</li>
+                    <li>&bull; <strong>{t("ngo.complaints.guarantee_response")}</strong> {t("ngo.complaints.guarantee_response_desc")}</li>
+                    <li>&bull; <strong>{t("ngo.complaints.guarantee_replacement")}</strong> {t("ngo.complaints.guarantee_replacement_desc")}</li>
+                    <li>&bull; <strong>{t("ngo.complaints.guarantee_penalty")}</strong> {t("ngo.complaints.guarantee_penalty_desc")}</li>
+                    <li>&bull; <strong>{t("ngo.complaints.guarantee_no_blame")}</strong> {t("ngo.complaints.guarantee_no_blame_desc")}</li>
                   </ul>
                 </div>
               </div>
@@ -627,12 +652,12 @@ export default function NgoComplaintsPage() {
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Dispatching to FoodWise Admin...
+                  {t("ngo.complaints.dispatching")}
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Submit Issue to FoodWise Admin
+                  {t("ngo.complaints.submit_btn")}
                 </>
               )}
             </button>
@@ -640,31 +665,31 @@ export default function NgoComplaintsPage() {
         </div>
       )}
 
-      {/* ═══ TRACK COMPLAINTS (SWIGGY/ZOMATO TICKET STREAM) ═══ */}
+      {/* TRACK COMPLAINTS */}
       {activeTab === "track" && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="card p-4 text-center bg-white border border-gray-200 rounded-2xl border-t-4 border-t-indigo-600">
               <div className="text-2xl font-extrabold font-mono-data text-gray-900">{pastComplaints.length}</div>
-              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">Total Tickets</div>
+              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">{t("ngo.complaints.total_tickets")}</div>
             </div>
             <div className="card p-4 text-center bg-white border border-gray-200 rounded-2xl border-t-4 border-t-blue-500">
               <div className="text-2xl font-extrabold font-mono-data text-blue-600">
                 {pastComplaints.filter((c) => c.status === "Under Review by Admin").length}
               </div>
-              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">Under Review</div>
+              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">{t("ngo.complaints.under_review")}</div>
             </div>
             <div className="card p-4 text-center bg-white border border-gray-200 rounded-2xl border-t-4 border-t-amber-500">
               <div className="text-2xl font-extrabold font-mono-data text-amber-600">
                 {pastComplaints.filter((c) => c.status === "Investigating").length}
               </div>
-              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">Investigating</div>
+              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">{t("ngo.complaints.investigating")}</div>
             </div>
             <div className="card p-4 text-center bg-white border border-gray-200 rounded-2xl border-t-4 border-t-emerald-500">
               <div className="text-2xl font-extrabold font-mono-data text-emerald-600">
                 {pastComplaints.filter((c) => c.status.includes("Resolved")).length}
               </div>
-              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">Resolved</div>
+              <div className="text-[11px] font-bold text-gray-500 uppercase mt-0.5">{t("ngo.complaints.resolved")}</div>
             </div>
           </div>
 
@@ -688,14 +713,14 @@ export default function NgoComplaintsPage() {
                       className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                       style={{ background: sevStyle.bg, color: sevStyle.color, border: `1px solid ${sevStyle.border}` }}
                     >
-                      {cmp.severity} Priority
+                      {t(SEVERITY_DISPLAY_KEYS[cmp.severity] || cmp.severity)} {t("ngo.complaints.priority")}
                     </span>
                   </div>
                   <span
                     className="text-[11px] font-black px-2.5 py-1 rounded-xl"
                     style={{ background: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}` }}
                   >
-                    ● {cmp.status}
+                    ● {t(STATUS_KEYS[cmp.status] || cmp.status)}
                   </span>
                 </div>
 
@@ -706,7 +731,7 @@ export default function NgoComplaintsPage() {
                 {cmp.resolutionNote && (
                   <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 text-xs">
                     <span className="font-bold text-gray-900 block mb-0.5">
-                      FoodWise Admin Action ({cmp.adminAssigned || "Incident Ops"}):
+                      {t("ngo.complaints.admin_action")} ({cmp.adminAssigned || t("ngo.complaints.incident_ops")}):
                     </span>
                     <span className="text-gray-600">{cmp.resolutionNote}</span>
                   </div>
@@ -715,11 +740,11 @@ export default function NgoComplaintsPage() {
                 <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1">
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{cmp.date}</span>
-                    <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5" />{cmp.category}</span>
+                    <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5" />{t(CATEGORY_DISPLAY_KEYS[cmp.category] || cmp.category)}</span>
                   </div>
                   {cmp.hasImage && (
                     <span className="flex items-center gap-1 text-emerald-600 font-semibold">
-                      <ImageIcon className="w-3.5 h-3.5" /> Photo Evidence Attached
+                      <ImageIcon className="w-3.5 h-3.5" /> {t("ngo.complaints.photo_attached")}
                     </span>
                   )}
                 </div>

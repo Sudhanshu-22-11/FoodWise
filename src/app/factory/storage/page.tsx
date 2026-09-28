@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useApp } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
 import { FACTORY_STORAGE_UNITS } from "@/lib/mockData";
 import {
   ThermometerSnowflake,
@@ -380,6 +381,7 @@ const HOURLY_TEMP_TREND = [
 ];
 
 export default function StorageMonitorPage() {
+  const { t } = useLang();
   const { isBatchPrioritized, prioritizeBatch } = useApp();
 
   // Selected produce and batch
@@ -409,7 +411,7 @@ export default function StorageMonitorPage() {
     setManualScanRunning(true);
     setTimeout(() => {
       setManualScanRunning(false);
-      setScanMessage(`AI Vision Inspection Complete for ${activeBatch.batchCode}. 142 optical patches validated.`);
+      setScanMessage(`${t("factory.storage.vision_complete")} ${activeBatch.batchCode}. ${t("factory.storage.patches_validated")}`);
       setTimeout(() => setScanMessage(null), 4000);
     }, 1400);
   };
@@ -474,22 +476,22 @@ export default function StorageMonitorPage() {
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-100 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              AI Adaptive Quality Monitor
+              {t("factory.storage.adaptive_monitor")}
             </span>
             <span className="text-[#D1D5DB]">•</span>
-            <span className="text-xs text-[#9CA3AF]">Mother Dairy Fruit & Vegetable Unit (Plant ID: DL-FAC-409)</span>
+            <span className="text-xs text-[#9CA3AF]">{t("factory.storage.plant_id")}</span>
             <span className="text-[#D1D5DB]">•</span>
             {/* Simulation Mode Badge */}
             <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1">
               <Cpu className="w-3 h-3" />
-              SIMULATION MODE
+              {t("factory.storage.simulation_mode")}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111827]">
-            Produce-Specific Storage & Spoilage Monitor
+            {t("factory.storage.title")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
-            FoodWise evaluates each vegetable using its customized biochemical parameters instead of a generic temperature threshold.
+            {t("factory.storage.description")}
           </p>
         </div>
 
@@ -499,7 +501,7 @@ export default function StorageMonitorPage() {
             className="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200 hover:bg-rose-100 transition-colors flex items-center gap-1.5 shadow-xs"
           >
             <Flame className="w-3.5 h-3.5 text-rose-600" />
-            Predictive Spoilage Engine →
+            {t("factory.storage.spoilage_engine_link")}
           </Link>
         </div>
       </div>
@@ -510,7 +512,7 @@ export default function StorageMonitorPage() {
           {/* Produce selector tabs */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
-              Step 1: Select Stored Produce
+              {t("factory.storage.step1_label")}
             </label>
             <div className="flex flex-wrap items-center gap-2">
               {(Object.keys(PRODUCE_PROFILES) as ProduceType[]).map((type) => {
@@ -537,7 +539,7 @@ export default function StorageMonitorPage() {
           {/* Batch selector dropdown */}
           <div className="space-y-1.5 min-w-[280px]">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
-              Step 2: Select Inventory Batch
+              {t("factory.storage.step2_label")}
             </label>
             <select
               value={selectedBatchCode}
@@ -546,7 +548,7 @@ export default function StorageMonitorPage() {
             >
               {currentProfile.batches.map((b) => (
                 <option key={b.batchCode} value={b.batchCode}>
-                  {b.batchCode} — {b.description} ({b.riskLevel} RISK)
+                  {b.batchCode} — {b.description} ({b.riskLevel} {t("factory.storage.risk")})
                 </option>
               ))}
             </select>
@@ -557,20 +559,20 @@ export default function StorageMonitorPage() {
         <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <span className="font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded text-[10px]">
-              AI Adaptive Profile
+              {t("factory.storage.adaptive_profile")}
             </span>
             <span className="font-bold text-gray-900">
               {currentProfile.name} ({currentProfile.variety})
             </span>
             <span className="text-gray-400">•</span>
             <span className="text-gray-600 hidden md:inline">
-              Parameters: <span className="font-mono-data font-semibold text-emerald-700">{currentProfile.activeParametersSummary}</span>
+              {t("factory.storage.parameters")}: <span className="font-mono-data font-semibold text-emerald-700">{currentProfile.activeParametersSummary}</span>
             </span>
           </div>
 
           <div className="text-[11px] text-gray-500 flex items-center gap-1.5">
             <Info className="w-3.5 h-3.5 text-gray-400" />
-            <span>Parameters adjust dynamically based on botanical cellular sensitivity.</span>
+            <span>{t("factory.storage.params_adjust")}</span>
           </div>
         </div>
       </div>
@@ -584,19 +586,19 @@ export default function StorageMonitorPage() {
             <div>
               <h3 className="section-title flex items-center gap-2">
                 <ThermometerSnowflake className="w-4 h-4 text-emerald-600" />
-                Storage Conditions
+                {t("factory.storage.storage_conditions")}
               </h3>
-              <p className="section-subtitle">Real-time room ambient microclimate</p>
+              <p className="section-subtitle">{t("factory.storage.realtime_microclimate")}</p>
             </div>
             <span className="text-[10px] font-mono-data font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-              IoT Sensor
+              {t("factory.storage.iot_sensor")}
             </span>
           </div>
 
           {/* Temperature Sensor Card */}
           <div className="p-3.5 rounded-xl bg-[#FAFBFC] border border-[#E8ECF3] space-y-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600 font-medium">Temperature</span>
+              <span className="text-gray-600 font-medium">{t("factory.storage.temperature")}</span>
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded font-mono-data ${
                   activeBatch.temp > currentProfile.idealTempMax || activeBatch.temp < currentProfile.idealTempMin
@@ -605,10 +607,10 @@ export default function StorageMonitorPage() {
                 }`}
               >
                 {activeBatch.temp > currentProfile.idealTempMax
-                  ? "EXCURSION (HIGH)"
+                  ? t("factory.storage.excursion_high")
                   : activeBatch.temp < currentProfile.idealTempMin
-                  ? "EXCURSION (LOW)"
-                  : "NORMAL"}
+                  ? t("factory.storage.excursion_low")
+                  : t("factory.storage.normal")}
               </span>
             </div>
             <div className="flex items-baseline gap-2">
@@ -622,7 +624,7 @@ export default function StorageMonitorPage() {
                 {activeBatch.temp.toFixed(1)}°C
               </span>
               <span className="text-xs text-gray-500">
-                Target: {currentProfile.idealTempMin}°C - {currentProfile.idealTempMax}°C
+                {t("factory.storage.target")}: {currentProfile.idealTempMin}°C - {currentProfile.idealTempMax}°C
               </span>
             </div>
           </div>
@@ -630,7 +632,7 @@ export default function StorageMonitorPage() {
           {/* Humidity Sensor Card */}
           <div className="p-3.5 rounded-xl bg-[#FAFBFC] border border-[#E8ECF3] space-y-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600 font-medium">Relative Humidity</span>
+              <span className="text-gray-600 font-medium">{t("factory.storage.relative_humidity")}</span>
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded font-mono-data ${
                   activeBatch.humidity < currentProfile.idealHumidityMin || activeBatch.humidity > currentProfile.idealHumidityMax
@@ -639,10 +641,10 @@ export default function StorageMonitorPage() {
                 }`}
               >
                 {activeBatch.humidity < currentProfile.idealHumidityMin
-                  ? "LOW"
+                  ? t("factory.storage.low")
                   : activeBatch.humidity > currentProfile.idealHumidityMax
-                  ? "HIGH"
-                  : "NORMAL"}
+                  ? t("factory.storage.high")
+                  : t("factory.storage.normal")}
               </span>
             </div>
             <div className="flex items-baseline gap-2">
@@ -650,7 +652,7 @@ export default function StorageMonitorPage() {
                 {activeBatch.humidity}%
               </span>
               <span className="text-xs text-gray-500">
-                Target: {currentProfile.idealHumidityMin}% - {currentProfile.idealHumidityMax}%
+                {t("factory.storage.target")}: {currentProfile.idealHumidityMin}% - {currentProfile.idealHumidityMax}%
               </span>
             </div>
           </div>
@@ -658,14 +660,14 @@ export default function StorageMonitorPage() {
           {/* Ethylene / Air Circulation Card */}
           <div className="p-3.5 rounded-xl bg-[#FAFBFC] border border-[#E8ECF3] space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Ethylene Gas (Optional)</span>
+              <span className="text-gray-600">{t("factory.storage.ethylene_gas")}</span>
               <span className="font-mono-data font-bold text-amber-600">
-                {selectedProduce === "tomato" ? "0.42 ppm (Elevated)" : "0.08 ppm (Normal)"}
+                {selectedProduce === "tomato" ? `0.42 ppm (${t("factory.storage.elevated")})` : `0.08 ppm (${t("factory.storage.normal")})`}
               </span>
             </div>
             <div className="flex items-center justify-between pt-1 border-t border-gray-100">
-              <span className="text-gray-600">HVAC Compressor Load</span>
-              <span className="font-mono-data font-bold text-emerald-600">RUNNING (100%)</span>
+              <span className="text-gray-600">{t("factory.storage.hvac_load")}</span>
+              <span className="font-mono-data font-bold text-emerald-600">{t("factory.storage.running")}</span>
             </div>
           </div>
 
@@ -674,14 +676,14 @@ export default function StorageMonitorPage() {
             {chillTriggered ? (
               <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Compressor Overdrive Activated (7°C Target)
+                {t("factory.storage.compressor_activated")}
               </div>
             ) : (
               <button
                 onClick={handleTriggerBlastChill}
                 className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shadow-xs"
               >
-                Trigger Blast Chill for {currentProfile.name} Unit
+                {t("factory.storage.trigger_blast_chill")} {currentProfile.name}
               </button>
             )}
           </div>
@@ -693,12 +695,12 @@ export default function StorageMonitorPage() {
             <div>
               <h3 className="section-title flex items-center gap-2">
                 <FlaskConical className="w-4 h-4 text-indigo-600" />
-                AI Quality Parameters
+                {t("factory.storage.ai_quality_params")}
               </h3>
-              <p className="section-subtitle">Specific to {currentProfile.name} biology</p>
+              <p className="section-subtitle">{t("factory.storage.specific_to_biology")} {currentProfile.name}</p>
             </div>
             <span className="text-[10px] font-mono-data font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
-              Adaptive Matrix
+              {t("factory.storage.adaptive_matrix")}
             </span>
           </div>
 
@@ -707,9 +709,9 @@ export default function StorageMonitorPage() {
             {currentProfile.hasPh && (
               <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-gray-700 block">Juice / Tissue pH</span>
+                  <span className="text-xs font-bold text-gray-700 block">{t("factory.storage.juice_tissue_ph")}</span>
                   <span className="text-[11px] text-gray-500">
-                    Ideal: {currentProfile.idealPhMin} - {currentProfile.idealPhMax}
+                    {t("factory.storage.ideal")}: {currentProfile.idealPhMin} - {currentProfile.idealPhMax}
                   </span>
                 </div>
                 <div className="text-right">
@@ -724,8 +726,8 @@ export default function StorageMonitorPage() {
                     }`}
                   >
                     {activeBatch.ph && (activeBatch.ph > (currentProfile.idealPhMax || 5) || activeBatch.ph < (currentProfile.idealPhMin || 4))
-                      ? "SHIFTED"
-                      : "NORMAL"}
+                      ? t("factory.storage.shifted")
+                      : t("factory.storage.normal")}
                   </span>
                 </div>
               </div>
@@ -734,9 +736,9 @@ export default function StorageMonitorPage() {
             {/* Weight Loss (Bulk load-cell scale drift) */}
             <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-gray-700 block">Weight Loss (Bulk Scale)</span>
+                <span className="text-xs font-bold text-gray-700 block">{t("factory.storage.weight_loss")}</span>
                 <span className="text-[11px] text-gray-500">
-                  Threshold: &lt; {currentProfile.weightLossThreshold}%
+                  {t("factory.storage.threshold")}: &lt; {currentProfile.weightLossThreshold}%
                 </span>
               </div>
               <div className="text-right">
@@ -750,7 +752,7 @@ export default function StorageMonitorPage() {
                       : "bg-emerald-100 text-emerald-800"
                   }`}
                 >
-                  {activeBatch.weightLossPct > currentProfile.weightLossThreshold ? "HIGH" : "NORMAL"}
+                  {activeBatch.weightLossPct > currentProfile.weightLossThreshold ? t("factory.storage.high") : t("factory.storage.normal")}
                 </span>
               </div>
             </div>
@@ -767,7 +769,7 @@ export default function StorageMonitorPage() {
                 <div key={vp.key} className="p-3 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between">
                   <div>
                     <span className="text-xs font-bold text-gray-700 block">{vp.label}</span>
-                    <span className="text-[11px] text-gray-500">Camera / Vision Simulation</span>
+                    <span className="text-[11px] text-gray-500">{t("factory.storage.camera_vision_sim")}</span>
                   </div>
                   <div className="text-right">
                     <span className="text-lg font-black font-mono-data text-gray-900 block">
@@ -778,7 +780,7 @@ export default function StorageMonitorPage() {
                         isBad ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
                       }`}
                     >
-                      {isBad ? "ATTENTION" : "GOOD"}
+                      {isBad ? t("factory.storage.attention") : t("factory.storage.good")}
                     </span>
                   </div>
                 </div>
@@ -789,7 +791,7 @@ export default function StorageMonitorPage() {
           <div className="p-3 rounded-xl bg-indigo-50/60 border border-indigo-100 text-[11px] text-indigo-900 flex items-start gap-2">
             <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
             <span>
-              Different crops require different metrics: <strong>Potatoes</strong> monitor sprouting & rot, while <strong>Tomatoes</strong> track ripening firmness & pH.
+              {t("factory.storage.crop_metrics_note")}
             </span>
           </div>
         </div>
@@ -801,9 +803,9 @@ export default function StorageMonitorPage() {
               <div>
                 <h3 className="section-title flex items-center gap-2">
                   <Activity className="w-4 h-4 text-emerald-600" />
-                  AI Quality Analysis
+                  {t("factory.storage.ai_quality_analysis")}
                 </h3>
-                <p className="section-subtitle">Batch triage & shelf-life calculation</p>
+                <p className="section-subtitle">{t("factory.storage.batch_triage")}</p>
               </div>
               <span
                 className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full font-mono-data ${
@@ -814,7 +816,7 @@ export default function StorageMonitorPage() {
                     : "bg-emerald-100 text-emerald-800 border border-emerald-200"
                 }`}
               >
-                {activeBatch.riskLevel} RISK
+                {activeBatch.riskLevel} {t("factory.storage.risk")}
               </span>
             </div>
 
@@ -823,7 +825,7 @@ export default function StorageMonitorPage() {
               {/* Quality Score */}
               <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center">
                 <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">
-                  Quality Score
+                  {t("factory.storage.quality_score")}
                 </span>
                 <span
                   className={`text-3xl font-black font-mono-data block my-1 ${
@@ -837,20 +839,20 @@ export default function StorageMonitorPage() {
                   {activeBatch.qualityScore}%
                 </span>
                 <span className="text-[10px] font-bold text-gray-600">
-                  {activeBatch.qualityScore >= 80 ? "OPTIMAL" : activeBatch.qualityScore >= 60 ? "DEGRADING" : "CRITICAL"}
+                  {activeBatch.qualityScore >= 80 ? t("factory.storage.optimal") : activeBatch.qualityScore >= 60 ? t("factory.storage.degrading") : t("factory.storage.critical")}
                 </span>
               </div>
 
               {/* Shelf Life */}
               <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center">
                 <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">
-                  Est. Shelf Life
+                  {t("factory.storage.est_shelf_life")}
                 </span>
                 <span className="text-2xl font-black font-mono-data text-gray-900 block my-1">
                   {activeBatch.shelfLifeDisplay}
                 </span>
                 <span className="text-[10px] text-gray-500 block">
-                  Until quality &lt; 45% cutoff
+                  {t("factory.storage.until_quality_cutoff")}
                 </span>
               </div>
             </div>
@@ -858,14 +860,14 @@ export default function StorageMonitorPage() {
             {/* AI Recommendation Box */}
             <div className={`p-4 rounded-2xl border ${recBadge.bg} ${recBadge.border} space-y-1.5`}>
               <div className="text-[10px] font-bold uppercase tracking-wider text-gray-600">
-                AI Recommendation:
+                {t("factory.storage.ai_recommendation")}:
               </div>
               <div className={`text-base font-extrabold flex items-center gap-2 ${recBadge.text}`}>
                 <RecIcon className="w-5 h-5 shrink-0" />
                 <span>{activeBatch.recommendation}</span>
               </div>
               <p className="text-[11px] text-gray-600 pt-1">
-                Batch: <strong>{activeBatch.batchCode}</strong> ({activeBatch.stockKg.toLocaleString()} kg) • Age: {activeBatch.ageDays} days
+                {t("factory.storage.batch")}: <strong>{activeBatch.batchCode}</strong> ({activeBatch.stockKg.toLocaleString()} kg) • {t("factory.storage.age")}: {activeBatch.ageDays} {t("factory.storage.days")}
               </p>
             </div>
           </div>
@@ -875,7 +877,7 @@ export default function StorageMonitorPage() {
             {isBatchPrioritized && activeBatch.batchCode === "TOM-2024-0234" ? (
               <div className="p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center justify-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Batch Rerouted to Front of Line (Salvaging 2,800 kg)
+                {t("factory.storage.batch_rerouted")}
               </div>
             ) : activeBatch.riskLevel === "HIGH" ? (
               <button
@@ -883,14 +885,14 @@ export default function StorageMonitorPage() {
                 className="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold transition-all shadow-md flex items-center justify-center gap-2"
               >
                 <Flame className="w-4 h-4" />
-                Prioritize Batch for Processing Now
+                {t("factory.storage.prioritize_batch")}
               </button>
             ) : (
               <Link
                 href="/factory/spoilage"
                 className="w-full py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
               >
-                View Full Degradation Curve →
+                {t("factory.storage.view_degradation_curve")} →
               </Link>
             )}
           </div>
@@ -906,7 +908,7 @@ export default function StorageMonitorPage() {
             </div>
             <div>
               <div className="text-xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-2">
-                AI Quality Insight for {currentProfile.name} ({activeBatch.batchCode})
+                {t("factory.storage.ai_quality_insight")} {currentProfile.name} ({activeBatch.batchCode})
               </div>
               <p className="text-xs sm:text-sm text-gray-700 mt-1 leading-relaxed">
                 {activeBatch.insightText}
@@ -921,7 +923,7 @@ export default function StorageMonitorPage() {
               className="px-3.5 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-800 text-xs font-bold border border-gray-200 shadow-xs transition-all flex items-center gap-1.5"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${manualScanRunning ? "animate-spin" : ""}`} />
-              {manualScanRunning ? "Scanning..." : "Re-evaluate Batch"}
+              {manualScanRunning ? t("factory.storage.scanning") : t("factory.storage.reevaluate_batch")}
             </button>
           </div>
         </div>
@@ -934,19 +936,19 @@ export default function StorageMonitorPage() {
             <div className="flex items-center gap-2">
               <h3 className="section-title flex items-center gap-2">
                 <Camera className="w-4 h-4 text-emerald-600" />
-                Visual Quality Inspection
+                {t("factory.storage.visual_quality_inspection")}
               </h3>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200">
-                AI Vision — Simulation
+                {t("factory.storage.ai_vision_simulation")}
               </span>
             </div>
             <p className="section-subtitle">
-              RGB-NIR optical surface defect and ripeness extraction (Simulation Mode for presentation)
+              {t("factory.storage.rgb_nir_desc")}
             </p>
           </div>
 
           <span className="text-xs font-mono-data text-gray-500">
-            Camera Node: <strong>CAM-ZONE-0{selectedProduce === "tomato" ? "2" : "1"}</strong>
+            {t("factory.storage.camera_node")}: <strong>CAM-ZONE-0{selectedProduce === "tomato" ? "2" : "1"}</strong>
           </span>
         </div>
 
@@ -957,31 +959,31 @@ export default function StorageMonitorPage() {
             <div className="flex items-center justify-between text-[11px] font-mono-data text-emerald-400">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                OPTICAL SCAN ACTIVE
+                {t("factory.storage.optical_scan_active")}
               </span>
-              <span>1080p • 60 FPS (Simulated)</span>
+              <span>1080p • 60 FPS ({t("factory.storage.simulated")})</span>
             </div>
 
             <div className="text-center my-auto">
               <span className="text-5xl block mb-2">{currentProfile.icon}</span>
               <span className="text-xs font-bold text-gray-300">
-                Batch: {activeBatch.batchCode} • {currentProfile.variety}
+                {t("factory.storage.batch")}: {activeBatch.batchCode} • {currentProfile.variety}
               </span>
               <span className="block text-[11px] text-emerald-400 font-mono-data mt-0.5">
-                Target Bounding Confidence: 96.8%
+                {t("factory.storage.target_bounding_confidence")}: 96.8%
               </span>
             </div>
 
             <div className="flex items-center justify-between text-[10px] text-gray-400 font-mono-data border-t border-gray-800 pt-2">
-              <span>FOV: Bulk Conveyor Intake #2</span>
-              <span>Calibration Matrix: v2.4</span>
+              <span>FOV: {t("factory.storage.bulk_conveyor")} #2</span>
+              <span>{t("factory.storage.calibration_matrix")}: v2.4</span>
             </div>
           </div>
 
           {/* Visual Parameters breakdown (6 cols) */}
           <div className="lg:col-span-6 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-              Extracted Visual Parameters:
+              {t("factory.storage.extracted_visual_params")}:
             </h4>
 
             {currentProfile.visionParams.map((vp) => {
@@ -1012,7 +1014,7 @@ export default function StorageMonitorPage() {
             })}
 
             <div className="pt-2 text-[11px] text-gray-500">
-              ℹ️ <em>Disclaimer:</em> Computer vision parameters are currently simulated based on laboratory optical degradation data. Architecture is ready for industrial camera probe integration.
+              ℹ️ <em>{t("factory.storage.disclaimer")}:</em> {t("factory.storage.disclaimer_text")}
             </div>
           </div>
         </div>
@@ -1021,8 +1023,8 @@ export default function StorageMonitorPage() {
       {/* ─── EXISTING 4 COLD STORAGE UNITS SUMMARY ────────────────────────── */}
       <div>
         <div className="mb-3">
-          <h3 className="section-title">Physical Cold Storage Units Overview</h3>
-          <p className="section-subtitle">Plant-wide chiller room inventory & climate status</p>
+          <h3 className="section-title">{t("factory.storage.cold_storage_overview")}</h3>
+          <p className="section-subtitle">{t("factory.storage.cold_storage_subtitle")}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1047,7 +1049,7 @@ export default function StorageMonitorPage() {
                         : "bg-emerald-100 text-emerald-800"
                     }`}
                   >
-                    {isWarning ? "EXCURSION" : "OPTIMAL"}
+                    {isWarning ? t("factory.storage.excursion") : t("factory.storage.optimal")}
                   </span>
                 </div>
 
@@ -1056,7 +1058,7 @@ export default function StorageMonitorPage() {
 
                 <div className="mt-4 pt-3 border-t border-[#F3F4F6] grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] text-[#9CA3AF] uppercase block font-semibold">Temperature</span>
+                    <span className="text-[10px] text-[#9CA3AF] uppercase block font-semibold">{t("factory.storage.temperature")}</span>
                     <span
                       className={`text-lg font-black font-mono-data ${
                         isWarning ? "text-amber-600" : "text-[#111827]"
@@ -1067,7 +1069,7 @@ export default function StorageMonitorPage() {
                     <span className="text-[10px] text-[#9CA3AF] block">{unit.targetTemp}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#9CA3AF] uppercase block font-semibold">Humidity</span>
+                    <span className="text-[10px] text-[#9CA3AF] uppercase block font-semibold">{t("factory.storage.humidity")}</span>
                     <span className="text-lg font-black font-mono-data text-[#111827]">
                       {unit.humidityPct}%
                     </span>
@@ -1084,11 +1086,11 @@ export default function StorageMonitorPage() {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="section-title">24-Hour Thermal Gradient & Stability</h3>
-            <p className="section-subtitle">Real-time IoT thermistor logging across Storage Units A, B, and C</p>
+            <h3 className="section-title">{t("factory.storage.thermal_gradient_title")}</h3>
+            <p className="section-subtitle">{t("factory.storage.thermal_gradient_subtitle")}</p>
           </div>
           <span className="text-xs font-mono-data text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg">
-            Telemetry Freq: 60s
+            {t("factory.storage.telemetry_freq")}
           </span>
         </div>
 
@@ -1111,7 +1113,7 @@ export default function StorageMonitorPage() {
               <Line
                 type="monotone"
                 dataKey="unitA"
-                name="Unit A (Potatoes 6°C)"
+                name={t("factory.storage.legend_unit_a")}
                 stroke="#10B981"
                 strokeWidth={2}
                 dot={{ r: 3 }}
@@ -1119,7 +1121,7 @@ export default function StorageMonitorPage() {
               <Line
                 type="monotone"
                 dataKey="unitB"
-                name="Unit B (Tomatoes - DRIFT 13.1°C)"
+                name={t("factory.storage.legend_unit_b")}
                 stroke="#F59E0B"
                 strokeWidth={3}
                 dot={{ r: 4 }}
@@ -1127,7 +1129,7 @@ export default function StorageMonitorPage() {
               <Line
                 type="monotone"
                 dataKey="unitC"
-                name="Unit C (Onions 18°C)"
+                name={t("factory.storage.legend_unit_c")}
                 stroke="#3B82F6"
                 strokeWidth={2}
                 dot={{ r: 3 }}

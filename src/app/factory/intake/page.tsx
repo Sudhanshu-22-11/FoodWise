@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useLang } from "@/context/LanguageContext";
 import {
   Boxes,
   Truck,
@@ -97,6 +98,7 @@ const INTAKE_BATCHES: ShipmentBatch[] = [
 ];
 
 export default function RawMaterialIntakePage() {
+  const { t } = useLang();
   const [filter, setFilter] = useState<string>("ALL");
   const [batches, setBatches] = useState<ShipmentBatch[]>(INTAKE_BATCHES);
 
@@ -120,16 +122,16 @@ export default function RawMaterialIntakePage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600">
-              Inbound Supply Chain & Quality Assurance
+              {t("factory.intake.subtitle_label")}
             </span>
             <span className="text-[#D1D5DB]">•</span>
-            <span className="text-xs text-[#9CA3AF]">Weighbridge Dock Telemetry</span>
+            <span className="text-xs text-[#9CA3AF]">{t("factory.intake.dock_telemetry")}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827]">
-            Raw Material Intake Ledger
+            {t("factory.intake.title")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
-            Automated gross/tare weighbridge telemetry, quality grading, and cold zone routing
+            {t("factory.intake.description")}
           </p>
         </div>
 
@@ -139,7 +141,7 @@ export default function RawMaterialIntakePage() {
             className="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200 hover:bg-rose-100 transition-colors flex items-center gap-1.5"
           >
             <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-            Check Spoilage Risk
+            {t("factory.intake.check_spoilage")}
           </Link>
         </div>
       </div>
@@ -148,22 +150,22 @@ export default function RawMaterialIntakePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Today's Total Intake</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.intake.kpi_total_intake")}</span>
             <div className="icon-container icon-container-indigo">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-[#111827]">
-            28.1 <span className="text-sm font-bold text-[#6B7280]">tons</span>
+            28.1 <span className="text-sm font-bold text-[#6B7280]">{t("factory.intake.tons")}</span>
           </div>
           <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-            4 Trucks processed across 2 docks
+            {t("factory.intake.trucks_processed")}
           </div>
         </div>
 
         <div className="stat-card stat-card-green p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Grade A Acceptance Rate</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.intake.kpi_grade_a_rate")}</span>
             <div className="icon-container icon-container-green">
               <ShieldCheck className="w-4 h-4" />
             </div>
@@ -172,28 +174,28 @@ export default function RawMaterialIntakePage() {
             92.8%
           </div>
           <div className="text-[11px] text-[#6B7280] mt-1">
-            Complies with ISO 22000 quality gate
+            {t("factory.intake.iso_compliance")}
           </div>
         </div>
 
         <div className="stat-card stat-card-red p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Quarantined Batches</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.intake.kpi_quarantined")}</span>
             <div className="icon-container icon-container-red">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-rose-600">
-            1 <span className="text-sm font-bold text-[#6B7280]">Batch (3.2T)</span>
+            1 <span className="text-sm font-bold text-[#6B7280]">{t("factory.intake.batch_3_2t")}</span>
           </div>
           <div className="text-[11px] text-rose-600 font-semibold mt-1">
-            Tomatoes in Storage B (High Temp)
+            {t("factory.intake.tomatoes_high_temp")}
           </div>
         </div>
 
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Avg Inbound Moisture</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.intake.kpi_avg_moisture")}</span>
             <div className="icon-container icon-container-amber">
               <Scale className="w-4 h-4" />
             </div>
@@ -202,7 +204,7 @@ export default function RawMaterialIntakePage() {
             83.9%
           </div>
           <div className="text-[11px] text-[#6B7280] mt-1">
-            Optimum for continuous dehydration
+            {t("factory.intake.optimum_dehydration")}
           </div>
         </div>
       </div>
@@ -220,7 +222,7 @@ export default function RawMaterialIntakePage() {
                   : "text-[#6B7280] hover:text-[#111827]"
               }`}
             >
-              {st === "ALL" ? "All Shipments" : st === "IN_INSPECTION" ? "In Inspection" : st}
+              {st === "ALL" ? t("factory.intake.filter_all") : st === "IN_INSPECTION" ? t("factory.intake.filter_inspection") : st === "ACCEPTED" ? t("factory.intake.filter_accepted") : t("factory.intake.filter_quarantined")}
             </button>
           ))}
         </div>
@@ -232,14 +234,14 @@ export default function RawMaterialIntakePage() {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-[#E8ECF3] text-[11px] uppercase tracking-wider text-[#6B7280]">
-                <th className="py-2.5 px-3 font-bold">Lot ID / Truck</th>
-                <th className="py-2.5 px-3 font-bold">Crop / Variety</th>
-                <th className="py-2.5 px-3 font-bold">Supplier</th>
-                <th className="py-2.5 px-3 font-bold">Net Weight</th>
-                <th className="py-2.5 px-3 font-bold">Moisture / Temp</th>
-                <th className="py-2.5 px-3 font-bold">Quality</th>
-                <th className="py-2.5 px-3 font-bold">Assigned Storage</th>
-                <th className="py-2.5 px-3 font-bold text-right">Status / Action</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.intake.col_lot_truck")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.intake.col_crop")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.intake.col_supplier")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.intake.col_net_weight")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.intake.col_moisture_temp")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.intake.col_quality")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.intake.col_assigned_storage")}</th>
+                <th className="py-2.5 px-3 font-bold text-right">{t("factory.intake.col_status_action")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F3F4F6]">
@@ -255,7 +257,7 @@ export default function RawMaterialIntakePage() {
                   <td className="py-3 px-3 font-semibold text-[#111827]">{b.crop}</td>
                   <td className="py-3 px-3 text-[#4B5563]">{b.supplier}</td>
                   <td className="py-3 px-3 font-mono-data font-bold text-[#111827]">
-                    {b.netWeightKg.toLocaleString()} kg
+                    {b.netWeightKg.toLocaleString()} {t("common.kg")}
                   </td>
                   <td className="py-3 px-3">
                     <div className="font-mono-data text-[#374151]">{b.moisturePct}% RH</div>
@@ -278,25 +280,25 @@ export default function RawMaterialIntakePage() {
                     {b.status === "ACCEPTED" && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3" />
-                        Accepted
+                        {t("factory.intake.status_accepted")}
                       </span>
                     )}
                     {b.status === "QUARANTINED" && (
                       <div className="flex items-center justify-end gap-1.5">
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                          Quarantined
+                          {t("factory.intake.status_quarantined")}
                         </span>
                         <button
                           onClick={() => handleAcceptQuarantined(b.id)}
                           className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
                         >
-                          Prioritize
+                          {t("factory.intake.prioritize")}
                         </button>
                       </div>
                     )}
                     {b.status === "IN_INSPECTION" && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        Inspecting
+                        {t("factory.intake.status_inspecting")}
                       </span>
                     )}
                   </td>

@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApp } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
+import LanguageToggle from "@/components/common/LanguageToggle";
 import { InstitutionRole } from "@/lib/types";
 import {
   Mail,
@@ -23,6 +25,7 @@ import {
 export default function LandingPage() {
   const router = useRouter();
   const { setCurrentRole } = useApp();
+  const { t } = useLang();
 
   const [selectedRole, setSelectedRole] = useState<InstitutionRole>("KITCHEN_MANAGER");
   const [email, setEmail] = useState("warden.mess@iitd.ac.in");
@@ -138,23 +141,24 @@ export default function LandingPage() {
                   FoodWise
                 </span>
                 <span className="text-[11px] font-semibold text-emerald-800 tracking-wide block">
-                  Making every meal count
+                  {t("app.slogan")}
                 </span>
               </div>
             </div>
+            <LanguageToggle compact className="bg-emerald-50 text-emerald-800 border-emerald-300/60 hover:bg-emerald-100" />
           </div>
 
           {/* Form Content */}
           <div className="my-6 space-y-5">
             <div className="text-center">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-                Sign In
+                {t("login.sign_in")}
               </h1>
               <p className="text-xs sm:text-sm font-semibold text-emerald-800 mt-1 italic tracking-wide">
-                &ldquo;Making every meal count&rdquo;
+                &ldquo;{t("app.slogan")}&rdquo;
               </p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Welcome back! Please enter your details to continue
+                {t("login.subtitle")}
               </p>
             </div>
 
@@ -190,7 +194,7 @@ export default function LandingPage() {
             <form onSubmit={handleSignIn} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Email *
+                  {t("login.email")} *
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -208,14 +212,14 @@ export default function LandingPage() {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs font-semibold text-gray-700">
-                    Password *
+                    {t("login.password")} *
                   </label>
                   <button
                     type="button"
                     onClick={() => alert("Pre-configured Demo Mode: Direct sign-in is enabled for testing all modules.")}
                     className="text-[11px] font-semibold text-emerald-800 hover:text-emerald-900 hover:underline cursor-pointer"
                   >
-                    Forgot password?
+                    {t("login.forgot_password")}
                   </button>
                 </div>
                 <div className="relative">
@@ -230,6 +234,7 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -249,7 +254,7 @@ export default function LandingPage() {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Sign In</span>
+                    <span>{t("login.sign_in")}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -264,21 +269,21 @@ export default function LandingPage() {
                   onClick={() => alert("Demo Access: All 3 roles (Kitchen, Factory, NGO) are pre-unlocked. Select any role above to enter.")}
                   className="font-bold text-emerald-800 hover:underline cursor-pointer"
                 >
-                  Sign Up
+                  {t("login.sign_up")}
                 </button>
               </span>
             </div>
           </div>
 
           {/* Quick Demo Access Bar */}
-          <div className="pt-3 border-t border-gray-200/80 flex items-center justify-between text-[11px] text-gray-400">
-            <span>Demo: Auto-filled credentials</span>
+          <div className="pt-3 border-t border-gray-200/80 flex items-center justify-between flex-wrap gap-2 text-[11px] text-gray-400">
+            <span>{t("login.demo_credentials")}</span>
             <div className="flex items-center gap-2 font-semibold">
-              <Link href="/kitchen/dashboard" className="text-emerald-700 hover:underline">Kitchen →</Link>
+              <Link href="/kitchen/dashboard" className="text-emerald-700 hover:underline">Kitchen</Link>
               <span>•</span>
-              <Link href="/factory/dashboard" className="text-amber-700 hover:underline">Factory →</Link>
+              <Link href="/factory/dashboard" className="text-amber-700 hover:underline">Factory</Link>
               <span>•</span>
-              <Link href="/ngo/dashboard" className="text-blue-700 hover:underline">NGO →</Link>
+              <Link href="/ngo/dashboard" className="text-blue-700 hover:underline">NGO</Link>
             </div>
           </div>
         </div>

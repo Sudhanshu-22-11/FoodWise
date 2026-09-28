@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { downloadFactoryAuditPdf } from "@/lib/pdfGenerator";
 import { useApp } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
 import {
   INSTITUTIONS,
   FACTORY_STORAGE_UNITS,
@@ -28,56 +29,67 @@ import {
   Flame,
   Package,
   Zap,
+  Bell,
+  Smartphone,
 } from "lucide-react";
+import FactoryNotificationStatus from "@/components/factory/FactoryNotificationStatus";
 
 export default function FactoryDashboardPage() {
   const { isBatchPrioritized, prioritizeBatch } = useApp();
+  const { t } = useLang();
   const [timePeriod, setTimePeriod] = useState<"Today" | "This Week" | "This Month">("Today");
   const [isPeriodDropdownOpen, setIsPeriodDropdownOpen] = useState(false);
+
+  // Map internal period keys to translation keys
+  const periodTranslationKeys: Record<string, string> = {
+    "Today": "factory.period_today",
+    "This Week": "factory.period_this_week",
+    "This Month": "factory.period_this_month",
+  };
 
   // Period-based dynamic metrics
   const PERIOD_DATA = {
     Today: {
       rawMaterial: "34.5K",
-      rawSub: "Across 4 cold zones",
+      rawSub: t("factory.raw_sub_today"),
       atRisk: 3,
       atRiskHigh: 1,
       atRiskMed: 2,
       atRiskSafe: 12,
       efficiency: "84.2",
-      efficiencyTrend: "-2.1% from target",
+      efficiencyTrend: t("factory.eff_trend_today"),
       efficiencyIsUp: false,
       valorized: "1,840",
-      valorizedTrend: "+18.5% vs last period",
-      subTitle: "Welcome back. Manufacturing line telemetry overview for today.",
+      valorizedTrend: t("factory.val_trend_today"),
+      subTitle: t("factory.subtitle_today"),
     },
     "This Week": {
       rawMaterial: "241.5K",
-      rawSub: "Weekly cumulative intake across 4 zones",
+      rawSub: t("factory.raw_sub_week"),
       atRisk: 7,
       atRiskHigh: 2,
       atRiskMed: 5,
       atRiskSafe: 38,
       efficiency: "88.6",
-      efficiencyTrend: "+2.3% above benchmark",
+      efficiencyTrend: t("factory.eff_trend_week"),
       efficiencyIsUp: true,
       valorized: "12,880",
-      valorizedTrend: "+14.2% vs previous week",
-      subTitle: "Welcome back. Manufacturing line telemetry overview for this week.",
+      valorizedTrend: t("factory.val_trend_week"),
+      subTitle: t("factory.subtitle_week"),
     },
     "This Month": {
       rawMaterial: "980.2K",
-      rawSub: "Monthly plant throughput (92% capacity)",
+      rawSub: t("factory.raw_sub_month"),
       atRisk: 19,
       atRiskHigh: 4,
       atRiskMed: 15,
       atRiskSafe: 142,
       efficiency: "89.9",
-      efficiencyTrend: "+3.6% monthly efficiency gain",
+      efficiencyTrend: t("factory.eff_trend_month"),
       efficiencyIsUp: true,
       valorized: "54,320",
-      valorizedTrend: "+21.4% vs previous month",
-      subTitle: "Welcome back. Manufacturing line telemetry overview for this month.",
+      valorizedTrend: t("factory.val_trend_month"),
+      subTitle: t("factory.subtitle_month"),
     },
   };
 
@@ -89,7 +101,7 @@ export default function FactoryDashboardPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#111827" }}>
-            Dashboard
+            {t("common.dashboard")}
           </h1>
           <p className="text-sm" style={{ color: "#6B7280" }}>
             {currentStats.subTitle}
@@ -110,7 +122,7 @@ export default function FactoryDashboardPage() {
               }}
             >
               <Calendar className="w-4 h-4 text-emerald-600" />
-              <span>{timePeriod}</span>
+              <span>{t(periodTranslationKeys[timePeriod])}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-[#9CA3AF] transition-transform ${isPeriodDropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
@@ -129,7 +141,7 @@ export default function FactoryDashboardPage() {
                       timePeriod === period ? "text-emerald-600 bg-emerald-50/50 font-bold" : "text-[#4B5563]"
                     }`}
                   >
-                    <span>{period}</span>
+                    <span>{t(periodTranslationKeys[period])}</span>
                     {timePeriod === period && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
                 ))}
@@ -150,15 +162,23 @@ export default function FactoryDashboardPage() {
               className="w-2 h-2 rounded-full animate-pulse"
               style={{ background: "#EF4444" }}
             />
-            Spoilage Engine
+            {t("factory.spoilage_engine")}
           </Link>
 
+          <a
+            href="#factory-notifications"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[13px] font-bold transition-all bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300"
+          >
+            <Bell className="w-4 h-4 text-emerald-600" />
+            <span>{t("Factory Notification Status")}</span>
+          </a>
+
           <button
-            onClick={() => downloadFactoryAuditPdf({ title: `Plant Mass Balance & Spoilage Audit (${timePeriod})` })}
+            onClick={() => downloadFactoryAuditPdf({ title: `${t("factory.audit_title")} (${t(periodTranslationKeys[timePeriod])})` })}
             className="btn-primary cursor-pointer active:scale-95 transition-all"
           >
             <FileText className="w-4 h-4" />
-            Export Report (PDF)
+            {t("common.export_report")}
           </button>
         </div>
       </div>
@@ -184,16 +204,16 @@ export default function FactoryDashboardPage() {
                 className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded font-mono-data"
                 style={{ background: "#DC2626", color: "#FFFFFF" }}
               >
-                CRITICAL INVENTORY ALERT
+                {t("factory.critical_alert")}
               </span>
               <span className="text-[12px] font-mono-data" style={{ color: "#991B1B" }}>
-                Batch TOM-2024-0234
+                {t("factory.alert_batch")}
               </span>
             </div>
             <p className="text-[13px] font-medium" style={{ color: "#991B1B" }}>
-              Tomatoes (3,200 kg) in Cold Storage B — Spoilage predicted in{" "}
-              <strong className="font-mono-data">31 hours</strong> due to temperature drift (13.1°C). Process priority:{" "}
-              <span className="underline font-bold">HIGH</span>.
+              {t("factory.alert_desc")}{" "}
+              <strong className="font-mono-data">{t("factory.alert_hours")}</strong> {t("factory.alert_temp_drift")}{" "}
+              <span className="underline font-bold">{t("factory.alert_high")}</span>.
             </p>
           </div>
         </div>
@@ -209,7 +229,7 @@ export default function FactoryDashboardPage() {
               }}
             >
               <CheckCircle2 className="w-4 h-4" />
-              Prioritized in Line 2
+              {t("factory.prioritized_line")}
             </span>
           ) : (
             <button
@@ -221,7 +241,7 @@ export default function FactoryDashboardPage() {
                 boxShadow: "0 4px 12px rgba(220,38,38,0.3)",
               }}
             >
-              <span>Prioritize in Production</span>
+              <span>{t("factory.prioritize_production")}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -230,7 +250,7 @@ export default function FactoryDashboardPage() {
             href="/factory/spoilage"
             className="btn-secondary whitespace-nowrap"
           >
-            Details →
+            {t("factory.details")}
           </Link>
         </div>
       </div>
@@ -241,14 +261,14 @@ export default function FactoryDashboardPage() {
         <div id="raw-materials" className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              Raw Material
+              {t("factory.raw_material")}
             </span>
             <div className="icon-container icon-container-indigo">
               <Boxes className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            {currentStats.rawMaterial} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            {currentStats.rawMaterial} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
@@ -262,7 +282,7 @@ export default function FactoryDashboardPage() {
         <div className="stat-card stat-card-red p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              At-Risk Batches
+              {t("factory.at_risk_batches")}
             </span>
             <div className="icon-container icon-container-red">
               <Flame className="w-5 h-5" />
@@ -272,9 +292,9 @@ export default function FactoryDashboardPage() {
             {currentStats.atRisk}
           </div>
           <div className="flex items-center gap-3 text-[11px] font-medium">
-            <span style={{ color: "#DC2626" }}>● {currentStats.atRiskHigh} High</span>
-            <span style={{ color: "#D97706" }}>● {currentStats.atRiskMed} Medium</span>
-            <span style={{ color: "#059669" }}>● {currentStats.atRiskSafe} Safe</span>
+            <span style={{ color: "#DC2626" }}>● {currentStats.atRiskHigh} {t("factory.high")}</span>
+            <span style={{ color: "#D97706" }}>● {currentStats.atRiskMed} {t("factory.medium")}</span>
+            <span style={{ color: "#059669" }}>● {currentStats.atRiskSafe} {t("factory.safe")}</span>
           </div>
         </div>
 
@@ -282,7 +302,7 @@ export default function FactoryDashboardPage() {
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              Efficiency
+              {t("factory.efficiency")}
             </span>
             <div className="icon-container icon-container-amber">
               <Activity className="w-5 h-5" />
@@ -303,14 +323,14 @@ export default function FactoryDashboardPage() {
         <div id="byproduct-recovery" className="stat-card stat-card-green p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              Waste Valorized
+              {t("factory.waste_valorized")}
             </span>
             <div className="icon-container icon-container-green">
               <RefreshCw className="w-5 h-5" />
             </div>
           </div>
           <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            {currentStats.valorized} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>kg</span>
+            {currentStats.valorized} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="trend-up">
@@ -329,14 +349,14 @@ export default function FactoryDashboardPage() {
             <div>
               <h3 className="section-title flex items-center gap-2">
                 <Layers className="w-5 h-5" style={{ color: "#10B981" }} />
-                Material Flow Tracker
+                {t("factory.material_flow")}
               </h3>
               <p className="section-subtitle">
-                Stage-wise mass balance: raw intake through packaging
+                {t("factory.material_flow_desc")}
               </p>
             </div>
             <span className="badge badge-indigo font-mono-data">
-              10,000 kg Batch
+              {t("factory.batch_size")}
             </span>
           </div>
 
@@ -349,10 +369,10 @@ export default function FactoryDashboardPage() {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold flex items-center gap-2" style={{ color: "#111827" }}>
                   <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#10B981" }} />
-                  Stage 1: Raw Material Intake (Potatoes)
+                  {t("factory.stage1")}
                 </span>
                 <span className="font-mono-data font-bold" style={{ color: "#111827" }}>
-                  10,000 kg (100%)
+                  {t("factory.stage1_qty")}
                 </span>
               </div>
               <div
@@ -371,9 +391,9 @@ export default function FactoryDashboardPage() {
               className="pl-5 ml-4 py-1 flex items-center justify-between text-[12px]"
               style={{ borderLeft: "2px solid #E5E7EB", color: "#9CA3AF" }}
             >
-              <span>↳ Washing & De-stoning Loss (Mud/Grit)</span>
+              <span>{t("factory.washing_loss")}</span>
               <span className="font-mono-data font-semibold" style={{ color: "#374151" }}>
-                200 kg (2.0%) — Normal
+                {t("factory.washing_loss_qty")}
               </span>
             </div>
 
@@ -385,10 +405,10 @@ export default function FactoryDashboardPage() {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold flex items-center gap-2" style={{ color: "#92400E" }}>
                   <AlertTriangle className="w-4 h-4" style={{ color: "#D97706" }} />
-                  Stage 2: Peeling Drum PM-03 Loss ⚠️
+                  {t("factory.stage2")}
                 </span>
                 <span className="font-mono-data font-bold" style={{ color: "#D97706" }}>
-                  1,500 kg (15.0%) — EXCESS
+                  {t("factory.stage2_qty")}
                 </span>
               </div>
               <div
@@ -401,13 +421,13 @@ export default function FactoryDashboardPage() {
                 />
               </div>
               <div className="flex items-center justify-between text-[11px] mt-2" style={{ color: "#92400E" }}>
-                <span>Normal benchmark: 8-10% (800-1,000 kg). +500kg avoidable peel waste!</span>
+                <span>{t("factory.stage2_benchmark")}</span>
                 <Link
                   href="/factory/machines"
                   className="underline font-bold"
                   style={{ color: "#D97706" }}
                 >
-                  View Machine Telemetry →
+                  {t("factory.view_machine_telemetry")}
                 </Link>
               </div>
             </div>
@@ -417,9 +437,9 @@ export default function FactoryDashboardPage() {
               className="pl-5 ml-4 py-1 flex items-center justify-between text-[12px]"
               style={{ borderLeft: "2px solid #E5E7EB", color: "#9CA3AF" }}
             >
-              <span>↳ Slicing Sliver Loss (SL-02)</span>
+              <span>{t("factory.slicing_loss")}</span>
               <span className="font-mono-data font-semibold" style={{ color: "#374151" }}>
-                200 kg (2.4%) — Optimal
+                {t("factory.slicing_loss_qty")}
               </span>
             </div>
 
@@ -430,10 +450,10 @@ export default function FactoryDashboardPage() {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold" style={{ color: "#111827" }}>
-                  Stage 3: Continuous Multi-Zone Frying
+                  {t("factory.stage3")}
                 </span>
                 <span className="font-mono-data font-semibold" style={{ color: "#374151" }}>
-                  6,000 kg moisture evaporation
+                  {t("factory.stage3_qty")}
                 </span>
               </div>
               <div
@@ -455,14 +475,14 @@ export default function FactoryDashboardPage() {
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold flex items-center gap-2" style={{ color: "#991B1B" }}>
                   <AlertCircle className="w-4 h-4" style={{ color: "#DC2626" }} />
-                  Stage 4: Optical Sorting Rejection ⚠️
+                  {t("factory.stage4")}
                 </span>
                 <span className="font-mono-data font-bold" style={{ color: "#DC2626" }}>
-                  180 kg (8.5%)
+                  {t("factory.stage4_qty")}
                 </span>
               </div>
               <div className="text-[11px]" style={{ color: "#991B1B" }}>
-                Diverted directly to Biogas Digester Unit 1 for energy generation.
+                {t("factory.stage4_desc")}
               </div>
             </div>
 
@@ -476,18 +496,18 @@ export default function FactoryDashboardPage() {
             >
               <div>
                 <div className="font-bold text-[15px]" style={{ color: "#111827" }}>
-                  Final Packaged Output
+                  {t("factory.final_output")}
                 </div>
                 <div className="text-[12px]" style={{ color: "#059669" }}>
-                  Ready for distribution dispatch
+                  {t("factory.ready_dispatch")}
                 </div>
               </div>
               <div className="text-right">
                 <div className="font-mono-data text-[18px] font-bold" style={{ color: "#059669" }}>
-                  1,920 kg
+                  {t("factory.final_qty")}
                 </div>
                 <div className="text-[11px]" style={{ color: "#9CA3AF" }}>
-                  Target: 2,200 kg (gap: 280kg)
+                  {t("factory.target_gap")}
                 </div>
               </div>
             </div>
@@ -500,11 +520,11 @@ export default function FactoryDashboardPage() {
             <div>
               <h3 className="section-title flex items-center gap-2">
                 <ThermometerSnowflake className="w-5 h-5" style={{ color: "#3B82F6" }} />
-                Cold Storage Monitors
+                {t("factory.cold_storage_monitors")}
               </h3>
-              <p className="section-subtitle">Live microclimate sensors</p>
+              <p className="section-subtitle">{t("factory.live_sensors")}</p>
             </div>
-            <span className="badge badge-success font-mono-data">4 Units Online</span>
+            <span className="badge badge-success font-mono-data">{t("factory.units_online")}</span>
           </div>
 
           <div className="space-y-3">
@@ -542,7 +562,7 @@ export default function FactoryDashboardPage() {
                         color: isWarning ? "#92400E" : "#059669",
                       }}
                     >
-                      {isWarning ? "ATTENTION" : "GOOD"}
+                      {isWarning ? t("factory.status_attention") : t("factory.status_good")}
                     </span>
                   </div>
 
@@ -551,13 +571,13 @@ export default function FactoryDashboardPage() {
                     style={{ background: isWarning ? "#FEF3C7" : "#F9FAFB", border: "1px solid " + (isWarning ? "#FDE68A" : "#F3F4F6") }}
                   >
                     <div>
-                      <div className="text-[10px]" style={{ color: "#9CA3AF" }}>Stock</div>
+                      <div className="text-[10px]" style={{ color: "#9CA3AF" }}>{t("factory.stock")}</div>
                       <div className="font-mono-data font-bold" style={{ color: "#111827" }}>
-                        {unit.stockKg.toLocaleString()} kg
+                        {unit.stockKg.toLocaleString()} {t("common.kg")}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px]" style={{ color: "#9CA3AF" }}>Temp</div>
+                      <div className="text-[10px]" style={{ color: "#9CA3AF" }}>{t("factory.temp")}</div>
                       <div
                         className="font-mono-data font-bold"
                         style={{ color: isWarning ? "#D97706" : "#059669" }}
@@ -566,14 +586,14 @@ export default function FactoryDashboardPage() {
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px]" style={{ color: "#9CA3AF" }}>Shelf Life</div>
+                      <div className="text-[10px]" style={{ color: "#9CA3AF" }}>{t("factory.shelf_life")}</div>
                       <div
                         className="font-mono-data font-bold"
                         style={{
                           color: unit.shelfLifeDays <= 5 ? "#D97706" : "#374151",
                         }}
                       >
-                        {unit.shelfLifeDays} days
+                        {unit.shelfLifeDays} {t("factory.days")}
                       </div>
                     </div>
                   </div>
@@ -581,7 +601,7 @@ export default function FactoryDashboardPage() {
                   {isWarning && (
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-[11px] font-semibold" style={{ color: "#92400E" }}>
-                        Target temp 7-10°C exceeded
+                        {t("factory.temp_exceeded")}
                       </span>
                       <Link
                         href="/factory/spoilage"
@@ -591,7 +611,7 @@ export default function FactoryDashboardPage() {
                           color: "#FFFFFF",
                         }}
                       >
-                        View Spoilage Risk
+                        {t("factory.view_spoilage_risk")}
                       </Link>
                     </div>
                   )}
@@ -601,6 +621,9 @@ export default function FactoryDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* ═══ FACTORY PUSH NOTIFICATION STATUS & MOBILE SIMULATOR ═══ */}
+      <FactoryNotificationStatus />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useApp } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
 import {
   X,
   Building2,
@@ -18,6 +19,7 @@ import confetti from "canvas-confetti";
 
 export default function OnboardingModal() {
   const { isOnboardingOpen, setIsOnboardingOpen, setCurrentRole } = useApp();
+  const { t } = useLang();
   const [step, setStep] = useState(1);
   const [institutionType, setInstitutionType] = useState<"kitchen" | "factory">("kitchen");
   const [orgName, setOrgName] = useState("IIT Delhi Central Mess");
@@ -29,17 +31,34 @@ export default function OnboardingModal() {
     { id: "iot-3", name: "Steam Jacket Fryer Sensor", type: "Thermal Gradient", connected: false },
   ]);
 
+  const closeModal = useCallback(() => {
+    setIsOnboardingOpen(false);
+    setStep(1);
+  }, [setIsOnboardingOpen]);
+
+  useEffect(() => {
+    if (!isOnboardingOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOnboardingOpen, closeModal]);
+
   if (!isOnboardingOpen) return null;
 
   const handleNext = () => {
     if (step < 5) {
       setStep(step + 1);
       if (step === 4) {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!prefersReducedMotion) {
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+        }
       }
     } else {
       if (institutionType === "kitchen") {
@@ -58,77 +77,120 @@ export default function OnboardingModal() {
     );
   };
 
+  const stepLabels = [t("onboard.organization"), t("onboard.details"), t("onboard.iot_sensors"), t("onboard.ngo_network"), t("onboard.complete_label")];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-      <div className="w-full max-w-2xl bg-[#0F1629] border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      onClick={closeModal}
+      role="dialog"
+      aria-modal="true"
+      aria-label="FoodWise Onboarding"
+    >
+      <div
+        className="w-full max-w-2xl bg-white border border-[#E8ECF3] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <div className="px-6 py-4 border-b border-[#E8ECF3] flex items-center justify-between bg-gradient-to-r from-emerald-50/50 via-white to-white">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#00D4AA]/10 border border-[#00D4AA]/20 flex items-center justify-center text-[#00D4AA]">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">FoodWise Onboarding</h2>
-              <p className="text-xs text-[#94A3B8]">Step {step} of 5 — Instant Operational Readiness</p>
+              <h2 className="text-base font-bold text-[#111827]">{t("onboard.title")}</h2>
+              <p className="text-xs text-[#6B7280]">{t("onboard.step")} {step} {t("onboard.of")} 5 — {stepLabels[step - 1]}</p>
             </div>
           </div>
-          <button
-            onClick={() => setIsOnboardingOpen(false)}
-            className="p-1.5 rounded-lg text-[#94A3B8] hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {step < 5 && (
+              <button
+                onClick={closeModal}
+                className="text-xs font-medium text-[#6B7280] hover:text-[#111827] px-3 py-1.5 rounded-lg hover:bg-[#F3F4F6] transition-colors"
+              >
+                {t("common.skip")}
+              </button>
+            )}
+            <button
+              onClick={closeModal}
+              aria-label="Close onboarding"
+              className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Progress bar */}
-        <div className="w-full bg-white/5 h-1">
-          <div
-            className="bg-[#00D4AA] h-1 transition-all duration-300"
-            style={{ width: `${(step / 5) * 100}%` }}
-          />
+        {/* Step indicators */}
+        <div className="px-6 py-3 bg-[#FAFBFC] border-b border-[#E8ECF3] flex items-center gap-2">
+          {stepLabels.map((label, i) => (
+            <div key={label} className="flex items-center gap-2 flex-1">
+              <button
+                onClick={() => { if (i + 1 < step) setStep(i + 1); }}
+                className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-all ${
+                  i + 1 === step
+                    ? "bg-emerald-500 text-white shadow-sm"
+                    : i + 1 < step
+                    ? "bg-emerald-100 text-emerald-700 cursor-pointer hover:bg-emerald-200"
+                    : "bg-[#E8ECF3] text-[#9CA3AF]"
+                }`}
+              >
+                {i + 1 < step ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
+              </button>
+              {i < stepLabels.length - 1 && (
+                <div className={`flex-1 h-0.5 rounded ${i + 1 < step ? "bg-emerald-300" : "bg-[#E8ECF3]"}`} />
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Body Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
+        <div className="p-6 overflow-y-auto max-h-[60vh]">
           {step === 1 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Select Your Organization Category</h3>
-              <p className="text-sm text-[#94A3B8]">
-                FoodWise customizes models based on whether you prepare fresh food daily or manufacture processed FMCG goods.
+              <h3 className="text-lg font-bold text-[#111827]">{t("onboard.org_type")}</h3>
+              <p className="text-sm text-[#6B7280]">
+                {t("onboard.org_desc")}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div
                   onClick={() => setInstitutionType("kitchen")}
-                  className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setInstitutionType("kitchen"); }}
+                  className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
                     institutionType === "kitchen"
-                      ? "bg-[#00D4AA]/10 border-[#00D4AA] ring-1 ring-[#00D4AA]"
-                      : "bg-white/[0.02] border-white/10 hover:border-white/20"
+                      ? "bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500"
+                      : "bg-white border-[#E8ECF3] hover:border-[#D1D5DB]"
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-[#00D4AA]/20 text-[#00D4AA] flex items-center justify-center mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
                     <Building2 className="w-6 h-6" />
                   </div>
-                  <h4 className="font-bold text-white mb-1">Institutional Kitchen</h4>
-                  <p className="text-xs text-[#94A3B8] leading-relaxed">
-                    College mess, hospital cafeteria, corporate pantry, caterers, hotels. Focus on daily dynamic demand and FSSAI surplus transfer.
+                  <h4 className="font-bold text-[#111827] mb-1">{t("onboard.kitchen_title")}</h4>
+                  <p className="text-xs text-[#6B7280] leading-relaxed">
+                    {t("onboard.kitchen_desc")}
                   </p>
                 </div>
 
                 <div
                   onClick={() => setInstitutionType("factory")}
-                  className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setInstitutionType("factory"); }}
+                  className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
                     institutionType === "factory"
-                      ? "bg-[#10B981]/10 border-[#10B981] ring-1 ring-[#10B981]"
-                      : "bg-white/[0.02] border-white/10 hover:border-white/20"
+                      ? "bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500"
+                      : "bg-white border-[#E8ECF3] hover:border-[#D1D5DB]"
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-[#10B981]/20 text-[#34D399] flex items-center justify-center mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
                     <Factory className="w-6 h-6" />
                   </div>
-                  <h4 className="font-bold text-white mb-1">Food Processing Factory</h4>
-                  <p className="text-xs text-[#94A3B8] leading-relaxed">
-                    Snack chips, sauce/puree, bakery, juice processing. Focus on raw material spoilage prediction and peeling/slicing line anomaly detection.
+                  <h4 className="font-bold text-[#111827] mb-1">{t("onboard.factory_title")}</h4>
+                  <p className="text-xs text-[#6B7280] leading-relaxed">
+                    {t("onboard.factory_desc")}
                   </p>
                 </div>
               </div>
@@ -137,41 +199,41 @@ export default function OnboardingModal() {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Facility Details & Regulatory Registry</h3>
-              <p className="text-sm text-[#94A3B8]">
-                Provide your facility identity and FSSAI licensing for compliance tracking.
+              <h3 className="text-lg font-bold text-[#111827]">{t("onboard.facility_details")}</h3>
+              <p className="text-sm text-[#6B7280]">
+                {t("onboard.facility_desc")}
               </p>
 
               <div className="space-y-3 pt-2">
                 <div>
-                  <label className="block text-xs font-semibold text-[#94A3B8] mb-1">
-                    Facility / Kitchen / Plant Name
+                  <label className="block text-xs font-semibold text-[#374151] mb-1">
+                    {t("onboard.facility_label")}
                   </label>
                   <input
                     type="text"
                     value={orgName}
                     onChange={(e) => setOrgName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-[#00D4AA]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E5E7EB] text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-[#94A3B8] mb-1">City / Region</label>
+                    <label className="block text-xs font-semibold text-[#374151] mb-1">{t("onboard.city")}</label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-[#00D4AA]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E5E7EB] text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-[#94A3B8] mb-1">FSSAI License #</label>
+                    <label className="block text-xs font-semibold text-[#374151] mb-1">{t("onboard.fssai_license")}</label>
                     <input
                       type="text"
                       value={fssai}
                       onChange={(e) => setFssai(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm focus:outline-none focus:border-[#00D4AA]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E5E7EB] text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                     />
                   </div>
                 </div>
@@ -181,36 +243,36 @@ export default function OnboardingModal() {
 
           {step === 3 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Connect IoT Sensors & Telemetry</h3>
-              <p className="text-sm text-[#94A3B8]">
-                FoodWise ingests MQTT / HTTP telemetry from cold rooms, ambient loggers, and smart scales.
+              <h3 className="text-lg font-bold text-[#111827]">{t("onboard.iot_title")}</h3>
+              <p className="text-sm text-[#6B7280]">
+                {t("onboard.iot_desc")}
               </p>
 
               <div className="space-y-2.5 pt-2">
                 {iotDevices.map((device) => (
                   <div
                     key={device.id}
-                    className="p-3 rounded-xl border border-white/10 bg-white/[0.02] flex items-center justify-between"
+                    className="p-3 rounded-xl border border-[#E8ECF3] bg-white flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white">
+                      <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center text-[#6B7280]">
                         <Cpu className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-white">{device.name}</div>
-                        <div className="text-xs text-[#94A3B8]">{device.type}</div>
+                        <div className="text-sm font-semibold text-[#111827]">{device.name}</div>
+                        <div className="text-xs text-[#6B7280]">{device.type}</div>
                       </div>
                     </div>
                     <button
                       onClick={() => toggleDevice(device.id)}
-                      className={`px-3 py-1 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-colors ${
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-colors ${
                         device.connected
-                          ? "bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30"
-                          : "bg-white/5 text-[#94A3B8] border border-white/10 hover:bg-white/10"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-[#F3F4F6] text-[#6B7280] border border-[#E5E7EB] hover:bg-[#E8ECF3]"
                       }`}
                     >
                       <Wifi className="w-3 h-3" />
-                      {device.connected ? "Connected" : "Connect"}
+                      {device.connected ? t("common.connected") : t("common.connect")}
                     </button>
                   </div>
                 ))}
@@ -220,32 +282,32 @@ export default function OnboardingModal() {
 
           {step === 4 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white">Redistribution NGO Network</h3>
-              <p className="text-sm text-[#94A3B8]">
-                Auto-link with verified FSSAI-compliant surplus recovery partners within a 15km radius.
+              <h3 className="text-lg font-bold text-[#111827]">{t("onboard.ngo_title")}</h3>
+              <p className="text-sm text-[#6B7280]">
+                {t("onboard.ngo_desc")}
               </p>
 
               <div className="space-y-2.5 pt-2">
-                <div className="p-3 rounded-xl border border-[#00D4AA]/30 bg-[#00D4AA]/5 flex items-center justify-between">
+                <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <HeartHandshake className="w-5 h-5 text-[#00D4AA]" />
+                    <HeartHandshake className="w-5 h-5 text-emerald-600" />
                     <div>
-                      <div className="text-sm font-semibold text-white">Robin Hood Army — Delhi NCR</div>
-                      <div className="text-xs text-[#94A3B8]">3.2 km away • 150 kg capacity • 4.9★</div>
+                      <div className="text-sm font-semibold text-[#111827]">Robin Hood Army — Delhi NCR</div>
+                      <div className="text-xs text-[#6B7280]">3.2 km away — 150 kg capacity</div>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-[#00D4AA] bg-[#00D4AA]/10 px-2 py-1 rounded">Linked ✓</span>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded">{t("common.linked")}</span>
                 </div>
 
-                <div className="p-3 rounded-xl border border-[#00D4AA]/30 bg-[#00D4AA]/5 flex items-center justify-between">
+                <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <HeartHandshake className="w-5 h-5 text-[#00D4AA]" />
+                    <HeartHandshake className="w-5 h-5 text-emerald-600" />
                     <div>
-                      <div className="text-sm font-semibold text-white">Aasha Shelter & Orphanage</div>
-                      <div className="text-xs text-[#94A3B8]">4.8 km away • 80 kg capacity • 4.8★</div>
+                      <div className="text-sm font-semibold text-[#111827]">Aasha Shelter & Orphanage</div>
+                      <div className="text-xs text-[#6B7280]">4.8 km away — 80 kg capacity</div>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-[#00D4AA] bg-[#00D4AA]/10 px-2 py-1 rounded">Linked ✓</span>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded">{t("common.linked")}</span>
                 </div>
               </div>
             </div>
@@ -253,25 +315,25 @@ export default function OnboardingModal() {
 
           {step === 5 && (
             <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#00D4AA]/20 text-[#00D4AA] border border-[#00D4AA]/40 flex items-center justify-center mx-auto shadow-lg shadow-[#00D4AA]/20">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
                 <CheckCircle2 className="w-9 h-9" />
               </div>
-              <h3 className="text-xl font-bold text-white">Setup Complete & Pipeline Calibrated!</h3>
-              <p className="text-sm text-[#94A3B8] max-w-md mx-auto leading-relaxed">
-                FoodWise has loaded baseline historical models for <span className="text-white font-semibold">{orgName}</span>. Your predictive dashboard is live.
+              <h3 className="text-xl font-bold text-[#111827]">{t("onboard.complete")}</h3>
+              <p className="text-sm text-[#6B7280] max-w-md mx-auto leading-relaxed">
+                FoodWise has been configured for <span className="text-[#111827] font-semibold">{orgName}</span>. {t("onboard.complete_desc")}
               </p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-[#E8ECF3] bg-[#FAFBFC] flex items-center justify-between">
           {step > 1 && step < 5 ? (
             <button
               onClick={() => setStep(step - 1)}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-white flex items-center gap-1.5 transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] flex items-center gap-1.5 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" /> Back
+              <ArrowLeft className="w-4 h-4" /> {t("common.back")}
             </button>
           ) : (
             <div />
@@ -279,9 +341,9 @@ export default function OnboardingModal() {
 
           <button
             onClick={handleNext}
-            className="px-5 py-2 rounded-xl bg-[#00D4AA] hover:bg-[#00D4AA]/90 text-[#0A0F1E] font-bold text-xs flex items-center gap-2 shadow-lg shadow-[#00D4AA]/20 transition-all hover:scale-[1.02]"
+            className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-emerald-500/25 transition-all"
           >
-            {step === 5 ? "Launch Dashboard" : "Continue"}
+            {step === 5 ? t("onboard.launch") : t("common.continue")}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

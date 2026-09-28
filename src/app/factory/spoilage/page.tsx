@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useApp } from "@/context/AppContext";
+import { useLang } from "@/context/LanguageContext";
 import { SPOILAGE_BATCHES } from "@/lib/mockData";
 import {
   Flame,
@@ -32,6 +33,7 @@ import {
 } from "recharts";
 
 export default function FactorySpoilagePage() {
+  const { t } = useLang();
   const { isBatchPrioritized, prioritizeBatch } = useApp();
   const [selectedBatch, setSelectedBatch] = useState(SPOILAGE_BATCHES[0]);
   const [showFullReport, setShowFullReport] = useState(false);
@@ -56,21 +58,21 @@ export default function FactorySpoilagePage() {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold text-red-400 uppercase tracking-wider flex items-center gap-1.5">
               <Flame className="w-3.5 h-3.5" />
-              AI Predictive Spoilage Prevention Engine
+              {t("factory.spoilage.badge_title")}
             </span>
             <span className="text-white/30">•</span>
-            <span className="text-xs text-[#6B7280]">Haldiram&apos;s Unit 3, Nagpur</span>
+            <span className="text-xs text-[#6B7280]">{t("factory.spoilage.unit_location")}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827] flex items-center gap-2.5">
-            Perishable Raw Material Risk & Degradation Curves
+            {t("factory.spoilage.page_title")}
             <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA]">
-              STAR FEATURE
+              {t("factory.spoilage.star_feature")}
             </span>
           </h1>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#6B7280]">Model: Thermal Kinetic Influx v3</span>
+          <span className="text-xs text-[#6B7280]">{t("factory.spoilage.model_label")}</span>
         </div>
       </div>
 
@@ -84,14 +86,14 @@ export default function FactorySpoilagePage() {
             </div>
             <div>
               <div className="text-xs font-bold text-red-400 uppercase tracking-wider">
-                HIGH RISK
+                {t("factory.spoilage.high_risk")}
               </div>
-              <div className="text-xl font-bold text-[#111827] font-mono-data">1 Batch</div>
-              <div className="text-[11px] text-[#6B7280]">Tomatoes (3,200 kg)</div>
+              <div className="text-xl font-bold text-[#111827] font-mono-data">{t("factory.spoilage.batch_count_1")}</div>
+              <div className="text-[11px] text-[#6B7280]">{t("factory.spoilage.tomatoes_qty")}</div>
             </div>
           </div>
           <span className="text-xs font-mono-data text-red-400 font-bold bg-[#FEE2E2] px-2 py-1 rounded">
-            &lt; 36 hrs
+            &lt; 36 {t("factory.spoilage.hrs")}
           </span>
         </div>
 
@@ -103,14 +105,14 @@ export default function FactorySpoilagePage() {
             </div>
             <div>
               <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                MEDIUM RISK
+                {t("factory.spoilage.medium_risk")}
               </div>
-              <div className="text-xl font-bold text-[#111827] font-mono-data">2 Batches</div>
-              <div className="text-[11px] text-[#6B7280]">Potatoes (6,400 kg)</div>
+              <div className="text-xl font-bold text-[#111827] font-mono-data">{t("factory.spoilage.batch_count_2")}</div>
+              <div className="text-[11px] text-[#6B7280]">{t("factory.spoilage.potatoes_qty")}</div>
             </div>
           </div>
           <span className="text-xs font-mono-data text-amber-400 font-bold bg-amber-500/20 px-2 py-1 rounded">
-            48-96 hrs
+            48-96 {t("factory.spoilage.hrs")}
           </span>
         </div>
 
@@ -122,14 +124,14 @@ export default function FactorySpoilagePage() {
             </div>
             <div>
               <div className="text-xs font-bold text-[#059669] uppercase tracking-wider">
-                LOW RISK
+                {t("factory.spoilage.low_risk")}
               </div>
-              <div className="text-xl font-bold text-[#111827] font-mono-data">12 Batches</div>
-              <div className="text-[11px] text-[#6B7280]">Onions, Spices, Flour</div>
+              <div className="text-xl font-bold text-[#111827] font-mono-data">{t("factory.spoilage.batch_count_12")}</div>
+              <div className="text-[11px] text-[#6B7280]">{t("factory.spoilage.low_risk_items")}</div>
             </div>
           </div>
           <span className="text-xs font-mono-data text-[#059669] font-bold bg-emerald-500/20 px-2 py-1 rounded">
-            &gt; 7 days
+            &gt; 7 {t("factory.spoilage.days")}
           </span>
         </div>
       </div>
@@ -145,22 +147,22 @@ export default function FactorySpoilagePage() {
             <div className="flex items-center justify-between mb-4">
               <span className="px-3 py-1 rounded-full bg-[#FEE2E2] text-red-400 font-bold text-xs uppercase font-mono-data border border-[#FECACA] flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
-                🔴 HIGH RISK BATCH
+                🔴 {t("factory.spoilage.high_risk_batch")}
               </span>
-              <span className="text-xs font-mono-data text-[#6B7280]">Priority Queue #1</span>
+              <span className="text-xs font-mono-data text-[#6B7280]">{t("factory.spoilage.priority_queue")}</span>
             </div>
 
             {/* Batch Info */}
             <div className="mb-4">
-              <div className="text-xs text-[#6B7280] font-mono-data font-semibold">Batch Identifier:</div>
+              <div className="text-xs text-[#6B7280] font-mono-data font-semibold">{t("factory.spoilage.batch_identifier")}</div>
               <div className="text-xl font-black text-[#111827] font-mono-data">TOM-2024-0234</div>
               <div className="text-xs text-gray-700 font-semibold mt-1 flex items-center gap-3">
-                <span>🍅 Processing Tomatoes</span>
+                <span>🍅 {t("factory.spoilage.processing_tomatoes")}</span>
                 <span className="text-gray-400">•</span>
                 <span className="font-mono-data font-bold text-[#DC2626]">3,200 kg</span>
               </div>
               <div className="text-[11px] text-[#6B7280] mt-0.5">
-                Location: Cold Storage Unit B • Age: 6 days (Limit: 7 days)
+                {t("factory.spoilage.location_info")}
               </div>
             </div>
 
@@ -168,16 +170,16 @@ export default function FactorySpoilagePage() {
             <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] mb-4 space-y-2.5 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-800">
-                  Estimated Time to Spoilage:
+                  {t("factory.spoilage.est_time_spoilage")}
                 </span>
                 <span className="text-lg font-black text-rose-600 font-mono-data">
-                  31 hours
+                  {t("factory.spoilage.hours_31")}
                 </span>
               </div>
 
               <div>
                 <div className="flex items-center justify-between text-[11px] text-gray-600 font-semibold mb-1">
-                  <span>Confidence Score</span>
+                  <span>{t("factory.spoilage.confidence_score")}</span>
                   <span className="font-mono-data font-bold text-gray-900">82%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -189,24 +191,24 @@ export default function FactorySpoilagePage() {
             {/* Contributing Factors */}
             <div className="space-y-2 mb-5">
               <div className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                Contributing Sensor Factors:
+                {t("factory.spoilage.contributing_factors")}
               </div>
               <ul className="space-y-1.5 text-xs">
                 <li className="flex items-start gap-2 text-amber-800 font-medium">
                   <span className="shrink-0">⚠️</span>
-                  <span>Temperature exceeded 10°C threshold 3x today (peak 13.1°C)</span>
+                  <span>{t("factory.spoilage.factor_temp")}</span>
                 </li>
                 <li className="flex items-start gap-2 text-amber-800 font-medium">
                   <span className="shrink-0">⚠️</span>
-                  <span>Humidity dipped to 87% (below 92% baseline)</span>
+                  <span>{t("factory.spoilage.factor_humidity")}</span>
                 </li>
                 <li className="flex items-start gap-2 text-amber-800 font-medium">
                   <span className="shrink-0">⚠️</span>
-                  <span>Batch age approaching physiological respiration limit</span>
+                  <span>{t("factory.spoilage.factor_age")}</span>
                 </li>
                 <li className="flex items-start gap-2 text-gray-700 font-medium">
                   <span className="shrink-0">ℹ️</span>
-                  <span>Historical match: Batch TOM-2024-0198 spoiled in 28 hrs</span>
+                  <span>{t("factory.spoilage.factor_historical")}</span>
                 </li>
               </ul>
             </div>
@@ -215,14 +217,14 @@ export default function FactorySpoilagePage() {
             <div className="p-4 rounded-xl bg-emerald-50 border-2 border-emerald-300 mb-5 shadow-xs">
               <div className="text-xs font-extrabold text-[#065F46] flex items-center gap-1.5 mb-1.5">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
-                AI Operational Recommendation:
+                {t("factory.spoilage.ai_recommendation")}
               </div>
               <p className="text-xs text-[#064E3B] font-medium leading-relaxed">
-                &quot;Prioritize this batch for processing today. Estimated{" "}
+                &quot;{t("factory.spoilage.rec_text_1")}{" "}
                 <strong className="text-emerald-950 font-black bg-emerald-200/70 px-1.5 py-0.5 rounded border border-emerald-300">
-                  2,800 kg can be salvaged
+                  {t("factory.spoilage.rec_salvageable")}
                 </strong>{" "}
-                if processed within the next 8 hours on Ketchup Line 2.&quot;
+                {t("factory.spoilage.rec_text_2")}&quot;
               </p>
             </div>
           </div>
@@ -232,7 +234,7 @@ export default function FactorySpoilagePage() {
             {isBatchPrioritized ? (
               <div className="w-full py-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 font-bold text-xs flex items-center justify-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Rerouted to Ketchup Line 2 (In Queue)
+                {t("factory.spoilage.rerouted_in_queue")}
               </div>
             ) : (
               <button
@@ -240,7 +242,7 @@ export default function FactorySpoilagePage() {
                 className="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md shadow-rose-500/25 transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                Prioritize in Production
+                {t("factory.spoilage.prioritize_production")}
               </button>
             )}
 
@@ -249,7 +251,7 @@ export default function FactorySpoilagePage() {
               className="w-full py-2.5 rounded-xl bg-[#F9FAFB] hover:bg-[#F3F4F6] text-[#111827] font-semibold text-xs border border-[#E8ECF3] transition-colors flex items-center justify-center gap-2"
             >
               <FileText className="w-3.5 h-3.5 text-[#6B7280]" />
-              View Full Sensor Log Report
+              {t("factory.spoilage.view_full_report")}
             </button>
           </div>
         </div>
@@ -260,15 +262,15 @@ export default function FactorySpoilagePage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-bold text-[#111827]">
-                  Spoilage Prediction Timeline & Degradation Curves
+                  {t("factory.spoilage.chart_title")}
                 </h3>
                 <p className="text-xs text-[#6B7280]">
-                  Predicted quality score decay over the next 72 hours across at-risk batches
+                  {t("factory.spoilage.chart_subtitle")}
                 </p>
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <span className="px-2.5 py-1 rounded bg-red-500/15 text-[#DC2626] border border-red-500/25 font-semibold">
-                  Threshold: Quality &lt; 45
+                  {t("factory.spoilage.threshold_quality")}
                 </span>
               </div>
             </div>
@@ -276,9 +278,9 @@ export default function FactorySpoilagePage() {
             {/* Action window badge */}
             <div className="p-2.5 mb-4 rounded-xl bg-[#FAFBFC] border border-[#F3F4F6] flex items-center justify-between text-xs">
               <span className="text-[#6B7280]">
-                🚨 Shaded Action Window: <strong className="text-[#111827]">Next 8 Hours</strong> yields 87.5% recovery rate.
+                🚨 {t("factory.spoilage.action_window_label")} <strong className="text-[#111827]">{t("factory.spoilage.action_window_time")}</strong> {t("factory.spoilage.action_window_rate")}
               </span>
-              <span className="font-mono-data text-[#10B981] font-bold">2,800 kg Salvageable</span>
+              <span className="font-mono-data text-[#10B981] font-bold">{t("factory.spoilage.salvageable_qty")}</span>
             </div>
 
             {/* 72h Line Chart */}
@@ -302,7 +304,7 @@ export default function FactorySpoilagePage() {
                   <ReferenceLine
                     y={45}
                     label={{
-                      value: "Unsafe Spoilage Threshold (45)",
+                      value: t("factory.spoilage.unsafe_threshold"),
                       fill: "#EF4444",
                       fontSize: 10,
                       position: "insideBottomRight",
@@ -315,7 +317,7 @@ export default function FactorySpoilagePage() {
                   <Line
                     type="monotone"
                     dataKey="tomQuality"
-                    name="Batch TOM-0234 (Tomatoes)"
+                    name={t("factory.spoilage.legend_tomatoes")}
                     stroke="#EF4444"
                     strokeWidth={3}
                     dot={{ r: 4, fill: "#EF4444" }}
@@ -325,7 +327,7 @@ export default function FactorySpoilagePage() {
                   <Line
                     type="monotone"
                     dataKey="potQuality"
-                    name="Batch POT-1182 (Potatoes)"
+                    name={t("factory.spoilage.legend_potatoes")}
                     stroke="#F59E0B"
                     strokeWidth={2}
                     dot={{ r: 3, fill: "#F59E0B" }}
@@ -334,7 +336,7 @@ export default function FactorySpoilagePage() {
                   <Line
                     type="monotone"
                     dataKey="oniQuality"
-                    name="Batch ONI-0941 (Onions)"
+                    name={t("factory.spoilage.legend_onions")}
                     stroke="#10B981"
                     strokeWidth={2}
                     dot={{ r: 3, fill: "#10B981" }}
@@ -348,15 +350,15 @@ export default function FactorySpoilagePage() {
           <div className="mt-4 pt-4 border-t border-[#E8ECF3] grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-[#6B7280]">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-              <span>Tomatoes cross critical line at Hour 31</span>
+              <span>{t("factory.spoilage.tomato_critical")}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-              <span>Potatoes cross critical line at Hour 94</span>
+              <span>{t("factory.spoilage.potato_critical")}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-              <span>Onions stable for 168+ hours</span>
+              <span>{t("factory.spoilage.onion_stable")}</span>
             </div>
           </div>
         </div>
@@ -370,36 +372,36 @@ export default function FactorySpoilagePage() {
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-red-400" />
                 <h3 className="font-bold text-[#111827] text-base">
-                  Diagnostic Telemetry: Batch TOM-2024-0234
+                  {t("factory.spoilage.diagnostic_title")}
                 </h3>
               </div>
               <button
                 onClick={() => setShowFullReport(false)}
                 className="text-xs px-2 py-1 rounded bg-[#F9FAFB] text-[#6B7280] hover:text-[#111827]"
               >
-                Close ✕
+                {t("factory.spoilage.close")}
               </button>
             </div>
 
             <div className="space-y-3 text-xs text-[#6B7280]">
               <div className="p-3 rounded-xl bg-[#FAFBFC] border border-[#F3F4F6]">
-                <div className="font-bold text-[#111827] mb-1">Thermal Kinetic Log</div>
+                <div className="font-bold text-[#111827] mb-1">{t("factory.spoilage.thermal_log")}</div>
                 <p>
-                  Sensor Node CS-B4 detected three independent thermal excursions above 10°C at 04:15, 08:30, and 12:45 today. Respiration rate calculated at 42 mg CO₂/kg·hr (2.8x normal basal dormancy).
+                  {t("factory.spoilage.thermal_log_detail")}
                 </p>
               </div>
 
               <div className="p-3 rounded-xl bg-[#FAFBFC] border border-[#F3F4F6]">
-                <div className="font-bold text-[#111827] mb-1">Pectin Degradation Estimate</div>
+                <div className="font-bold text-[#111827] mb-1">{t("factory.spoilage.pectin_title")}</div>
                 <p>
-                  Firmness index projected to dip below 3.5 N (minimal threshold for commercial diced paste) in 31 hours. Processing into puree/ketchup within 8 hours retains 94% solids specification.
+                  {t("factory.spoilage.pectin_detail")}
                 </p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950">
-                <div className="font-extrabold text-[#065F46] mb-1">Economic & CO₂ Valuation</div>
+                <div className="font-extrabold text-[#065F46] mb-1">{t("factory.spoilage.economic_title")}</div>
                 <p className="text-[#064E3B] font-medium">
-                  Salvaging 2,800 kg preserves <strong className="text-emerald-950 font-black bg-emerald-200/70 px-1.5 py-0.5 rounded border border-emerald-300">₹1,12,000</strong> raw procurement outlay and avoids 7.0 tons CO₂e landfill methane generation.
+                  {t("factory.spoilage.economic_text_1")} <strong className="text-emerald-950 font-black bg-emerald-200/70 px-1.5 py-0.5 rounded border border-emerald-300">₹1,12,000</strong> {t("factory.spoilage.economic_text_2")}
                 </p>
               </div>
             </div>
@@ -409,7 +411,7 @@ export default function FactorySpoilagePage() {
                 onClick={() => setShowFullReport(false)}
                 className="px-4 py-2 rounded-xl bg-[#F3F4F6] hover:bg-white/15 text-[#111827] font-semibold text-xs"
               >
-                Done
+                {t("factory.spoilage.done")}
               </button>
             </div>
           </div>

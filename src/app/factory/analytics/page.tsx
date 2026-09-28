@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useLang } from "@/context/LanguageContext";
 import {
   Layers,
   AlertTriangle,
@@ -82,6 +83,7 @@ const SHIFT_EFFICIENCY = [
 ];
 
 export default function ProcessingAnalyticsPage() {
+  const { t } = useLang();
   const [selectedShift, setSelectedShift] = useState("Afternoon (14:00 - 22:00)");
 
   return (
@@ -91,16 +93,16 @@ export default function ProcessingAnalyticsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600">
-              Manufacturing Line Yield & Mass Balance
+              {t("factory.analytics.subtitle_label")}
             </span>
             <span className="text-[#D1D5DB]">•</span>
-            <span className="text-xs text-[#9CA3AF]">Line 2 Telemetry</span>
+            <span className="text-xs text-[#9CA3AF]">{t("factory.analytics.line2_telemetry")}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111827]">
-            Processing Line Analytics
+            {t("factory.analytics.title")}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
-            Stage-wise mass conservation, avoidable scrap detection, and overall line performance (OEE)
+            {t("factory.analytics.description")}
           </p>
         </div>
 
@@ -110,7 +112,7 @@ export default function ProcessingAnalyticsPage() {
             className="px-4 py-2.5 rounded-xl bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200 hover:bg-amber-100 transition-colors flex items-center gap-1.5"
           >
             <Cpu className="w-3.5 h-3.5 text-amber-600" />
-            Inspect Machine Telemetry →
+            {t("factory.analytics.inspect_machine")}
           </Link>
         </div>
       </div>
@@ -123,10 +125,10 @@ export default function ProcessingAnalyticsPage() {
           </div>
           <div>
             <div className="text-xs font-bold text-amber-900">
-              High Peel Loss Detected at Stage 2 (Peeling Drum PM-03)
+              {t("factory.analytics.high_peel_loss_title")}
             </div>
             <p className="text-[11px] text-amber-700 mt-0.5">
-              Peeling loss is 15.0% (1,500 kg) vs benchmark of 8-10% (800-1,000 kg). +500 kg avoidable potato pulp waste due to blade misalignment.
+              {t("factory.analytics.high_peel_loss_desc")}
             </p>
           </div>
         </div>
@@ -135,7 +137,7 @@ export default function ProcessingAnalyticsPage() {
           href="/factory/machines"
           className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors whitespace-nowrap shadow-sm flex items-center gap-1.5"
         >
-          View Blade Vibration Anomaly
+          {t("factory.analytics.view_blade_anomaly")}
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -144,7 +146,7 @@ export default function ProcessingAnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="stat-card stat-card-amber p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Overall Line Efficiency (OEE)</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.analytics.kpi_oee")}</span>
             <div className="icon-container icon-container-amber">
               <Activity className="w-4 h-4" />
             </div>
@@ -153,52 +155,52 @@ export default function ProcessingAnalyticsPage() {
             84.2%
           </div>
           <div className="text-[11px] text-amber-600 font-semibold mt-1">
-            ↓ 2.1% from target (Target: 86.3%)
+            {t("factory.analytics.oee_from_target")}
           </div>
         </div>
 
         <div className="stat-card stat-card-red p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Avoidable Yield Loss</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.analytics.kpi_avoidable_loss")}</span>
             <div className="icon-container icon-container-red">
               <TrendingDown className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-rose-600">
-            680 <span className="text-sm font-bold text-[#6B7280]">kg / batch</span>
+            680 <span className="text-sm font-bold text-[#6B7280]">{t("factory.analytics.kg_per_batch")}</span>
           </div>
           <div className="text-[11px] text-rose-600 mt-1">
-            Peel drum abrasion + sorting scrap
+            {t("factory.analytics.peel_drum_scrap")}
           </div>
         </div>
 
         <div className="stat-card stat-card-green p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Finished Product Yield</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.analytics.kpi_finished_yield")}</span>
             <div className="icon-container icon-container-green">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-emerald-600">
-            1,920 <span className="text-sm font-bold text-[#6B7280]">kg</span>
+            1,920 <span className="text-sm font-bold text-[#6B7280]">{t("common.kg")}</span>
           </div>
           <div className="text-[11px] text-[#6B7280] mt-1">
-            Ready for retail packaging
+            {t("factory.analytics.ready_packaging")}
           </div>
         </div>
 
         <div className="stat-card stat-card-indigo p-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-[#6B7280]">Scrap Diverted to Biogas</span>
+            <span className="text-xs font-semibold text-[#6B7280]">{t("factory.analytics.kpi_scrap_biogas")}</span>
             <div className="icon-container icon-container-indigo">
               <RefreshCw className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black font-mono-data text-[#111827]">
-            1,840 <span className="text-sm font-bold text-[#6B7280]">kg</span>
+            1,840 <span className="text-sm font-bold text-[#6B7280]">{t("common.kg")}</span>
           </div>
           <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-            100% circular valorization
+            {t("factory.analytics.circular_valorization")}
           </div>
         </div>
       </div>
@@ -209,11 +211,11 @@ export default function ProcessingAnalyticsPage() {
           <div>
             <h3 className="section-title flex items-center gap-2">
               <Layers className="w-4 h-4 text-emerald-600" />
-              Stage-by-Stage Mass Balance Flow (10,000 kg Batch)
+              {t("factory.analytics.mass_balance_title")}
             </h3>
-            <p className="section-subtitle">Real-time load cell telemetry tracking mass at each station of Potato Processing Line 2</p>
+            <p className="section-subtitle">{t("factory.analytics.mass_balance_subtitle")}</p>
           </div>
-          <span className="badge badge-indigo font-mono-data">Batch #POT-091</span>
+          <span className="badge badge-indigo font-mono-data">{t("factory.analytics.batch_label")} #POT-091</span>
         </div>
 
         <div className="space-y-4">
@@ -234,7 +236,7 @@ export default function ProcessingAnalyticsPage() {
                   <span className="font-bold text-sm text-[#111827]">{st.stage}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-[#4B5563]">Mass: {st.massKg.toLocaleString()} kg</span>
+                  <span className="text-xs font-bold text-[#4B5563]">{t("factory.analytics.mass")}: {st.massKg.toLocaleString()} {t("common.kg")}</span>
                   <span className="text-xs font-extrabold font-mono-data text-emerald-600">({st.pct}%)</span>
                 </div>
               </div>
@@ -257,7 +259,7 @@ export default function ProcessingAnalyticsPage() {
                 <span className={`font-mono-data font-bold ${
                   st.status === "EXCESS" ? "text-amber-700" : "text-[#4B5563]"
                 }`}>
-                  Loss: {st.lossKg.toLocaleString()} kg ({st.lossPct}%)
+                  {t("factory.analytics.loss")}: {st.lossKg.toLocaleString()} {t("common.kg")} ({st.lossPct}%)
                 </span>
               </div>
             </div>
@@ -269,8 +271,8 @@ export default function ProcessingAnalyticsPage() {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="section-title">Shift-wise Performance Comparison</h3>
-            <p className="section-subtitle">Evaluating yield loss and equipment uptime across manufacturing shifts</p>
+            <h3 className="section-title">{t("factory.analytics.shift_comparison_title")}</h3>
+            <p className="section-subtitle">{t("factory.analytics.shift_comparison_subtitle")}</p>
           </div>
         </div>
 
@@ -278,23 +280,23 @@ export default function ProcessingAnalyticsPage() {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-[#E8ECF3] text-[11px] uppercase tracking-wider text-[#6B7280]">
-                <th className="py-2.5 px-3 font-bold">Shift Schedule</th>
-                <th className="py-2.5 px-3 font-bold">Processed Volume</th>
-                <th className="py-2.5 px-3 font-bold">Overall Yield Loss %</th>
-                <th className="py-2.5 px-3 font-bold">Line OEE Rating</th>
-                <th className="py-2.5 px-3 font-bold text-right">Operational Status</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.analytics.col_shift")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.analytics.col_volume")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.analytics.col_yield_loss")}</th>
+                <th className="py-2.5 px-3 font-bold">{t("factory.analytics.col_oee_rating")}</th>
+                <th className="py-2.5 px-3 font-bold text-right">{t("factory.analytics.col_status")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F3F4F6]">
               {SHIFT_EFFICIENCY.map((sh, idx) => (
                 <tr key={idx} className="hover:bg-[#F9FAFB] transition-colors">
                   <td className="py-3 px-3 font-semibold text-[#111827]">{sh.shift}</td>
-                  <td className="py-3 px-3 font-mono-data font-bold text-[#111827]">{sh.throughputKg.toLocaleString()} kg</td>
+                  <td className="py-3 px-3 font-mono-data font-bold text-[#111827]">{sh.throughputKg.toLocaleString()} {t("common.kg")}</td>
                   <td className="py-3 px-3 font-mono-data font-bold text-amber-600">{sh.lossPct}%</td>
                   <td className="py-3 px-3 font-mono-data font-bold text-emerald-600">{sh.oee}%</td>
                   <td className="py-3 px-3 text-right">
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Optimal Telemetry
+                      {t("factory.analytics.optimal_telemetry")}
                     </span>
                   </td>
                 </tr>
