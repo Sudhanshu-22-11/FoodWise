@@ -84,6 +84,7 @@ const translations: Record<string, Record<Language, string>> = {
   "nav.processing_analytics": { en: "Processing Analytics", hi: "प्रसंस्करण विश्लेषिकी" },
   "nav.machine_health": { en: "Machine Health", hi: "मशीन स्वास्थ्य" },
   "nav.byproduct_recovery": { en: "Byproduct Recovery", hi: "उपउत्पाद पुनर्प्राप्ति" },
+  "nav.alerts_status": { en: "Alerts & Status", hi: "अलर्ट और स्थिति" },
   "nav.live_food_claims": { en: "Live Food Claims", hi: "लाइव खाद्य दावे" },
   "nav.safe_routing": { en: "Traffic & Safe Routing", hi: "ट्रैफ़िक और सुरक्षित मार्ग" },
   "nav.scheduled_pickups": { en: "Scheduled Pickups", hi: "निर्धारित पिकअप" },

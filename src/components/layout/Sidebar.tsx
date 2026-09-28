@@ -91,7 +91,7 @@ function SidebarContent({ type }: SidebarProps) {
     { label: t("nav.processing_analytics"), href: "/factory/analytics", icon: Layers },
     { label: t("nav.machine_health"), href: "/factory/machines", icon: Cpu, badge: "Anomaly" },
     { label: t("nav.byproduct_recovery"), href: "/factory/byproduct", icon: RefreshCw },
-    { label: t("Factory Notification Status"), href: "/factory/dashboard#factory-notifications", icon: Bell, badge: "Push" },
+    { label: t("nav.alerts_status"), href: "/factory/dashboard#factory-notifications", icon: Bell, badge: "Push" },
     { label: t("common.reports"), href: "/factory/reports", icon: BarChart3 },
   ];
 
@@ -101,8 +101,8 @@ function SidebarContent({ type }: SidebarProps) {
     { label: t("nav.safe_routing"), href: "/ngo/dashboard?tab=routing", icon: Route },
     { label: t("nav.scheduled_pickups"), href: "/ngo/dashboard?tab=scheduled", icon: Truck },
     { label: t("nav.pickup_history"), href: "/ngo/dashboard?tab=history", icon: Clock },
-    { label: t("nav.report_issue"), href: "/ngo/complaints", icon: ShieldAlert, badge: "Admin Desk", highlight: true },
-    { label: t("nav.feedback_rankings"), href: "/ngo/feedback", icon: Star, badge: "Rankings" },
+    { label: t("nav.report_issue"), href: "/ngo/complaints", icon: ShieldAlert, badge: "Admin", highlight: true },
+    { label: t("nav.donor_rankings"), href: "/ngo/feedback", icon: Star, badge: "Rankings" },
     { label: t("nav.impact_reports"), href: "/ngo/reports", icon: BarChart3 },
   ];
 
@@ -308,7 +308,7 @@ function SidebarContent({ type }: SidebarProps) {
       {/* Desktop Sidebar */}
       <aside
         className={`hidden md:flex sticky top-0 h-screen shrink-0 z-20 flex-col transition-all duration-300 ${
-          collapsed ? "w-[72px]" : "w-[260px]"
+          collapsed ? "w-[72px]" : "w-[272px]"
         } border-r border-[#10B981]/20`}
         style={{
           background: "linear-gradient(180deg, #072B1E 0%, #052117 60%, #031710 100%)",
@@ -565,11 +565,11 @@ function SidebarContent({ type }: SidebarProps) {
                 }}
               />
               {!collapsed && (
-                <div className="flex-1 flex items-center justify-between truncate">
+                <div className="flex-1 min-w-0 flex items-center justify-between gap-1.5">
                   <span className="truncate">{item.label}</span>
                   {item.badge && (
                     <span
-                      className="text-[10px] font-bold px-1.5 py-0.5 rounded-md font-mono-data"
+                      className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md font-mono-data"
                       style={{
                         background: item.highlight
                           ? "rgba(239,68,68,0.25)"

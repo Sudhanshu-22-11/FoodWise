@@ -277,11 +277,11 @@ export default function MobileNotificationPreview({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Sector Switcher & Alert Type Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E8ECF3]">
-        <div className="flex flex-wrap items-center gap-2">
-          {showSectorToggle && (
-            <div className="flex items-center p-1 bg-slate-200/70 rounded-xl text-xs font-bold">
+      {/* Sector Switcher & Top Controls Bar */}
+      <div className="space-y-2.5 pb-3 border-b border-[#E8ECF3]">
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          {showSectorToggle ? (
+            <div className="inline-flex items-center p-1 bg-slate-200/70 rounded-xl text-xs font-bold shadow-inner">
               <button
                 type="button"
                 onClick={() => handleSectorChange("kitchen")}
@@ -307,42 +307,47 @@ export default function MobileNotificationPreview({
                 <span>Industrial Factory</span>
               </button>
             </div>
+          ) : (
+            <div className="text-xs font-bold text-slate-700 capitalize flex items-center gap-1.5">
+              <span>{activeSector === "factory" ? "🏭 Industrial Factory" : "🍲 Commercial Kitchen"}</span>
+              <span className="text-[10px] text-slate-400 font-normal">Push Presets</span>
+            </div>
           )}
 
-          {/* Sub-tabs for the current sector */}
-          <div className="flex flex-wrap items-center gap-1 p-1 bg-[#F1F5F9] rounded-xl">
-            {(Object.keys(ALERT_PREVIEWS) as AlertType[])
-              .filter((key) => ALERT_PREVIEWS[key].sector === activeSector)
-              .map((key) => {
-                const item = ALERT_PREVIEWS[key];
-                const isActive = currentAlertKey === key;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => handleSelect(key)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                      isActive
-                        ? "bg-white text-[#0F172A] shadow-xs font-bold ring-1 ring-emerald-500/20"
-                        : "text-[#64748B] hover:text-[#0F172A] hover:bg-white/50"
-                    }`}
-                  >
-                    <span>{item.emoji}</span>
-                    <span>{item.tabLabel}</span>
-                  </button>
-                );
-              })}
-          </div>
+          <button
+            type="button"
+            onClick={handleSimulatePush}
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0 ml-auto"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>{isPushing ? "Delivering Push..." : "Simulate Incoming Push"}</span>
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSimulatePush}
-          className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
-        >
-          <Send className="w-3.5 h-3.5" />
-          <span>{isPushing ? "Delivering Push..." : "Simulate Incoming Push"}</span>
-        </button>
+        {/* Sub-tabs for the current sector presets */}
+        <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-[#F1F5F9] rounded-xl scrollbar-none">
+          {(Object.keys(ALERT_PREVIEWS) as AlertType[])
+            .filter((key) => ALERT_PREVIEWS[key].sector === activeSector)
+            .map((key) => {
+              const item = ALERT_PREVIEWS[key];
+              const isActive = currentAlertKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleSelect(key)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+                    isActive
+                      ? "bg-white text-[#0F172A] shadow-xs font-bold ring-1 ring-emerald-500/20"
+                      : "text-[#64748B] hover:text-[#0F172A] hover:bg-white/50"
+                  }`}
+                >
+                  <span>{item.emoji}</span>
+                  <span>{item.tabLabel}</span>
+                </button>
+              );
+            })}
+        </div>
       </div>
 
       {actionFeedback && (

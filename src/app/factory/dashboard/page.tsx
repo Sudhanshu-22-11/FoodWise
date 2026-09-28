@@ -98,7 +98,7 @@ export default function FactoryDashboardPage() {
   return (
     <div className="space-y-6">
       {/* ═══ TOP HEADER ═══ */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
           <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#111827" }}>
             {t("common.dashboard")}
@@ -108,7 +108,7 @@ export default function FactoryDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-2.5 sm:gap-3">
           {/* Time Period Selector */}
           <div className="relative">
             <button
@@ -258,19 +258,21 @@ export default function FactoryDashboardPage() {
       {/* ═══ KPI STAT CARDS (4 CARDS) ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Card 1: Raw Material */}
-        <div id="raw-materials" className="stat-card stat-card-indigo p-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              {t("factory.raw_material")}
-            </span>
-            <div className="icon-container icon-container-indigo">
-              <Boxes className="w-5 h-5" />
+        <div id="raw-materials" className="stat-card stat-card-indigo p-5 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
+                {t("factory.raw_material")}
+              </span>
+              <div className="icon-container icon-container-indigo">
+                <Boxes className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
+              {currentStats.rawMaterial} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
             </div>
           </div>
-          <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            {currentStats.rawMaterial} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mt-2">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
               {currentStats.rawSub}
@@ -279,19 +281,21 @@ export default function FactoryDashboardPage() {
         </div>
 
         {/* Card 2: At-Risk Batches */}
-        <div className="stat-card stat-card-red p-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              {t("factory.at_risk_batches")}
-            </span>
-            <div className="icon-container icon-container-red">
-              <Flame className="w-5 h-5" />
+        <div className="stat-card stat-card-red p-5 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
+                {t("factory.at_risk_batches")}
+              </span>
+              <div className="icon-container icon-container-red">
+                <Flame className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
+              {currentStats.atRisk}
             </div>
           </div>
-          <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            {currentStats.atRisk}
-          </div>
-          <div className="flex items-center gap-3 text-[11px] font-medium">
+          <div className="flex items-center flex-wrap gap-2 text-[11px] font-medium mt-2">
             <span style={{ color: "#DC2626" }}>● {currentStats.atRiskHigh} {t("factory.high")}</span>
             <span style={{ color: "#D97706" }}>● {currentStats.atRiskMed} {t("factory.medium")}</span>
             <span style={{ color: "#059669" }}>● {currentStats.atRiskSafe} {t("factory.safe")}</span>
@@ -299,19 +303,21 @@ export default function FactoryDashboardPage() {
         </div>
 
         {/* Card 3: Processing Efficiency */}
-        <div className="stat-card stat-card-amber p-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              {t("factory.efficiency")}
-            </span>
-            <div className="icon-container icon-container-amber">
-              <Activity className="w-5 h-5" />
+        <div className="stat-card stat-card-amber p-5 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
+                {t("factory.efficiency")}
+              </span>
+              <div className="icon-container icon-container-amber">
+                <Activity className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
+              {currentStats.efficiency}<span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>%</span>
             </div>
           </div>
-          <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            {currentStats.efficiency}<span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mt-2">
             <span className={currentStats.efficiencyIsUp ? "trend-up" : "trend-down"}>
               {currentStats.efficiencyIsUp ? <ArrowUpRight className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
               {currentStats.efficiencyTrend}
@@ -320,19 +326,21 @@ export default function FactoryDashboardPage() {
         </div>
 
         {/* Card 4: Waste Valorized */}
-        <div id="byproduct-recovery" className="stat-card stat-card-green p-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
-              {t("factory.waste_valorized")}
-            </span>
-            <div className="icon-container icon-container-green">
-              <RefreshCw className="w-5 h-5" />
+        <div id="byproduct-recovery" className="stat-card stat-card-green p-5 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-medium" style={{ color: "#6B7280" }}>
+                {t("factory.waste_valorized")}
+              </span>
+              <div className="icon-container icon-container-green">
+                <RefreshCw className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
+              {currentStats.valorized} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
             </div>
           </div>
-          <div className="text-[28px] font-extrabold font-mono-data mb-1" style={{ color: "#111827" }}>
-            {currentStats.valorized} <span className="text-[16px] font-bold" style={{ color: "#6B7280" }}>{t("common.kg")}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mt-2">
             <span className="trend-up">
               <ArrowUpRight className="w-3.5 h-3.5" />
               {currentStats.valorizedTrend}

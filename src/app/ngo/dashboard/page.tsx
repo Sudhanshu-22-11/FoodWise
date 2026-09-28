@@ -557,46 +557,54 @@ function NgoDashboardContent() {
         <div className="space-y-6">
           {/* KPI Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="stat-card stat-card-green p-5">
+            <div className="stat-card stat-card-green p-5 flex flex-col justify-between h-full">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[13px] font-medium text-gray-500">{t("ngo.available_surplus")}</span>
                 <div className="icon-container icon-container-green"><Utensils className="w-5 h-5" /></div>
               </div>
-              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">{initialFeed.length} {t("ngo.dash.batches")}</div>
-              <div className="text-[12px] font-medium text-emerald-600">173 {t("ngo.dash.verified_food_desc")}</div>
+              <div>
+                <div className="text-[28px] font-extrabold font-mono-data text-gray-900 leading-none mb-1.5">{initialFeed.length} {t("ngo.dash.batches")}</div>
+                <div className="text-[12px] font-medium text-emerald-600">173 {t("ngo.dash.verified_food_desc")}</div>
+              </div>
             </div>
 
-            <div className="stat-card stat-card-amber p-5">
+            <div className="stat-card stat-card-amber p-5 flex flex-col justify-between h-full">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[13px] font-medium text-gray-500">{t("ngo.dash.urgent_label")}</span>
                 <div className="icon-container icon-container-amber"><Timer className="w-5 h-5" /></div>
               </div>
-              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
-                {initialFeed.filter((i) => i.hoursLeft <= 4).length} {t("ngo.dash.batches")}
+              <div>
+                <div className="text-[28px] font-extrabold font-mono-data text-gray-900 leading-none mb-1.5">
+                  {initialFeed.filter((i) => i.hoursLeft <= 4).length} {t("ngo.dash.batches")}
+                </div>
+                <div className="text-[12px] font-medium text-amber-600">{t("ngo.dash.rapid_dispatch")}</div>
               </div>
-              <div className="text-[12px] font-medium text-amber-600">{t("ngo.dash.rapid_dispatch")}</div>
             </div>
 
-            <div className="stat-card stat-card-emerald p-5">
+            <div className="stat-card stat-card-emerald p-5 flex flex-col justify-between h-full">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[13px] font-medium text-gray-500">{t("ngo.dash.clear_routes")}</span>
                 <div className="icon-container icon-container-green"><Navigation className="w-5 h-5" /></div>
               </div>
-              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
-                {initialFeed.filter((i) => i.trafficStatus === "low").length} {t("ngo.dash.routes")}
+              <div>
+                <div className="text-[28px] font-extrabold font-mono-data text-gray-900 leading-none mb-1.5">
+                  {initialFeed.filter((i) => i.trafficStatus === "low").length} {t("ngo.dash.routes")}
+                </div>
+                <div className="text-[12px] font-medium text-emerald-600">{t("ngo.dash.fast_transit")}</div>
               </div>
-              <div className="text-[12px] font-medium text-emerald-600">{t("ngo.dash.fast_transit")}</div>
             </div>
 
-            <div className="stat-card stat-card-red p-5">
+            <div className="stat-card stat-card-red p-5 flex flex-col justify-between h-full">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[13px] font-medium text-gray-500">{t("ngo.dash.traffic_risk_flag")}</span>
                 <div className="icon-container icon-container-red"><AlertTriangle className="w-5 h-5" /></div>
               </div>
-              <div className="text-[28px] font-extrabold font-mono-data text-gray-900">
-                {initialFeed.filter((i) => !canDeliverInTime(i)).length} {t("ngo.dash.high_risk")}
+              <div>
+                <div className="text-[28px] font-extrabold font-mono-data text-gray-900 leading-none mb-1.5">
+                  {initialFeed.filter((i) => !canDeliverInTime(i)).length} {t("ngo.dash.high_risk")}
+                </div>
+                <div className="text-[12px] font-medium text-rose-600">{t("ngo.dash.heavy_congestion")}</div>
               </div>
-              <div className="text-[12px] font-medium text-rose-600">{t("ngo.dash.heavy_congestion")}</div>
             </div>
           </div>
 
@@ -705,34 +713,35 @@ function NgoDashboardContent() {
                   return (
                     <div
                       key={item.id}
-                      className="p-3.5 rounded-2xl bg-white border border-gray-200 hover:border-emerald-300 transition-all shadow-xs flex items-center justify-between gap-3"
+                      className="p-3.5 rounded-2xl bg-white border border-gray-200 hover:border-emerald-300 transition-all shadow-xs flex items-center justify-between gap-3 overflow-hidden"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-xs text-gray-900 truncate">{item.institution}</span>
-                          <span className="text-[10px] font-black px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700">
+                          <span className="shrink-0 text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-mono-data">
                             {item.quantityKg} kg
                           </span>
                         </div>
                         <p className="text-[11px] text-gray-500 truncate mt-0.5">{item.foodType}</p>
-                        <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-1">
-                          <span style={{ color: getTrafficColor(item.trafficStatus) }}>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-400 mt-1 truncate">
+                          <span style={{ color: getTrafficColor(item.trafficStatus) }} className="shrink-0 font-medium">
                             ● {item.etaMinutes}{t("ngo.dash.m_eta")} ({getTrafficLabel(item.trafficStatus)})
                           </span>
-                          <span>•</span>
-                          <span>{t("ngo.dash.safe_until_colon")} {item.safeUntil}</span>
+                          <span className="shrink-0">•</span>
+                          <span className="truncate">{t("ngo.dash.safe_until_colon")} {item.safeUntil}</span>
                         </div>
                       </div>
 
-                      <div className="shrink-0 flex items-center gap-2">
+                      <div className="shrink-0 flex items-center gap-1.5">
                         {isAccepted ? (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-bold text-emerald-700 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-1">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> {t("ngo.dash.dispatched")}
+                          <div className="flex items-center gap-1">
+                            <span className="text-[11px] font-bold text-emerald-700 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-1 whitespace-nowrap">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> {t("ngo.dash.dispatched")}
                             </span>
                             <button
                               onClick={() => setTab("scheduled")}
-                              className="text-xs font-bold text-emerald-600 hover:underline cursor-pointer"
+                              className="text-xs font-bold text-emerald-600 hover:underline cursor-pointer p-1"
+                              title="View scheduled delivery"
                             >
                               {t("ngo.dash.view_arrow")}
                             </button>
@@ -740,12 +749,12 @@ function NgoDashboardContent() {
                         ) : safe ? (
                           <button
                             onClick={() => handleOpenScheduleModal(item)}
-                            className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95 transition-all flex items-center gap-1"
+                            className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer active:scale-95 transition-all flex items-center gap-1 whitespace-nowrap shrink-0"
                           >
-                            <Truck className="w-3.5 h-3.5" /> {t("ngo.dash.claim")}
+                            <Truck className="w-3.5 h-3.5 shrink-0" /> {t("ngo.dash.claim")}
                           </button>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 px-2 py-1 rounded bg-rose-50 border border-rose-200">
+                          <span className="text-[10px] font-bold text-rose-600 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 whitespace-nowrap shrink-0">
                             {t("ngo.dash.traffic_risk")}
                           </span>
                         )}

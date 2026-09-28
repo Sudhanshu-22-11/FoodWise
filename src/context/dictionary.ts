@@ -51,6 +51,7 @@ export const PHRASE_DICTIONARY: Record<string, string> = {
   "Impact & Reports": "प्रभाव और रिपोर्ट",
   "Facility Profile": "सुविधा प्रोफ़ाइल",
   "Notifications & Alerts": "सूचनाएँ और अलर्ट",
+  "Alerts & Status": "अलर्ट और स्थिति",
   "AI & Automation": "AI और स्वचालन",
   "System Settings": "सिस्टम सेटिंग्स",
   "System Settings & Preferences": "सिस्टम सेटिंग्स और प्राथमिकताएँ",

@@ -58,19 +58,22 @@ export default function PushNotificationPrompt() {
       return;
     }
 
-    if (Notification.permission === "granted") {
-      registerServiceWorker();
+    if (Notification.permission === "granted" || Notification.permission === "denied") {
+      if (Notification.permission === "granted") registerServiceWorker();
       setStatus("hidden");
       return;
     }
 
-    if (Notification.permission === "denied") {
-      setStatus("hidden");
-      return;
-    }
+    // Check if dismissed in this session
+    try {
+      if (sessionStorage.getItem("foodwise_push_prompt_dismissed") === "true") {
+        setStatus("hidden");
+        return;
+      }
+    } catch {}
 
     // Permission is "default" — show the prompt after a short delay
-    const timer = setTimeout(() => setStatus("ask"), 2000);
+    const timer = setTimeout(() => setStatus("ask"), 2500);
     return () => clearTimeout(timer);
   }, [registerServiceWorker]);
 
@@ -80,9 +83,11 @@ export default function PushNotificationPrompt() {
       if (permission === "granted") {
         setStatus("granted");
         await registerServiceWorker();
+        try { sessionStorage.setItem("foodwise_push_prompt_dismissed", "true"); } catch {}
         setTimeout(() => setStatus("hidden"), 3000);
       } else {
         setStatus("denied");
+        try { sessionStorage.setItem("foodwise_push_prompt_dismissed", "true"); } catch {}
         setTimeout(() => setStatus("hidden"), 3000);
       }
     } catch {
@@ -92,13 +97,16 @@ export default function PushNotificationPrompt() {
 
   const handleDismiss = () => {
     setStatus("hidden");
+    try {
+      sessionStorage.setItem("foodwise_push_prompt_dismissed", "true");
+    } catch {}
   };
 
   // Don't show anything while loading, if hidden, or if unsupported
   if (status === "loading" || status === "hidden" || status === "unsupported") return null;
 
   return (
-    <div className="fixed bottom-24 right-4 z-[60] w-[340px] max-w-[calc(100vw-2rem)]" style={{ animation: "slideUp 0.3s ease-out" }}>
+    <div className="fixed bottom-4 right-4 z-[45] w-[320px] max-w-[calc(100vw-2rem)]" style={{ animation: "slideUp 0.3s ease-out" }}>
       <style>{`
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(16px); }
