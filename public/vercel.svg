@@ -1,1 +1,15 @@
-<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="fw-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="40" fill="#0F172A" />
+  <circle cx="100" cy="100" r="70" fill="url(#fw-grad)" opacity="0.15" />
+  <!-- Sprout / Leaf motif -->
+  <path d="M100 45 C135 45 155 75 145 115 C135 155 100 160 100 160 C100 160 65 155 55 115 C45 75 65 45 100 45 Z" fill="url(#fw-grad)" />
+  <path d="M100 65 C100 105 100 145 100 145" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+  <path d="M100 95 C115 85 125 90 128 95" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+  <path d="M100 115 C85 105 75 110 72 115" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+</svg>

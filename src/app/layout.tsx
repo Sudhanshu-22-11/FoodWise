@@ -22,7 +22,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FoodWise — Predict Less Waste. Feed More Lives.",
+  metadataBase: new URL("https://food-wise-puce.vercel.app"),
+  title: "FoodWise | Making Every Meal Count",
   description:
     "AI-powered Smart Food Waste Management and Redistribution Platform for Institutional Kitchens and Food Processing Factories.",
   keywords: [
@@ -34,6 +35,41 @@ export const metadata: Metadata = {
     "FSSAI compliance",
     "Making every meal count",
   ],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+      { url: "/logo-badge.png", type: "image/png", sizes: "240x238" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  openGraph: {
+    title: "FoodWise — Predict Less Waste. Feed More Lives.",
+    description:
+      "AI-powered Smart Food Waste Management and Redistribution Platform for Institutional Kitchens and Food Processing Factories.",
+    url: "https://food-wise-puce.vercel.app",
+    siteName: "FoodWise",
+    images: [
+      {
+        url: "/logo.png",
+        width: 653,
+        height: 649,
+        alt: "FoodWise Platform Logo",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FoodWise — Predict Less Waste. Feed More Lives.",
+    description:
+      "AI-powered Smart Food Waste Management and Redistribution Platform for Institutional Kitchens and Food Processing Factories.",
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({
